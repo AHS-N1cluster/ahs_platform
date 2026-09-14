@@ -80,11 +80,23 @@
   .brand-main{font-size:23px; font-weight:900; letter-spacing:-0.2px;
     background:linear-gradient(100deg,#ffffff 20%,#bdf0e0 45%,#ffffff 70%);
     background-size:220% auto; -webkit-background-clip:text; background-clip:text;
-    -webkit-text-fill-color:transparent; color:transparent; animation:brandSheen 7s linear infinite;}
+    -webkit-text-fill-color:transparent; color:transparent;
+    animation:brandSheen 7s linear infinite, brandFloat 6s ease-in-out infinite;}
   @keyframes brandSheen{to{background-position:-220% center;}}
+  @keyframes brandFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-2.5px);}}
+  .brand-main .ch{display:inline-block; opacity:0; transform:translateY(14px) rotate(6deg);
+    animation:chIn .55s cubic-bezier(.22,1,.36,1) forwards;}
+  .brand-main .ch.sp{width:.32em;}
+  @keyframes chIn{to{opacity:1; transform:translateY(0) rotate(0);}}
+  .brand-lead{position:relative;}
+  .brand-lead::after{content:''; position:absolute; inset-inline-start:0; bottom:-3px; height:2px; width:0;
+    background:linear-gradient(90deg,#7ce0c0,transparent); animation:leadLine 1.2s .7s ease-out forwards;}
+  @keyframes leadLine{to{width:100%;}}
   .brand-sub{margin:3px 0 0; font-size:11.5px; color:rgba(255,255,255,0.62); letter-spacing:0.4px;}
   @media (prefers-reduced-motion: reduce){
     .brand-main{animation:none;} .brand-mark i{animation:none;}
+    .brand-main .ch{opacity:1; transform:none; animation:none;}
+    .brand-lead::after{animation:none; width:100%;}
   }
   @media (max-width:560px){ .brand-main{font-size:19px;} }
   .topbar-meta{font-size:12.5px; color:rgba(255,255,255,0.85); text-align:left;}
@@ -576,7 +588,7 @@
     <div id="section-stats" class="section-panel" style="display:none;">
       <div class="panel-head">
         <h2>إحصائيات الخدمات المقدمة</h2>
-        <p class="muted">حجم الخدمات المنفَّذة بكل قسم عام 2025 والنصف الأول من 2026 — اضغط على أي قسم لعرض تفصيله حسب المنشأة</p>
+        <p class="muted">حجم الخدمات المنفَّذة بكل قسم خلال عام 2025 والنصف الأول من 2026 — اضغط على أي قسم لعرض تفصيله حسب المنشأة</p>
       </div>
       <div class="stats-row" id="statsTopRow"></div>
       <div class="sx-grid" id="sxGrid"></div>
@@ -690,7 +702,7 @@ function renderStatistics(){
     <div class="stat-card total"><div class="num">${sxFmt(grand25)}</div><div class="lbl">خدمة خلال 2025</div></div>
     <div class="stat-card progress"><div class="num">${sxFmt(grand26)}</div><div class="lbl">خدمة بالنصف الأول 2026</div></div>
     <div class="stat-card done"><div class="num">${list.filter(d => d.reported).length}</div><div class="lbl">أقسام تُبلّغ بأرقامها</div></div>
-    <div class="stat-card ${pace >= 0 ? 'done' : 'waiting'}"><div class="num">${pace >= 0 ? '+' : ''}${pace}%</div><div class="lbl">وتيرة 2026 مقابل 2025</div></div>
+    <div class="stat-card ${pace >= 0 ? 'done' : 'waiting'}"><div class="num">${pace >= 0 ? '+' : ''}${pace}%</div><div class="lbl">نمو 2026 مقارنة بـ2025</div></div>
   `;
   animateStatNumbers(top);
 
@@ -709,7 +721,7 @@ function renderStatistics(){
             <div class="sx-sp"><div class="v">${sxFmt(d.totalH2026)}</div><div class="l">النصف الأول 2026</div></div>
             <div class="sx-sp"><div class="v">${d.reported}</div><div class="l">منشأة مُبلِّغة</div></div>
           </div>
-          ${p !== null ? `<div class="sx-pace ${p >= 0 ? 'up' : 'down'}">${p >= 0 ? '▲' : '▼'} وتيرة ${p >= 0 ? '+' : ''}${p}% عن 2025</div>` : ''}
+          ${p !== null ? `<div class="sx-pace ${p >= 0 ? 'up' : 'down'}">${p >= 0 ? '▲' : '▼'} ${p >= 0 ? 'نمو +' + p : 'انخفاض ' + Math.abs(p)}% عن 2025</div>` : ''}
         ` : `<div class="sx-empty">لم تُرفع أرقام هذا القسم بعد</div>`}
       </div>`;
   }).join('');
@@ -1377,12 +1389,26 @@ function setupEvents(){
   });
 }
 
+function animateBrand(){
+  const el = document.querySelector('.brand-main');
+  if(!el || el.dataset.split) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.dataset.split = '1';
+  const text = el.textContent;
+  if(reduce) return;
+  el.innerHTML = [...text].map((ch, i) =>
+    ch === ' ' ? '<span class="ch sp">\u00A0</span>'
+               : `<span class="ch" style="animation-delay:${i * 38}ms">${escapeHtml(ch)}</span>`
+  ).join('');
+}
+
 async function init(){
   await loadIdentity();
   renderIdentityBar();
   renderSectionNav();
   state.departments = await loadAllDepartments();
   state.activeDept = state.departments[0]?.id || null;
+  animateBrand();
   renderStats();
   renderPulse();
   renderTabs();

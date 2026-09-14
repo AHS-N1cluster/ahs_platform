@@ -72,7 +72,37 @@
     box-shadow:0 4px 16px rgba(20,80,130,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
     transition:all .18s cubic-bezier(.4,0,.2,1);
   }
+  .dept-btn{position:relative; overflow:hidden;}
+  .dept-btn::after{content:''; position:absolute; inset:0; background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);
+    transform:translateX(-130%); transition:transform .65s ease;}
+  .dept-btn:hover::after{transform:translateX(130%);}
   .dept-btn:hover{background:rgba(255,255,255,0.7); transform:translateY(-1px); color:var(--blue-deep);}
+
+  /* Cards fade up in sequence when a department opens, so the page reads as a
+     deliberate reveal instead of everything landing at once. */
+  #deptContent .card, #deptContent .panel-head{
+    opacity:0; transform:translateY(18px); animation:cardIn .5s cubic-bezier(.22,1,.36,1) forwards;}
+  @keyframes cardIn{to{opacity:1; transform:translateY(0);}}
+  #deptContent > *:nth-child(1){animation-delay:.02s}
+  #deptContent > *:nth-child(2){animation-delay:.09s}
+  #deptContent > *:nth-child(3){animation-delay:.16s}
+  #deptContent > *:nth-child(4){animation-delay:.23s}
+  #deptContent > *:nth-child(5){animation-delay:.30s}
+  #deptContent > *:nth-child(6){animation-delay:.37s}
+  #deptContent > *:nth-child(7){animation-delay:.44s}
+  #deptContent > *:nth-child(n+8){animation-delay:.50s}
+
+  /* Bars start flat and grow, so the comparison animates into place. */
+  .bar-fill, .ct-bar-fill{transition:width 1s cubic-bezier(.22,1,.36,1);}
+
+  .card{transition:box-shadow .25s ease, transform .25s ease;}
+  .card:hover{box-shadow:0 14px 34px rgba(12,68,104,0.13);}
+
+  @media (prefers-reduced-motion: reduce){
+    #deptContent .card, #deptContent .panel-head{opacity:1; transform:none; animation:none;}
+    .bar-fill, .ct-bar-fill{transition:none;}
+    .dept-btn::after{display:none;}
+  }
   .dept-btn.active{
     background:var(--btn-accent, var(--blue));
     border-color:rgba(255,255,255,0.35); color:#fff;
@@ -594,6 +624,33 @@ function iconBadge(emoji, colorClass){
 function escapeHtml(str){
   if(!str) return '';
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* Numbers tick up each time a department is opened — same motion language as
+   the main platform, so the two pages feel like one product. */
+function archiveCountUp(scope){
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const targets = (scope || document).querySelectorAll(
+    '.region-total-badge, .pj-kpi-v, .ct-total-v, .wfd-total, .sx-big');
+  targets.forEach(el => {
+    const raw = el.textContent;
+    const m = raw.match(/[\d,]+(?:\.\d+)?/);
+    if(!m) return;
+    const target = parseFloat(m[0].replace(/,/g, ''));
+    if(isNaN(target) || target <= 0) return;
+    if(reduce) return;
+    const decimals = (m[0].split('.')[1] || '').length;
+    const pre = raw.slice(0, m.index), post = raw.slice(m.index + m[0].length);
+    const t0 = performance.now();
+    const step = now => {
+      const pr = Math.min((now - t0) / 800, 1);
+      const v = target * (1 - Math.pow(1 - pr, 3));
+      el.textContent = pre + v.toLocaleString('en-US',
+        {minimumFractionDigits:decimals, maximumFractionDigits:decimals}) + post;
+      if(pr < 1) requestAnimationFrame(step); else el.textContent = raw;
+    };
+    requestAnimationFrame(step);
+  });
 }
 
 function renderDeptNav(){
@@ -1492,6 +1549,7 @@ async function renderDeptContent(){
     ${dept.hasEquipment === 'rehab' ? renderEquipmentPlaceholder(dept.name) : ''}
     ${renderStaffDirectoryCard(dept.id)}
   `;
+  archiveCountUp(el);
   wireLabEquipmentFilters();
   wireRadiologyEquipmentFilters();
   wireStaffDirectoryFilters(dept.id);
