@@ -512,39 +512,34 @@
   }
   .gate-box button:hover{background:var(--blue-600);}
   .gate-error{margin-top:12px; font-size:12px; color:var(--red); font-weight:700; display:none;}
-  .credits{margin:34px 0 10px; text-align:center;}
-  .credits-line{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .credits{margin:26px 0 8px; text-align:center; opacity:.88; transition:opacity .3s ease;}
+  .credits:hover{opacity:1;}
+  .credits-line{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
   .credits-line span{flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent);}
-  .credits-line b{font-size:11.5px; font-weight:800; color:var(--ink-faint);}
-  .credits-cards{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
-  .credit-card{display:flex; align-items:center; gap:13px; text-align:start;
-    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:13px 20px 13px 16px;
-    min-width:228px; position:relative; overflow:hidden; cursor:default;
-    transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .3s ease;}
-  .credit-card::before{content:''; position:absolute; inset-inline-start:0; top:0; bottom:0;
-    width:3px; background:var(--cc); transform:scaleY(0); transform-origin:top;
-    transition:transform .35s cubic-bezier(.22,1,.36,1);}
-  .credit-card::after{content:''; position:absolute; inset:0;
-    background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);
-    transform:translateX(-140%); transition:transform .8s ease;}
-  .credit-card:hover{transform:translateY(-4px); border-color:var(--cc);
-    box-shadow:0 14px 30px color-mix(in srgb, var(--cc) 22%, transparent);}
-  .credit-card:hover::before{transform:scaleY(1);}
-  .credit-card:hover::after{transform:translateX(140%);}
-  .credit-av{position:relative; width:42px; height:42px; border-radius:50%; flex:0 0 auto;
-    display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900;
-    color:#fff; background:var(--cc);
-    box-shadow:0 5px 14px color-mix(in srgb, var(--cc) 40%, transparent);}
-  .credit-av i{position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--cc);
-    opacity:0; transform:scale(.82);}
-  .credit-card:hover .credit-av i{animation:credRing 1.5s ease-out infinite;}
-  @keyframes credRing{0%{opacity:.7; transform:scale(.86);} 100%{opacity:0; transform:scale(1.35);}}
-  .credit-role{font-size:10.5px; font-weight:800; color:var(--cc);}
-  .credit-name{font-size:14px; font-weight:900; color:var(--ink); margin-top:2px;}
-  .credits-foot{margin-top:15px; font-size:11px; color:var(--ink-faint);}
+  .credits-line b{font-size:10px; font-weight:700; color:var(--ink-faint);}
+  .credits-cards{display:flex; gap:9px; justify-content:center; flex-wrap:wrap;}
+  .credit-card{display:inline-flex; align-items:center; gap:9px; text-align:start;
+    background:transparent; border:1px solid var(--line); border-radius:999px; padding:6px 15px 6px 7px;
+    position:relative; cursor:default;
+    transition:transform .3s cubic-bezier(.22,1,.36,1), border-color .3s ease, background .3s ease;}
+  .credit-card:hover{transform:translateY(-2px); border-color:var(--cc);
+    background:color-mix(in srgb, var(--cc) 6%, transparent);}
+  .credit-av{position:relative; width:26px; height:26px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    color:#fff; background:color-mix(in srgb, var(--cc) 55%, #94a3ad);
+    transition:background .3s ease;}
+  .credit-card:hover .credit-av{background:var(--cc);}
+  .credit-av i{position:absolute; inset:-3px; border-radius:50%; border:1px solid var(--cc);
+    opacity:0; transform:scale(.85);}
+  .credit-card:hover .credit-av i{animation:credRing 1.8s ease-out infinite;}
+  @keyframes credRing{0%{opacity:.5; transform:scale(.88);} 100%{opacity:0; transform:scale(1.3);}}
+  .credit-role{font-size:9.5px; font-weight:600; color:var(--ink-faint); transition:color .3s ease;}
+  .credit-card:hover .credit-role{color:var(--cc);}
+  .credit-name{font-size:12px; font-weight:800; color:var(--ink); margin-top:1px;}
+  .credits-foot{margin-top:11px; font-size:10px; color:var(--ink-faint);}
   @media (prefers-reduced-motion: reduce){
-    .credit-card, .credit-card::before, .credit-card::after{transition:none;}
-    .credit-card:hover{transform:none;} .credit-card:hover .credit-av i{animation:none;}
+    .credit-card{transition:none;} .credit-card:hover{transform:none;}
+    .credit-card:hover .credit-av i{animation:none;}
   }
 </style>
 </head>
