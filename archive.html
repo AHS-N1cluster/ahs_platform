@@ -406,14 +406,6 @@
     padding:7px 14px; border-radius:8px; cursor:pointer; white-space:nowrap; flex:0 0 auto;}
   .pj-detail-close:hover{background:rgba(255,255,255,0.32);}
 
-  .credit-footer{
-    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px;
-    margin:28px 0 6px; padding:14px 20px; border-radius:12px;
-    background:var(--panel); border:1px solid var(--line);
-    font-size:12.5px; color:var(--ink-soft);
-  }
-  .credit-item b{color:var(--blue-deep); font-weight:800;}
-  .credit-sep{color:var(--line);}
   .pj-kpis{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:24px;}
   .pj-kpi{
     background:linear-gradient(135deg, rgba(234,244,250,0.85), rgba(255,255,255,0.6));
@@ -520,6 +512,40 @@
   }
   .gate-box button:hover{background:var(--blue-600);}
   .gate-error{margin-top:12px; font-size:12px; color:var(--red); font-weight:700; display:none;}
+  .credits{margin:34px 0 10px; text-align:center;}
+  .credits-line{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .credits-line span{flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent);}
+  .credits-line b{font-size:11.5px; font-weight:800; letter-spacing:3px; color:var(--ink-faint);}
+  .credits-cards{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
+  .credit-card{display:flex; align-items:center; gap:13px; text-align:start;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:13px 20px 13px 16px;
+    min-width:228px; position:relative; overflow:hidden; cursor:default;
+    transition:transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .3s ease;}
+  .credit-card::before{content:''; position:absolute; inset-inline-start:0; top:0; bottom:0;
+    width:3px; background:var(--cc); transform:scaleY(0); transform-origin:top;
+    transition:transform .35s cubic-bezier(.22,1,.36,1);}
+  .credit-card::after{content:''; position:absolute; inset:0;
+    background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);
+    transform:translateX(-140%); transition:transform .8s ease;}
+  .credit-card:hover{transform:translateY(-4px); border-color:var(--cc);
+    box-shadow:0 14px 30px color-mix(in srgb, var(--cc) 22%, transparent);}
+  .credit-card:hover::before{transform:scaleY(1);}
+  .credit-card:hover::after{transform:translateX(140%);}
+  .credit-av{position:relative; width:42px; height:42px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900;
+    color:#fff; background:var(--cc);
+    box-shadow:0 5px 14px color-mix(in srgb, var(--cc) 40%, transparent);}
+  .credit-av i{position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--cc);
+    opacity:0; transform:scale(.82);}
+  .credit-card:hover .credit-av i{animation:credRing 1.5s ease-out infinite;}
+  @keyframes credRing{0%{opacity:.7; transform:scale(.86);} 100%{opacity:0; transform:scale(1.35);}}
+  .credit-role{font-size:10.5px; font-weight:800; letter-spacing:1.4px; color:var(--cc);}
+  .credit-name{font-size:14px; font-weight:900; color:var(--ink); margin-top:2px;}
+  .credits-foot{margin-top:15px; font-size:11px; color:var(--ink-faint); letter-spacing:.3px;}
+  @media (prefers-reduced-motion: reduce){
+    .credit-card, .credit-card::before, .credit-card::after{transition:none;}
+    .credit-card:hover{transform:none;} .credit-card:hover .credit-av i{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -575,10 +601,25 @@
   <div class="app">
     <div class="dept-nav" id="deptNav"></div>
     <div id="deptContent"></div>
-    <div class="credit-footer">
-      <span class="credit-item">✍️ إعداد وتصميم: <b>خلود المطيري</b></span>
-      <span class="credit-sep">•</span>
-      <span class="credit-item">✅ اعتماد: <b>هاني زبن العنزي</b></span>
+    <div class="credits">
+      <div class="credits-line"><span></span><b>فريق العمل</b><span></span></div>
+      <div class="credits-cards">
+        <div class="credit-card" style="--cc:#1b94d0">
+          <div class="credit-av">خ<i></i></div>
+          <div class="credit-body">
+            <div class="credit-role">إعداد وتصميم</div>
+            <div class="credit-name">خلود المطيري</div>
+          </div>
+        </div>
+        <div class="credit-card" style="--cc:#1a9c6f">
+          <div class="credit-av">ه<i></i></div>
+          <div class="credit-body">
+            <div class="credit-role">اعتماد</div>
+            <div class="credit-name">هاني زبن العنزي</div>
+          </div>
+        </div>
+      </div>
+      <div class="credits-foot">إدارة الخدمات الصحية المساندة · تجمع الحدود الشمالية الصحي</div>
     </div>
   </div>
 
