@@ -76,13 +76,10 @@
     100%{box-shadow:0 0 0 0 rgba(124,224,192,0);}
   }
   .brand-text h1{margin:0; display:flex; flex-direction:column; line-height:1.15;}
-  .brand-lead{font-size:12.5px; font-weight:600; color:rgba(255,255,255,0.72); letter-spacing:1px;}
-  .brand-main{font-size:23px; font-weight:900; letter-spacing:-0.2px;
-    background:linear-gradient(100deg,#ffffff 20%,#bdf0e0 45%,#ffffff 70%);
-    background-size:220% auto; -webkit-background-clip:text; background-clip:text;
-    -webkit-text-fill-color:transparent; color:transparent;
-    animation:brandSheen 7s linear infinite, brandFloat 6s ease-in-out infinite;}
-  @keyframes brandSheen{to{background-position:-220% center;}}
+  .brand-lead{font-size:12.5px; font-weight:600; color:rgba(255,255,255,0.72);}
+  .brand-main{font-size:24px; font-weight:900; color:#fff;
+    text-shadow:0 2px 14px rgba(124,224,192,.35);
+    animation:brandFloat 6s ease-in-out infinite;}
   @keyframes brandFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-2.5px);}}
   .brand-main .ch{display:inline-block; opacity:0; transform:translateY(14px) rotate(6deg);
     animation:chIn .55s cubic-bezier(.22,1,.36,1) forwards;
@@ -107,7 +104,7 @@
   .brand-lead::after{content:''; position:absolute; inset-inline-start:0; bottom:-3px; height:2px; width:0;
     background:linear-gradient(90deg,#7ce0c0,transparent); animation:leadLine 1.2s .7s ease-out forwards;}
   @keyframes leadLine{to{width:100%;}}
-  .brand-sub{margin:3px 0 0; font-size:11.5px; color:rgba(255,255,255,0.62); letter-spacing:0.4px;}
+  .brand-sub{margin:3px 0 0; font-size:11.5px; color:rgba(255,255,255,0.62);}
   @media (prefers-reduced-motion: reduce){
     .brand-main{animation:none;} .brand-mark i{animation:none;}
     .brand-main .ch{opacity:1; transform:none; animation:none;}
@@ -482,7 +479,7 @@
   .credits{margin:34px 0 10px; text-align:center;}
   .credits-line{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
   .credits-line span{flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--gray-300),transparent);}
-  .credits-line b{font-size:11.5px; font-weight:800; letter-spacing:3px; color:var(--gray-500);}
+  .credits-line b{font-size:11.5px; font-weight:800; color:var(--gray-500);}
   .credits-cards{display:flex; gap:14px; justify-content:center; flex-wrap:wrap;}
   .credit-card{display:flex; align-items:center; gap:13px; text-align:start;
     background:var(--glass-bg); border:1px solid var(--gray-300); border-radius:14px; padding:13px 20px 13px 16px;
@@ -506,9 +503,9 @@
     opacity:0; transform:scale(.82);}
   .credit-card:hover .credit-av i{animation:credRing 1.5s ease-out infinite;}
   @keyframes credRing{0%{opacity:.7; transform:scale(.86);} 100%{opacity:0; transform:scale(1.35);}}
-  .credit-role{font-size:10.5px; font-weight:800; letter-spacing:1.4px; color:var(--cc);}
+  .credit-role{font-size:10.5px; font-weight:800; color:var(--cc);}
   .credit-name{font-size:14px; font-weight:900; color:var(--gray-900); margin-top:2px;}
-  .credits-foot{margin-top:15px; font-size:11px; color:var(--gray-500); letter-spacing:.3px;}
+  .credits-foot{margin-top:15px; font-size:11px; color:var(--gray-500);}
   @media (prefers-reduced-motion: reduce){
     .credit-card, .credit-card::before, .credit-card::after{transition:none;}
     .credit-card:hover{transform:none;} .credit-card:hover .credit-av i{animation:none;}
@@ -676,14 +673,14 @@
       <div class="credits-line"><span></span><b>فريق العمل</b><span></span></div>
       <div class="credits-cards">
         <div class="credit-card" style="--cc:#1b94d0">
-          <div class="credit-av">خ<i></i></div>
+          <div class="credit-av">✍<i></i></div>
           <div class="credit-body">
             <div class="credit-role">إعداد وتصميم</div>
             <div class="credit-name">خلود المطيري</div>
           </div>
         </div>
         <div class="credit-card" style="--cc:#1a9c6f">
-          <div class="credit-av">ه<i></i></div>
+          <div class="credit-av">✓<i></i></div>
           <div class="credit-body">
             <div class="credit-role">اعتماد</div>
             <div class="credit-name">هاني زبن العنزي</div>
