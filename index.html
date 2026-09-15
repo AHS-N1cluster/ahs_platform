@@ -1209,25 +1209,32 @@ function computeOverallStats(depts){
 /* ---------- Motion: numbers count up, ring arcs sweep in ----------
    Rendering is string-based, so every re-render replaces the nodes. We animate
    from 0 on each paint, which keeps the code simple and reads as intentional. */
-function animateCount(el, target, ms){
+function animateCount(el, target, ms, pre, post){
   if(!el) return;
+  pre = pre || ''; post = post || '';
+  const fmt = v => pre + Math.round(v).toLocaleString('en-US') + post;
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce || !(ms > 0)){ el.textContent = target; return; }
+  if(reduce || !(ms > 0)){ el.textContent = fmt(target); return; }
   const t0 = performance.now();
   const step = now => {
     const p = Math.min((now - t0) / ms, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(target * eased);
+    el.textContent = fmt(target * (1 - Math.pow(1 - p, 3)));
     if(p < 1) requestAnimationFrame(step);
-    else el.textContent = target;
+    else el.textContent = fmt(target);
   };
   requestAnimationFrame(step);
 }
 
 function animateStatNumbers(container){
+  // Keep whatever wraps the digits (a leading + or a trailing %) and re-apply
+  // thousands separators on every frame, so large figures stay readable.
   (container || document).querySelectorAll('.stat-card .num').forEach(el => {
-    const n = parseInt(el.textContent.replace(/[^\d-]/g, ''), 10);
-    if(!isNaN(n)) animateCount(el, n, 750);
+    const raw = el.textContent.trim();
+    const m = raw.match(/-?[\d,]+/);
+    if(!m) return;
+    const n = parseInt(m[0].replace(/,/g, ''), 10);
+    if(isNaN(n)) return;
+    animateCount(el, n, 750, raw.slice(0, m.index), raw.slice(m.index + m[0].length));
   });
 }
 
