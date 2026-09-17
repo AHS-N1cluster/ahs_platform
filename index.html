@@ -429,9 +429,6 @@
     background:transparent; color:var(--gray-700); transition:all .2s ease;}
   .wfp-chip:hover{border-color:var(--blue-500); color:var(--blue-700);}
   .wfp-chip.is-on{background:var(--blue-500); border-color:var(--blue-500); color:#fff;}
-  .wfp-note{font-size:11.5px; color:var(--gray-700); background:var(--orange-bg);
-    border-radius:10px; padding:10px 14px; margin-bottom:14px; display:none;}
-  .wfp-note.show{display:block;}
   .tr-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; color:var(--gray-700); margin-bottom:14px;}
   .tr-legend span{display:inline-flex; align-items:center; gap:6px;}
   .tr-legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
@@ -669,7 +666,6 @@
         <span><i style="background:var(--orange);"></i> قيد الإنجاز — نوصي باستكماله من خلال التوزيع الداخلي</span>
       </div>
       <div class="stats-row" id="wfPlanStatsRow"></div>
-      <div class="wfp-note" id="wfpNote"></div>
       <div id="wfPlanCards" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px;"></div>
     </div>
 
@@ -920,12 +916,6 @@ function renderWorkforcePlan(){
     chips.map(s => `<button class="wfp-chip${wfpDept === s.id ? ' is-on' : ''}" data-d="${escapeHtml(s.id)}">${escapeHtml(s.label)}</button>`).join('');
   fe.querySelectorAll('.wfp-chip').forEach(b =>
     b.addEventListener('click', () => { wfpDept = b.dataset.d; renderWorkforcePlan(); }));
-
-  const note = document.getElementById('wfpNote');
-  if(wfpScenario === 'withHiring'){
-    note.className = 'wfp-note show';
-    note.innerHTML = '💡 هذا السيناريو يفترض وصول الوظائف المقترحة، فيستغني عن سحب كوادر الأشعة من الرعاية المديدة ومجمع إرادة ومركز القلب، وعن نقل العلاج الوظيفي من النساء والولادة بعرعر.';
-  } else { note.className = 'wfp-note'; note.innerHTML = ''; }
 
   const totalIn = list.reduce((a,r) => a + r.inCount, 0);
   const totalPending = list.reduce((a,r) =>
