@@ -172,6 +172,8 @@
   .region-total-badge{display:inline-flex; align-items:center; gap:6px; background:var(--blue-pale); color:var(--blue-deep); font-weight:800; padding:6px 14px; border-radius:8px; font-size:13px; margin-right:8px;}
   .region-total-badge.rtb-spec{background:var(--green-bg); color:var(--green);}
   .region-total-badge.rtb-doc{background:#efe9fb; color:#5a3fa6;}
+  .region-total-badge.rtb-trn{background:#fdf3d0; color:#8a6d00;}
+  .region-total-badge.rtb-tra{background:var(--green-bg); color:var(--green);}
 
   /* bar chart */
   .bar-chart-row{display:flex; align-items:center; gap:10px; margin-bottom:9px;}
@@ -1560,10 +1562,11 @@ function detailedWorkforceCard(deptId){
   const bucketOf = i => {
     const g = parsed[i].group || '', role = parsed[i].role || '';
     if(g.includes('الأطباء') || role.includes('طبيب')) return 'docs';
-    if(role === 'متسرب داخل المنشأة' || role === 'تدريب خارجي') return 'other';
+    if(role === 'متسرب داخل المنشأة') return 'transfer';
+    if(role === 'تدريب خارجي') return 'training';
     return 'specialists';   // administrators count with the non-physician track
   };
-  const sums = {docs:0, specialists:0, other:0};
+  const sums = {docs:0, specialists:0, transfer:0, training:0};
   d.rows.forEach(r => parsed.forEach((p, i) => {
     const v = r.values[i];
     if(isMeta(i) || typeof v !== 'number') return;
@@ -1573,6 +1576,8 @@ function detailedWorkforceCard(deptId){
   const badges = [
     {k:'specialists', label:'الأخصائيون والفنيون', icon:'🧑‍🔬', cls:'rtb-spec'},
     {k:'docs',        label:'الأطباء',             icon:'🩺', cls:'rtb-doc'},
+    {k:'transfer',    label:'متسربون داخل المنشأة', icon:'↪️', cls:'rtb-trn'},
+    {k:'training',    label:'تدريب خارجي',          icon:'🎓', cls:'rtb-tra'},
   ].filter(b => sums[b.k] > 0)
    .map(b => `<span class="region-total-badge ${b.cls}">${b.icon} ${b.label}: ${sums[b.k]}</span>`)
    .join('');
