@@ -170,6 +170,9 @@
   .mini-table-wrap{margin-top:12px; overflow-x:auto; border:1px solid var(--glass-border); border-radius:10px; background:rgba(255,255,255,0.4);}
   .mini-table-wrap table{font-size:11.5px;}
   .region-total-badge{display:inline-flex; align-items:center; gap:6px; background:var(--blue-pale); color:var(--blue-deep); font-weight:800; padding:6px 14px; border-radius:8px; font-size:13px; margin-right:8px;}
+  .region-total-badge.rtb-spec{background:var(--green-bg); color:var(--green);}
+  .region-total-badge.rtb-doc{background:#efe9fb; color:#5a3fa6;}
+  .region-total-badge.rtb-adm{background:#e3f0fb; color:#0c5c8a;}
 
   /* bar chart */
   .bar-chart-row{display:flex; align-items:center; gap:10px; margin-bottom:9px;}
@@ -1553,10 +1556,36 @@ function detailedWorkforceCard(deptId){
     : d.rows.reduce((a, r) => a + parsed.reduce((x, p, i) =>
         x + (!isMeta(i) && typeof r.values[i] === 'number' ? r.values[i] : 0), 0), 0);
 
+  /* Physicians and non-physician specialists are separate professional tracks,
+     so each gets its own headline figure rather than one blended total. */
+  const bucketOf = i => {
+    const g = parsed[i].group || '', role = parsed[i].role || '';
+    if(g.includes('الأطباء') || role.includes('طبيب')) return 'docs';
+    if(role === 'إداري') return 'admin';
+    if(role === 'متسرب داخل المنشأة' || role === 'تدريب خارجي') return 'other';
+    return 'specialists';
+  };
+  const sums = {docs:0, specialists:0, admin:0, other:0};
+  d.rows.forEach(r => parsed.forEach((p, i) => {
+    const v = r.values[i];
+    if(isMeta(i) || typeof v !== 'number') return;
+    sums[bucketOf(i)] += v;
+  }));
+
+  const badges = [
+    {k:'specialists', label:'الأخصائيون والفنيون', icon:'🧑‍🔬', cls:'rtb-spec'},
+    {k:'docs',        label:'الأطباء',             icon:'🩺', cls:'rtb-doc'},
+    {k:'admin',       label:'إداريون',             icon:'🗂️', cls:'rtb-adm'},
+  ].filter(b => sums[b.k] > 0)
+   .map(b => `<span class="region-total-badge ${b.cls}">${b.icon} ${b.label}: ${sums[b.k]}</span>`)
+   .join('');
+
   return `
     <div class="card">
       <h3>${iconBadge("📋","badge-blue")} تفصيل القوى العاملة حسب الفئة الوظيفية</h3>
-      <div style="margin-bottom:16px;"><span class="region-total-badge">📊 الإجمالي: ${grand}</span></div>
+      <div style="margin-bottom:16px; display:flex; flex-wrap:wrap; gap:8px;">
+        <span class="region-total-badge">📊 الإجمالي: ${grand}</span>${badges}
+      </div>
       <div class="wfd-grid">${cards}</div>
     </div>
   `;
