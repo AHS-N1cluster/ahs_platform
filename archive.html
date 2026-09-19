@@ -209,22 +209,16 @@
   .st-chip-neutral{background:rgba(214,221,227,0.35); color:var(--ink-faint);}
   .st-chip-info{background:var(--blue-pale); color:var(--blue-deep);}
 
-  .aud-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px; margin:0 0 26px;}
-  .aud-card{border-radius:12px; padding:13px 15px; border:1px solid var(--line); border-inline-start:4px solid var(--ink-faint);
-    background:var(--panel);}
-  .aud-card.aud-ok{border-inline-start-color:var(--green);}
-  .aud-card.aud-info{border-inline-start-color:var(--blue);}
-  .aud-card.aud-warn{border-inline-start-color:#c79a1f;}
-  .aud-card.aud-bad{border-inline-start-color:var(--red);}
-  .aud-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; flex-wrap:wrap;}
-  .aud-fac{font-size:12.5px; font-weight:900; color:var(--ink);}
-  .aud-badge{font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap;}
-  .aud-b-ok{background:var(--green-bg); color:var(--green);}
-  .aud-b-info{background:var(--blue-pale); color:var(--blue-deep);}
-  .aud-b-warn{background:#fdf3d0; color:#8a6d00;}
-  .aud-b-bad{background:var(--red-bg); color:var(--red);}
-  .aud-thru{font-size:11px; color:var(--ink-soft); margin-bottom:5px;}
-  .aud-note{font-size:11.5px; color:var(--ink-soft); line-height:1.6;}
+  .aud-table td.aud-fac{text-align:start; font-weight:800;}
+  .aud-table td{font-size:12px;}
+  .aud-info{border:none; background:transparent; cursor:pointer; font-size:14px; line-height:1;
+    padding:2px 6px; border-radius:6px; transition:background .18s ease;}
+  .aud-info:hover{background:var(--blue-pale);}
+  .aud-info.is-open{background:var(--blue-pale);}
+  .aud-note-row{display:none;}
+  .aud-note-row.show{display:table-row;}
+  .aud-note-row td{text-align:start; font-size:11.5px; color:var(--ink-soft); line-height:1.7;
+    background:var(--blue-pale); padding:10px 14px;}
 
   .ct-totals{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px; margin-bottom:20px;}
   .ct-total{background:var(--blue-pale); border-radius:12px; padding:14px 16px; text-align:center;}
@@ -723,6 +717,16 @@ function renderDeptNav(){
   });
 }
 
+function wireAuditNotes(){
+  document.querySelectorAll('.aud-info').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const row = document.getElementById(btn.dataset.note);
+      if(row) row.classList.toggle('show');
+      btn.classList.toggle('is-open');
+    });
+  });
+}
+
 function renderSettlementsDashboard(){
   const d = SETTLEMENTS_DASHBOARD;
   const headHtml = d.months.map(m => `<th>${escapeHtml(m)}</th>`).join('');
@@ -778,16 +782,21 @@ function renderSettlementsDashboard(){
           `<span class="st-chip st-chip-${s.cls}">${escapeHtml(s.label)}: ${auditTally[s.key]}</span>`).join('')}
       </div>
     </div>
-    <div class="aud-grid">
-      ${a.rows.map(r => `
-        <div class="aud-card aud-${clsA[r.state] || 'neutral'}">
-          <div class="aud-head">
-            <div class="aud-fac">🏥 ${escapeHtml(r.facility)}</div>
-            <span class="aud-badge aud-b-${clsA[r.state] || 'neutral'}">${escapeHtml(labelA[r.state] || '')}</span>
-          </div>
-          <div class="aud-thru">📆 ${escapeHtml(r.through)}</div>
-          <div class="aud-note">${escapeHtml(r.note)}</div>
-        </div>`).join('')}
+    <div class="table-scroll" style="margin-bottom:26px;">
+      <table class="settlements-table aud-table">
+        <thead><tr><th>المنشأة</th><th>حتى</th><th>الحالة</th><th>ملاحظات</th></tr></thead>
+        <tbody>
+          ${a.rows.map((r, i) => `
+            <tr>
+              <td class="aud-fac">${escapeHtml(r.facility)}</td>
+              <td>${escapeHtml(r.through)}</td>
+              <td class="st-${clsA[r.state] || 'neutral'}">${escapeHtml(labelA[r.state] || '')}</td>
+              <td>${r.note ? `<button class="aud-info" data-note="aud-n-${i}" title="${escapeHtml(r.note)}">ℹ️</button>` : '—'}</td>
+            </tr>
+            ${r.note ? `<tr class="aud-note-row" id="aud-n-${i}"><td colspan="4">${escapeHtml(r.note)}</td></tr>` : ''}
+          `).join('')}
+        </tbody>
+      </table>
     </div>
   `;
 
@@ -1742,6 +1751,7 @@ async function renderDeptContent(){
   wireLabEquipmentFilters();
   wireRadiologyEquipmentFilters();
   wireRehabEquipmentFilters();
+  wireAuditNotes();
   wireStaffDirectoryFilters(dept.id);
   wireProjectTiles();
   wireVisitTiles();
