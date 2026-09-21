@@ -524,46 +524,56 @@
     .credit-card{transition:none;} .credit-card:hover{transform:none;}
     .credit-card:hover .credit-av i{animation:none;}
   }
-  .rd-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:14px; align-items:start;}
+  .rd-grid{display:flex; flex-direction:column; gap:14px;}
   .rd-card{background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:16px;
-    box-shadow:var(--shadow); padding:16px 16px 10px; border-top:3px solid var(--gray-300);}
-  .rd-card-pos{border-top-color:var(--green);} .rd-card-neg{border-top-color:var(--red);}
-  .rd-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
-  .rd-title{font-size:14px; font-weight:900; color:var(--gray-900);}
-  .rd-net{min-width:44px; text-align:center; font-size:15px; font-weight:900; padding:4px 10px; border-radius:10px;}
+    box-shadow:var(--shadow); padding:16px 18px; border-inline-start:4px solid var(--gray-300);}
+  .rd-card-pos{border-inline-start-color:var(--green);} .rd-card-neg{border-inline-start-color:var(--red);}
+  .rd-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;}
+  .rd-title{font-size:15px; font-weight:900; color:var(--gray-900);}
+  .rd-net{display:flex; flex-direction:column; align-items:center; min-width:54px; font-size:18px; font-weight:900;
+    line-height:1; padding:6px 10px; border-radius:12px;}
+  .rd-net small{font-size:9.5px; font-weight:700; margin-top:3px; opacity:.8;}
   .rd-net-pos{background:var(--green-bg); color:var(--green);}
   .rd-net-neg{background:var(--red-bg); color:var(--red);}
   .rd-net-zero{background:var(--gray-100); color:var(--gray-700);}
-  .rd-flow{margin-bottom:10px;}
+  .rd-flow{margin-bottom:12px;}
   .rd-flow-bar{display:flex; gap:2px; height:6px; border-radius:999px; overflow:hidden; background:var(--gray-100);}
   .rd-flow-in{background:var(--green);} .rd-flow-out{background:var(--red);}
-  .rd-flow-cap{display:flex; flex-wrap:wrap; gap:6px 12px; margin-top:6px; font-size:11px; font-weight:800;}
+  .rd-flow-cap{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:7px; font-size:11px; font-weight:800;}
   .rd-c-in{color:var(--green);} .rd-c-out{color:var(--red);}
   .rd-c-done{color:var(--gray-500);} .rd-c-jobs{color:var(--blue-700); margin-inline-start:auto;}
-  .rd-jobs{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px;}
+  .rd-jobs{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;}
   .rd-jobs span{font-size:10.5px; color:var(--gray-700); background:var(--gray-50); border:1px solid var(--gray-300);
     border-radius:999px; padding:3px 9px;}
   .rd-jobs b{color:var(--blue-700);}
-  .rd-group{margin-top:6px;}
-  .rd-gh{font-size:10.5px; font-weight:800; color:var(--gray-500); padding:6px 2px 4px;
-    border-bottom:1px dashed var(--gray-300); margin-bottom:2px;}
+  .rd-group{margin-top:10px;}
+  .rd-gh{font-size:11px; font-weight:800; color:var(--gray-700); margin-bottom:8px;}
   .rd-gh-in::before{content:'↓ '; color:var(--green);} .rd-gh-out::before{content:'↑ '; color:var(--red);}
-  .rd-row{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center;
-    padding:7px 6px; border-radius:8px; transition:background .15s ease; cursor:default;}
-  .rd-row:hover{background:var(--gray-50);}
-  .rd-row + .rd-row{border-top:1px solid rgba(214,221,227,0.45);}
-  .rd-dot{width:9px; height:9px; border-radius:50%;}
-  .rd-pending .rd-dot{background:var(--orange);} .rd-done .rd-dot{background:var(--green);}
+  .rd-rows{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:8px;}
+  .rd-row{display:flex; flex-direction:column; gap:6px; padding:10px 12px; border-radius:12px;
+    background:rgba(255,255,255,0.7); border:1px solid var(--gray-300); cursor:default;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
+  .rd-row:hover{transform:translateY(-2px); box-shadow:0 8px 18px rgba(12,68,104,0.10);}
+  .rd-row.rd-in:hover{border-color:var(--green);} .rd-row.rd-out:hover{border-color:var(--red);}
+  .rd-top{display:flex; align-items:center; gap:8px;}
+  .rd-dot{flex:0 0 auto; width:9px; height:9px; border-radius:50%;}
+  .rd-pending .rd-dot{background:var(--orange); box-shadow:0 0 0 3px var(--orange-bg);}
+  .rd-done .rd-dot{background:var(--green); box-shadow:0 0 0 3px var(--green-bg);}
   .rd-who{font-size:12.5px; font-weight:800; color:var(--gray-900); line-height:1.35;}
   .rd-anon{font-weight:700; color:var(--gray-700);}
   .rd-cnt{font-size:11px; color:var(--blue-700);}
-  .rd-sub{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:2px;}
+  .rd-sub{display:flex; flex-wrap:wrap; gap:6px; align-items:center; min-height:16px;}
   .rd-role{font-size:10.5px; color:var(--gray-500);}
   .rd-spec{font-size:9.5px; font-weight:700; color:var(--gray-700); background:var(--gray-100);
     padding:1px 7px; border-radius:999px;}
-  .rd-place{font-size:10.5px; color:var(--gray-700); text-align:end; max-width:150px; line-height:1.35;}
-  .rd-dir{display:block; font-size:9.5px; color:var(--gray-500); font-weight:700;}
-  @media (max-width:520px){ .rd-grid{grid-template-columns:1fr;} .rd-place{max-width:110px;} }
+  .rd-from{display:flex; align-items:center; gap:6px; margin-top:auto; padding:5px 9px; border-radius:8px;}
+  .rd-from-in{background:var(--green-bg);} .rd-from-out{background:var(--red-bg);}
+  .rd-from-k{flex:0 0 auto; font-size:9.5px; font-weight:800;}
+  .rd-from-in .rd-from-k{color:var(--green);} .rd-from-out .rd-from-k{color:var(--red);}
+  .rd-from-k::before{margin-inline-end:3px;}
+  .rd-from-in .rd-from-k::before{content:'⬅';} .rd-from-out .rd-from-k::before{content:'➡';}
+  .rd-from-v{font-size:11px; font-weight:700; color:var(--gray-900); line-height:1.35;}
+  @media (max-width:520px){ .rd-rows{grid-template-columns:1fr;} .rd-card{padding:14px;} }
 
 </style>
 </head>
@@ -1003,12 +1013,15 @@ function renderWorkforcePlan(){
     const tip = [x.note, st === 'done' ? 'تم' : 'قيد الإنجاز'].filter(Boolean).join(' — ');
     return `
       <div class="rd-row rd-${kind} rd-${st}" title="${escapeHtml(tip)}">
-        <span class="rd-dot"></span>
-        <div class="rd-main">
+        <div class="rd-top">
+          <span class="rd-dot"></span>
           <div class="rd-who">${who}${x.count > 1 ? ` <b class="rd-cnt">×${x.count}</b>` : ''}</div>
-          <div class="rd-sub">${role}${x.deptLabel ? `<span class="rd-spec">${escapeHtml(x.deptLabel)}</span>` : ''}</div>
         </div>
-        <div class="rd-place"><span class="rd-dir">${kind === 'in' ? 'من' : 'إلى'}</span>${escapeHtml(place.replace(/^مستشفى /, ''))}</div>
+        <div class="rd-sub">${role}${x.deptLabel ? `<span class="rd-spec">${escapeHtml(x.deptLabel)}</span>` : ''}</div>
+        <div class="rd-from rd-from-${kind}">
+          <span class="rd-from-k">${kind === 'in' ? 'قادم من' : 'متجه إلى'}</span>
+          <span class="rd-from-v">${escapeHtml(place.replace(/^مستشفى /, ''))}</span>
+        </div>
       </div>`;
   }
 
@@ -1026,7 +1039,7 @@ function renderWorkforcePlan(){
       <div class="rd-card rd-card-${netCls}">
         <div class="rd-head">
           <div class="rd-title">${escapeHtml(r.name)}</div>
-          <div class="rd-net rd-net-${netCls}" title="صافي الدعم">${netLabel}</div>
+          <div class="rd-net rd-net-${netCls}" title="صافي الدعم">${netLabel}<small>صافي</small></div>
         </div>
 
         <div class="rd-flow">
@@ -1044,8 +1057,8 @@ function renderWorkforcePlan(){
 
         ${jobs.length ? `<div class="rd-jobs">${jobs.map(j => `<span>${j.icon} ${escapeHtml(j.label)} <b>${escapeHtml(String(j.raw))}</b></span>`).join('')}</div>` : ''}
 
-        ${r.in.length ? `<div class="rd-group"><div class="rd-gh rd-gh-in">الداخلون</div>${r.in.map(x => row(x, 'in')).join('')}</div>` : ''}
-        ${r.out.length ? `<div class="rd-group"><div class="rd-gh rd-gh-out">الخارجون</div>${r.out.map(x => row(x, 'out')).join('')}</div>` : ''}
+        ${r.in.length ? `<div class="rd-group"><div class="rd-gh rd-gh-in">الداخلون (${r.inCount})</div><div class="rd-rows">${r.in.map(x => row(x, 'in')).join('')}</div></div>` : ''}
+        ${r.out.length ? `<div class="rd-group"><div class="rd-gh rd-gh-out">الخارجون (${r.outCount})</div><div class="rd-rows">${r.out.map(x => row(x, 'out')).join('')}</div></div>` : ''}
       </div>`;
   }).join('');
 }
