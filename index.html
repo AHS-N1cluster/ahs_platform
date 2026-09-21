@@ -424,6 +424,9 @@
   .wfp-sw.is-on{border-color:var(--blue-500); background:var(--blue-50, #eaf4fb);}
   .wfp-sw.is-on b{color:var(--blue-700);}
   .wfp-filter{display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px;}
+  .wfp-frow{display:flex; align-items:flex-start; gap:10px; margin-bottom:10px;}
+  .wfp-flbl{flex:0 0 58px; font-size:11.5px; font-weight:800; color:var(--gray-500); padding-top:7px;}
+  .wfp-frow .wfp-filter{margin-bottom:0; flex:1;}
   .wfp-chip{cursor:pointer; font-family:inherit; font-size:11.5px; font-weight:700;
     padding:6px 13px; border-radius:999px; border:1px solid var(--gray-300);
     background:transparent; color:var(--gray-700); transition:all .2s ease;}
@@ -659,7 +662,8 @@
           <b>إعادة التوزيع مع التوظيف</b><span>بافتراض وصول الوظائف المقترحة</span>
         </button>
       </div>
-      <div class="wfp-filter" id="wfpFilter"></div>
+      <div class="wfp-frow"><span class="wfp-flbl">التخصص</span><div class="wfp-filter" id="wfpFilter"></div></div>
+      <div class="wfp-frow"><span class="wfp-flbl">المنشأة</span><div class="wfp-filter" id="wfpFacFilter"></div></div>
       <div class="tr-legend">
         <span><i style="background:var(--blue-500);"></i> عدد الوظائف المقترحة</span>
         <span><i style="background:var(--green);"></i> دعم تم إنجازه فعليًا</span>
@@ -883,6 +887,7 @@ function jobDistChipsFor(facilityName){
 
 let wfpScenario = 'noHiring';
 let wfpDept = '';
+let wfpFac = '';
 
 function renderWorkforcePlan(){
   const list = (WORKFORCE_REDISTRIBUTION.scenarios[wfpScenario] || [])
@@ -896,6 +901,7 @@ function renderWorkforcePlan(){
     })
     .filter(r => r.in.length || r.out.length)
     .sort((a,b) => b.net - a.net);
+  const facList = wfpFac ? list.filter(r => r.id === wfpFac) : list;
 
   // scenario buttons
   document.querySelectorAll('.wfp-sw').forEach(b => {
@@ -917,10 +923,23 @@ function renderWorkforcePlan(){
   fe.querySelectorAll('.wfp-chip').forEach(b =>
     b.addEventListener('click', () => { wfpDept = b.dataset.d; renderWorkforcePlan(); }));
 
-  const totalIn = list.reduce((a,r) => a + r.inCount, 0);
-  const totalPending = list.reduce((a,r) =>
+  // facilities offered are the ones still on the board under the current specialty
+  if(wfpFac && !list.some(r => r.id === wfpFac)) wfpFac = '';
+  const ff = document.getElementById('wfpFacFilter');
+  ff.innerHTML = `<button class="wfp-chip${wfpFac ? '' : ' is-on'}" data-f="">كل المنشآت</button>` +
+    list.map(r => `<button class="wfp-chip${wfpFac === r.id ? ' is-on' : ''}" data-f="${escapeHtml(r.id)}">${escapeHtml(r.name.replace(/^مستشفى /, ''))}</button>`).join('');
+  ff.querySelectorAll('.wfp-chip').forEach(b =>
+    b.addEventListener('click', () => { wfpFac = b.dataset.f; renderWorkforcePlan(); }));
+
+  const totalIn = facList.reduce((a,r) => a + r.inCount, 0);
+  const totalPending = facList.reduce((a,r) =>
     a + r.in.filter(x => x.status === 'pending').reduce((s,x) => s + (x.count || 1), 0), 0);
-  const totalJobs = wfpDept
+  const selFac = wfpFac ? list.find(r => r.id === wfpFac) : null;
+  const totalJobs = selFac
+    ? jobDistChipsFor(selFac.name)
+        .filter(j => !wfpDept || JOB_DISTRIBUTION.categories.some(x => x.label === j.label && (JOBDIST_DEPT[x.id] || '') === wfpDept))
+        .reduce((a,j) => a + j.num, 0)
+    : wfpDept
     ? (JOB_DISTRIBUTION.categories.filter(x => (JOBDIST_DEPT[x.id] || '') === wfpDept)
         .reduce((a,x) => a + x.total, 0))
     : JOB_DISTRIBUTION.categories.reduce((a,c) => a + c.total, 0);
@@ -929,7 +948,7 @@ function renderWorkforcePlan(){
     <div class="stat-card total"><div class="num">${totalJobs}</div><div class="lbl">🗂️ وظيفة مقترحة</div></div>
     <div class="stat-card progress"><div class="num">${totalIn}</div><div class="lbl">🔁 قرار نقل/دعم</div></div>
     <div class="stat-card notstarted"><div class="num">${totalPending}</div><div class="lbl">⏳ قيد الإنجاز</div></div>
-    <div class="stat-card late"><div class="num">${list.filter(r=>r.net<0).length}</div><div class="lbl">منشأة داعمة</div></div>
+    <div class="stat-card late"><div class="num">${facList.filter(r=>r.net<0).length}</div><div class="lbl">منشأة داعمة</div></div>
   `;
   animateStatNumbers(document.getElementById('wfPlanStatsRow'));
 
@@ -948,9 +967,9 @@ function renderWorkforcePlan(){
   }
 
   const wrap = document.getElementById('wfPlanCards');
-  if(!list.length){ wrap.innerHTML = '<div class="empty-state">لا توجد قرارات مطابقة لهذا التخصص</div>'; return; }
+  if(!facList.length){ wrap.innerHTML = '<div class="empty-state">لا توجد قرارات مطابقة</div>'; return; }
 
-  wrap.innerHTML = list.map(r => {
+  wrap.innerHTML = facList.map(r => {
     const netClass = r.net > 0 ? 'tr-pos' : (r.net < 0 ? 'tr-neg' : '');
     const netChipClass = r.net > 0 ? 'tr-net-pos' : (r.net < 0 ? 'tr-net-neg' : 'tr-net-zero');
     const netLabel = r.net > 0 ? `+${r.net} دعم` : (r.net < 0 ? `${r.net} دعم` : `دخول ${r.inCount} · خروج ${r.outCount}`);
