@@ -527,7 +527,14 @@
   .rd-grid{display:flex; flex-direction:column; gap:14px;}
   .rd-card{background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:16px;
     box-shadow:var(--shadow); padding:16px 18px; border-inline-start:4px solid var(--gray-300);}
-  .rd-card-pos{border-inline-start-color:var(--green);} .rd-card-neg{border-inline-start-color:var(--red);}
+  .rd-p-done{border-inline-start-color:var(--green); background:linear-gradient(90deg, rgba(26,156,111,.07), transparent 38%), var(--glass-bg);}
+  .rd-p-part{border-inline-start-color:var(--blue-500); background:linear-gradient(90deg, rgba(27,148,208,.07), transparent 38%), var(--glass-bg);}
+  .rd-p-wait{border-inline-start-color:var(--orange); background:linear-gradient(90deg, rgba(199,121,31,.07), transparent 38%), var(--glass-bg);}
+  .rd-title{display:flex; align-items:center; gap:9px; flex-wrap:wrap;}
+  .rd-prog{font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px;}
+  .rd-prog-done{background:var(--green-bg); color:var(--green);}
+  .rd-prog-part{background:#e6f2fa; color:var(--blue-700);}
+  .rd-prog-wait{background:var(--orange-bg); color:var(--orange);}
   .rd-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;}
   .rd-title{font-size:15px; font-weight:900; color:var(--gray-900);}
   .rd-net{display:flex; flex-direction:column; align-items:center; min-width:54px; font-size:18px; font-weight:900;
@@ -552,9 +559,15 @@
   .rd-rows{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:8px;}
   .rd-row{display:flex; flex-direction:column; gap:6px; padding:10px 12px; border-radius:12px;
     background:rgba(255,255,255,0.7); border:1px solid var(--gray-300); cursor:default;
+    border-inline-start-width:4px;
     transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
   .rd-row:hover{transform:translateY(-2px); box-shadow:0 8px 18px rgba(12,68,104,0.10);}
-  .rd-row.rd-in:hover{border-color:var(--green);} .rd-row.rd-out:hover{border-color:var(--red);}
+  .rd-row.rd-done{background:var(--green-bg); border-color:rgba(26,156,111,.30); border-inline-start-color:var(--green);}
+  .rd-row.rd-pending{background:var(--orange-bg); border-color:rgba(199,121,31,.30); border-inline-start-color:var(--orange);}
+  .rd-row.rd-done:hover{border-color:var(--green);} .rd-row.rd-pending:hover{border-color:var(--orange);}
+  .rd-st{margin-inline-start:auto; flex:0 0 auto; font-size:9.5px; font-weight:800; padding:2px 8px; border-radius:999px;}
+  .rd-done .rd-st{background:var(--green); color:#fff;}
+  .rd-pending .rd-st{background:var(--orange); color:#fff;}
   .rd-top{display:flex; align-items:center; gap:8px;}
   .rd-dot{flex:0 0 auto; width:9px; height:9px; border-radius:50%;}
   .rd-pending .rd-dot{background:var(--orange); box-shadow:0 0 0 3px var(--orange-bg);}
@@ -567,7 +580,7 @@
   .rd-spec{font-size:9.5px; font-weight:700; color:var(--gray-700); background:var(--gray-100);
     padding:1px 7px; border-radius:999px;}
   .rd-from{display:flex; align-items:center; gap:6px; margin-top:auto; padding:5px 9px; border-radius:8px;}
-  .rd-from-in{background:var(--green-bg);} .rd-from-out{background:var(--red-bg);}
+  .rd-from-in, .rd-from-out{background:rgba(255,255,255,0.8);}
   .rd-from-k{flex:0 0 auto; font-size:9.5px; font-weight:800;}
   .rd-from-in .rd-from-k{color:var(--green);} .rd-from-out .rd-from-k{color:var(--red);}
   .rd-from-k::before{margin-inline-end:3px;}
@@ -1016,6 +1029,7 @@ function renderWorkforcePlan(){
         <div class="rd-top">
           <span class="rd-dot"></span>
           <div class="rd-who">${who}${x.count > 1 ? ` <b class="rd-cnt">×${x.count}</b>` : ''}</div>
+          <span class="rd-st">${st === 'done' ? 'تم' : 'قيد الإنجاز'}</span>
         </div>
         <div class="rd-sub">${role}${x.deptLabel ? `<span class="rd-spec">${escapeHtml(x.deptLabel)}</span>` : ''}</div>
         <div class="rd-from rd-from-${kind}">
@@ -1030,15 +1044,24 @@ function renderWorkforcePlan(){
 
   wrap.innerHTML = facList.map(r => {
     const netCls = r.net > 0 ? 'pos' : (r.net < 0 ? 'neg' : 'zero');
+    // the card itself is coloured by how much of this facility's movement is done
+    const allMoves = [...r.in, ...r.out];
+    const moveTotal = allMoves.reduce((a,x) => a + (x.count || 1), 0);
+    const moveDone = allMoves.filter(x => x.status === 'done').reduce((a,x) => a + (x.count || 1), 0);
+    const prog = moveTotal && moveDone === moveTotal ? 'done'
+               : moveDone > 0 ? 'part' : 'wait';
+    const progLabel = prog === 'done' ? 'مكتمل'
+                    : prog === 'part' ? `منجز ${moveDone} من ${moveTotal}`
+                    : 'قيد الإنجاز';
     const netLabel = r.net > 0 ? `+${r.net}` : `${r.net}`;
     const jobs = wfpDept ? [] : jobDistChipsFor(r.name);
     const jobsTotal = jobs.reduce((a,j) => a + j.num, 0);
     const flowTotal = r.inCount + r.outCount || 1;
     const doneIn = r.in.filter(x => x.status === 'done').reduce((a,x) => a + (x.count || 1), 0);
     return `
-      <div class="rd-card rd-card-${netCls}">
+      <div class="rd-card rd-p-${prog}">
         <div class="rd-head">
-          <div class="rd-title">${escapeHtml(r.name)}</div>
+          <div class="rd-title">${escapeHtml(r.name)}<span class="rd-prog rd-prog-${prog}">${progLabel}</span></div>
           <div class="rd-net rd-net-${netCls}" title="صافي الدعم">${netLabel}<small>صافي</small></div>
         </div>
 
