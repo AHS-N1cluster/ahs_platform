@@ -588,13 +588,17 @@
   .rd-from-v{font-size:11px; font-weight:700; color:var(--gray-900); line-height:1.35;}
   @media (max-width:520px){ .rd-rows{grid-template-columns:1fr;} .rd-card{padding:14px;} }
 
-  .dr-card{background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:16px;
-    box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px; border-inline-start:4px solid var(--purple);}
-  .dr-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
-  .dr-title{font-size:14px; font-weight:900; color:var(--gray-900);}
-  .dr-total{font-size:12px; font-weight:900; color:var(--purple); background:var(--purple-bg);
-    padding:5px 12px; border-radius:999px;}
-  .dr-rows{display:flex; flex-direction:column; gap:6px; margin-top:12px;}
+  .dr-card{margin-bottom:14px;}
+  .dr-toggle{display:flex; align-items:center; gap:10px; width:100%; text-align:start; cursor:pointer;
+    font-family:inherit; background:var(--glass-bg); border:1.5px solid var(--gray-300); border-radius:14px;
+    padding:12px 16px; transition:border-color .25s ease, background .25s ease, transform .25s ease;}
+  .dr-toggle:hover{transform:translateY(-2px); border-color:var(--purple);}
+  .dr-toggle.is-open{border-color:var(--purple); background:var(--purple-bg);}
+  .dr-chev{font-size:13px; color:var(--purple); font-weight:900;}
+  .dr-t b{display:block; font-size:13.5px; font-weight:900; color:var(--gray-900);}
+  .dr-t span{display:block; font-size:11px; color:var(--gray-500); margin-top:3px;}
+  .dr-toggle.is-open .dr-t b{color:var(--purple);}
+  .dr-rows{display:flex; flex-direction:column; gap:6px; margin-top:10px;}
   .dr-row{display:grid; grid-template-columns:minmax(150px,1.5fr) minmax(120px,1.2fr) auto auto auto;
     gap:10px; align-items:center; padding:9px 12px; border-radius:10px;
     background:rgba(255,255,255,0.7); border:1px solid var(--gray-300); font-size:12px;}
@@ -744,6 +748,7 @@
           <b>إعادة التوزيع مع التوظيف</b><span>بافتراض وصول الوظائف المقترحة</span>
         </button>
       </div>
+      <div class="dr-card" id="drCard"></div>
       <div class="wfp-frow"><span class="wfp-flbl">التخصص</span><div class="wfp-filter" id="wfpFilter"></div></div>
       <div class="wfp-frow"><span class="wfp-flbl">المنشأة</span><div class="wfp-filter" id="wfpFacFilter"></div></div>
       <div class="tr-legend">
@@ -752,7 +757,6 @@
         <span><i style="background:var(--orange);"></i> قيد الإنجاز — نوصي باستكماله من خلال التوزيع الداخلي</span>
       </div>
       <div class="stats-row" id="wfPlanStatsRow"></div>
-      <div class="dr-card" id="drCard"></div>
       <div id="wfPlanCards" class="rd-grid"></div>
     </div>
 
@@ -973,19 +977,25 @@ let wfpScenario = 'noHiring';
 let wfpDept = '';
 let wfpFac = '';
 
+let drOpen = false;
+
 function renderDoctorRequests(){
   const el = document.getElementById('drCard');
   if(!el) return;
   const all = DOCTOR_REQUESTS.flatMap(d => d.rows.map(r => ({...r, dept: d.dept, label: d.label, icon: d.icon})));
   const shown = wfpDept ? all.filter(r => r.dept === wfpDept) : all;
   const total = shown.reduce((a, r) => a + (Number(r.need) || 0), 0);
+  if(!shown.length){ el.innerHTML = ''; return; }
 
   el.innerHTML = `
-    <div class="dr-head">
-      <div class="dr-title">🩺 طلبات توظيف الأطباء</div>
-      ${total ? `<div class="dr-total">${total} طبيبًا مطلوبًا</div>` : ''}
-    </div>
-    ${shown.length ? `
+    <button class="dr-toggle${drOpen ? ' is-open' : ''}" id="drToggle">
+      <span class="dr-chev">${drOpen ? '▾' : '▸'}</span>
+      <span class="dr-t">
+        <b>🩺 طلبات توظيف الأطباء</b>
+        <span>${total} طبيبًا مطلوبًا عبر ${new Set(shown.map(r => r.facility)).size} منشأة</span>
+      </span>
+    </button>
+    ${drOpen ? `
       <div class="dr-rows">
         ${shown.map(r => `
           <div class="dr-row">
@@ -997,6 +1007,7 @@ function renderDoctorRequests(){
           </div>`).join('')}
       </div>` : ''}
   `;
+  document.getElementById('drToggle').addEventListener('click', () => { drOpen = !drOpen; renderDoctorRequests(); });
 }
 
 function renderWorkforcePlan(){
