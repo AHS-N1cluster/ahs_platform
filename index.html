@@ -589,7 +589,7 @@
   @media (max-width:520px){ .rd-rows{grid-template-columns:1fr;} .rd-card{padding:14px;} }
 
   .dr-card{background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:16px;
-    box-shadow:var(--shadow); padding:16px 18px; margin-top:14px; border-inline-start:4px solid var(--purple);}
+    box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px; border-inline-start:4px solid var(--purple);}
   .dr-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
   .dr-title{font-size:14px; font-weight:900; color:var(--gray-900);}
   .dr-total{font-size:12px; font-weight:900; color:var(--purple); background:var(--purple-bg);
@@ -602,7 +602,6 @@
   .dr-spec{color:var(--gray-700);}
   .dr-fac{color:var(--gray-500); font-size:11px;}
   .dr-need{font-size:15px; font-weight:900; color:var(--purple); min-width:34px; text-align:center;}
-  .dr-empty{margin-top:10px; font-size:12px; color:var(--gray-500);}
   @media (max-width:640px){ .dr-row{grid-template-columns:1fr auto;} .dr-fac{grid-column:1/-1;} }
 
 </style>
@@ -751,8 +750,8 @@
         <span><i style="background:var(--orange);"></i> قيد الإنجاز — نوصي باستكماله من خلال التوزيع الداخلي</span>
       </div>
       <div class="stats-row" id="wfPlanStatsRow"></div>
-      <div id="wfPlanCards" class="rd-grid"></div>
       <div class="dr-card" id="drCard"></div>
+      <div id="wfPlanCards" class="rd-grid"></div>
     </div>
 
     <div id="section-projects" class="section-panel" style="display:none;">
@@ -995,8 +994,7 @@ function renderDoctorRequests(){
             <div class="dr-fac">${escapeHtml(r.facility || 'على مستوى التجمع')}</div>
             <div class="dr-need">${escapeHtml(String(r.need ?? '—'))}</div>
           </div>`).join('')}
-      </div>`
-    : `<div class="dr-empty">لم تُسجَّل طلبات توظيف أطباء بعد — أرسلي الاحتياج ليظهر هنا.</div>`}
+      </div>` : ''}
   `;
 }
 
