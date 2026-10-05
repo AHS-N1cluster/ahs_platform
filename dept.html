@@ -634,6 +634,67 @@
   .sx-b.y25{background:var(--sx-c);} .sx-b.h26{background:var(--sx-c); opacity:.45;}
   @media (max-width:520px){ .sx-row{grid-template-columns:1fr;} }
 
+  /* ---------- export button ---------- */
+  .pdf-btn{margin-inline-start:auto; border:1px solid var(--line); background:var(--panel); color:var(--ink-soft);
+    font-family:inherit; font-size:11px; font-weight:800; padding:5px 12px; border-radius:8px; cursor:pointer;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;}
+  .pdf-btn:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .dept-pdfall{margin-inline-start:auto; background:var(--accent); color:#fff;}
+  .dept-pdfall:hover{background:var(--blue-deep); color:#fff;}
+  .dept-pdfall + .dept-logout{margin-inline-start:0;}
+  #printHead{display:none;}
+  .print-expand{display:none;}
+
+  /* ---------- print ---------- */
+  @page{size:A4; margin:14mm 12mm;}
+  @media print{
+    html,body{background:#fff !important;}
+    *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+
+    /* chrome that has no place on paper */
+    .topbar, .dept-nav, .pdf-btn, .credits, .gate-overlay, .modal-overlay,
+    .toolbar, .pj-more, .highlight-more, .pj-detail-close, .vs-tile .pj-more{display:none !important;}
+    .app{max-width:none; padding:0;}
+
+    #printHead{display:block; border-bottom:2px solid var(--accent); padding-bottom:8px; margin-bottom:14px; text-align:right;}
+    .ph-org{font-size:10px; color:var(--ink-faint);}
+    .ph-title{font-size:17px; font-weight:900; color:var(--blue-deep); margin:3px 0;}
+    .ph-date{font-size:10px; color:var(--ink-faint);}
+
+    /* one section: hide every other card */
+    body.printing-one #deptContent > *{display:none !important;}
+    body.printing-one #deptContent > .print-target{display:block !important;}
+
+    /* animations must not leave content invisible at print time */
+    #deptContent .card, #deptContent .panel-head{opacity:1 !important; transform:none !important; animation:none !important;}
+    .card{box-shadow:none !important; border:1px solid #d6dde3 !important; background:#fff !important;
+      margin-bottom:12px; backdrop-filter:none !important;}
+    #deptContent > .card + .card{break-before:auto;}
+
+    /* collapsed content is shown in full */
+    .pj-detail, .vs-detail{display:block !important; margin-top:14px; border:1px solid #d6dde3; border-radius:10px;}
+    .pj-grid, .vs-grid{display:none !important;}
+    .print-expand{display:block !important;}
+    .print-hide{display:none !important;}
+    .pe-item{break-inside:avoid-page; margin:0 0 16px; padding-bottom:12px; border-bottom:1px dashed #d6dde3;}
+    .pe-item h4{margin:0 0 8px; font-size:14px; font-weight:900; color:var(--blue-deep);}
+
+    /* scroll boxes must not clip the table */
+    .table-scroll, [style*="max-height"]{max-height:none !important; overflow:visible !important;}
+    table{width:100%;} thead{display:table-header-group;} tr{break-inside:avoid;}
+
+    /* keep small units whole */
+    .pj-card, .pj-out-row, .pj-kpi, .perf-card, .rp-bar-row, .rp-step, .wfd-role, .sx-row,
+    .vs-item, .swot-box, .ct-card, .region-total-badge{break-inside:avoid;}
+    h3, h4, .pj-sec-head{break-after:avoid;}
+
+    /* bars: widths are inline; drop transitions so nothing prints half-grown */
+    .sx-b, .rp-bar-fill, .ct-bar-fill, .bar-fill{transition:none !important;}
+    .sx-b{min-width:46px; overflow:visible; white-space:nowrap;}
+    .sx-b.y25, .sx-b.h26{justify-content:flex-start; padding-inline-start:8px; padding-inline-end:0;}
+    a{color:inherit; text-decoration:none;}
+  }
+
 </style>
 </head>
 <body>
@@ -777,13 +838,91 @@ function archiveCountUp(scope){
   });
 }
 
+
+/* ---------- PDF export ----------
+   The page is static, so the browser's own print engine does the work: it keeps
+   Arabic shaping intact and produces real selectable text. We mark what should
+   print, expand anything that is normally collapsed, then hand over to print(). */
+function sectionLabel(card){
+  const h = card.querySelector('h3');
+  return h ? h.textContent.replace(/⬇.*$/, '').replace(/\s+/g, ' ').trim() : 'القسم';
+}
+
+function expandForPrint(root){
+  const added = [];
+  // services / achievements normally open in a modal — print their full content instead
+  root.querySelectorAll('.highlight-grid').forEach(grid => {
+    const tiles = [...grid.querySelectorAll('.highlight-modal-trigger')];
+    if(!tiles.length) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'print-expand';
+    wrap.innerHTML = tiles.map(t => {
+      const h = (DEPARTMENT_HIGHLIGHTS[t.dataset.dept] || [])[parseInt(t.dataset.idx, 10)];
+      return h ? `<section class="pe-item"><h4>${escapeHtml(h.title)}</h4>${highlightBodyHtml(h)}</section>` : '';
+    }).join('');
+    grid.after(wrap);
+    grid.classList.add('print-hide');
+    added.push(() => { wrap.remove(); grid.classList.remove('print-hide'); });
+  });
+  return () => added.forEach(fn => fn());
+}
+
+function exportPdf(scope, card){
+  const dept = DEPARTMENTS.find(d => d.id === activeDept);
+  const content = document.getElementById('deptContent');
+  const title = scope === 'all' ? 'التقرير الكامل' : sectionLabel(card);
+  const prevTitle = document.title;
+  const stamp = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
+
+  // running header printed at the top of the document
+  const head = document.createElement('div');
+  head.id = 'printHead';
+  head.innerHTML = `
+    <div class="ph-org">تجمع الحدود الشمالية الصحي — إدارة الخدمات الصحية المساندة</div>
+    <div class="ph-title">${escapeHtml(dept.name)} — ${escapeHtml(title)}</div>
+    <div class="ph-date">${escapeHtml(stamp)}</div>`;
+  content.before(head);
+
+  const undo = expandForPrint(scope === 'all' ? content : card);
+  if(scope !== 'all') card.classList.add('print-target');
+  document.body.classList.add(scope === 'all' ? 'printing-all' : 'printing-one');
+  document.title = `${dept.name} - ${title}`;
+
+  const cleanup = () => {
+    window.removeEventListener('afterprint', cleanup);
+    document.body.classList.remove('printing-all', 'printing-one');
+    if(card) card.classList.remove('print-target');
+    undo(); head.remove();
+    document.title = prevTitle;
+  };
+  window.addEventListener('afterprint', cleanup);
+  // let the browser lay the expanded DOM out before the dialog opens
+  requestAnimationFrame(() => setTimeout(() => window.print(), 60));
+}
+
+function addExportButtons(){
+  const content = document.getElementById('deptContent');
+  content.querySelectorAll(':scope > .card').forEach(card => {
+    const h3 = card.querySelector('h3');
+    if(!h3 || h3.querySelector('.pdf-btn')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'pdf-btn';
+    btn.textContent = '⬇ PDF';
+    btn.title = 'تنزيل هذا القسم بصيغة PDF';
+    btn.addEventListener('click', e => { e.stopPropagation(); exportPdf('one', card); });
+    h3.appendChild(btn);
+  });
+}
+
 function renderDeptNav(){
   const el = document.getElementById('deptNav');
   const d = DEPARTMENTS.find(x => x.id === activeDept);
   el.innerHTML = `
     <button class="dept-btn active" style="--btn-accent:${d.accent}">${d.icon} ${escapeHtml(d.name)}</button>
+    <button class="dept-btn dept-pdfall" id="pdfAllBtn">⬇ تنزيل التقرير الكامل PDF</button>
     <button class="dept-btn dept-logout" id="logoutBtn">↩ خروج</button>`;
   document.getElementById('logoutBtn').addEventListener('click', () => window.ahsLogout());
+  document.getElementById('pdfAllBtn').addEventListener('click', () => exportPdf('all'));
   const bd = document.getElementById('brandDept');
   if(bd) bd.textContent = d.name;
 }
@@ -958,10 +1097,7 @@ function renderAchievementsCard(deptId){
   `;
 }
 
-function openHighlightModal(deptId, idx){
-  const h = DEPARTMENT_HIGHLIGHTS[deptId][idx];
-  if(!h) return;
-  document.getElementById('highlightModalTitle').textContent = h.title;
+function highlightBodyHtml(h){
   let bodyHtml = `<p style="font-size:13.5px; line-height:1.8; color:var(--ink-soft); margin:0;">${escapeHtml(h.summary)}</p>`;
   if(h.details){
     const paras = Array.isArray(h.details) ? h.details : [h.details];
@@ -1040,7 +1176,14 @@ function openHighlightModal(deptId, idx){
       </div>
     `;
   }
-  document.getElementById('highlightModalBody').innerHTML = bodyHtml;
+  return bodyHtml;
+}
+
+function openHighlightModal(deptId, idx){
+  const h = DEPARTMENT_HIGHLIGHTS[deptId][idx];
+  if(!h) return;
+  document.getElementById('highlightModalTitle').textContent = h.title;
+  document.getElementById('highlightModalBody').innerHTML = highlightBodyHtml(h);
   document.getElementById('highlightModalOverlay').classList.add('open');
 }
 function closeHighlightModal(){
@@ -1846,6 +1989,7 @@ async function renderDeptContent(){
     ${renderStaffDirectoryCard(dept.id)}
   `;
   archiveCountUp(el);
+  addExportButtons();
   wireLabEquipmentFilters();
   wireRadiologyEquipmentFilters();
   wireRehabEquipmentFilters();
