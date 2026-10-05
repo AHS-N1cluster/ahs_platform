@@ -639,9 +639,6 @@
     font-family:inherit; font-size:11px; font-weight:800; padding:5px 12px; border-radius:8px; cursor:pointer;
     transition:background .2s ease, color .2s ease, border-color .2s ease;}
   .pdf-btn:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
-  .dept-pdfall{margin-inline-start:auto; background:var(--accent); color:#fff;}
-  .dept-pdfall:hover{background:var(--blue-deep); color:#fff;}
-  .dept-pdfall + .dept-logout{margin-inline-start:0;}
   #printHead{display:none;}
   .print-expand{display:none;}
 
@@ -867,10 +864,10 @@ function expandForPrint(root){
   return () => added.forEach(fn => fn());
 }
 
-function exportPdf(scope, card){
+function exportPdf(card){
   const dept = DEPARTMENTS.find(d => d.id === activeDept);
   const content = document.getElementById('deptContent');
-  const title = scope === 'all' ? 'التقرير الكامل' : sectionLabel(card);
+  const title = sectionLabel(card);
   const prevTitle = document.title;
   const stamp = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
 
@@ -883,15 +880,15 @@ function exportPdf(scope, card){
     <div class="ph-date">${escapeHtml(stamp)}</div>`;
   content.before(head);
 
-  const undo = expandForPrint(scope === 'all' ? content : card);
-  if(scope !== 'all') card.classList.add('print-target');
-  document.body.classList.add(scope === 'all' ? 'printing-all' : 'printing-one');
+  const undo = expandForPrint(card);
+  card.classList.add('print-target');
+  document.body.classList.add('printing-one');
   document.title = `${dept.name} - ${title}`;
 
   const cleanup = () => {
     window.removeEventListener('afterprint', cleanup);
-    document.body.classList.remove('printing-all', 'printing-one');
-    if(card) card.classList.remove('print-target');
+    document.body.classList.remove('printing-one');
+    card.classList.remove('print-target');
     undo(); head.remove();
     document.title = prevTitle;
   };
@@ -909,7 +906,7 @@ function addExportButtons(){
     btn.type = 'button'; btn.className = 'pdf-btn';
     btn.textContent = '⬇ PDF';
     btn.title = 'تنزيل هذا القسم بصيغة PDF';
-    btn.addEventListener('click', e => { e.stopPropagation(); exportPdf('one', card); });
+    btn.addEventListener('click', e => { e.stopPropagation(); exportPdf(card); });
     h3.appendChild(btn);
   });
 }
@@ -919,10 +916,8 @@ function renderDeptNav(){
   const d = DEPARTMENTS.find(x => x.id === activeDept);
   el.innerHTML = `
     <button class="dept-btn active" style="--btn-accent:${d.accent}">${d.icon} ${escapeHtml(d.name)}</button>
-    <button class="dept-btn dept-pdfall" id="pdfAllBtn">⬇ تنزيل التقرير الكامل PDF</button>
     <button class="dept-btn dept-logout" id="logoutBtn">↩ خروج</button>`;
   document.getElementById('logoutBtn').addEventListener('click', () => window.ahsLogout());
-  document.getElementById('pdfAllBtn').addEventListener('click', () => exportPdf('all'));
   const bd = document.getElementById('brandDept');
   if(bd) bd.textContent = d.name;
 }
