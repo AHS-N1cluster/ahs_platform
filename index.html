@@ -117,8 +117,9 @@
 
   /* stats */
   .stats-row{display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:20px;}
-  @media (max-width: 900px){ .stats-row{grid-template-columns:repeat(3,1fr);} }
-  @media (max-width: 560px){ .stats-row{grid-template-columns:repeat(2,1fr);} }
+  #statsRow{grid-template-columns:repeat(7,1fr);}
+  @media (max-width: 900px){ .stats-row, #statsRow{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width: 560px){ .stats-row, #statsRow{grid-template-columns:repeat(2,1fr);} }
   .stat-card{background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border-radius:var(--radius); padding:14px 16px; box-shadow:var(--shadow); border:1px solid var(--glass-border);}
   .stat-card.clickable{cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;}
   .stat-card.clickable:hover{transform:translateY(-2px); box-shadow:0 10px 24px rgba(20,80,130,0.14);}
@@ -610,6 +611,73 @@
   .dr-need{font-size:15px; font-weight:900; color:var(--purple); min-width:34px; text-align:center;}
   @media (max-width:640px){ .dr-row{grid-template-columns:1fr auto auto;} .dr-fac{grid-column:1/-1;} }
 
+  /* ---------- sheet sync bar ---------- */
+  .sync-bar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; font-size:12.5px; font-weight:700;}
+  .sync-pill{display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px;
+    background:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.8); color:var(--gray-700);
+    box-shadow:0 4px 14px rgba(20,80,130,0.08);}
+  .sync-pill i{width:9px; height:9px; border-radius:50%; background:var(--gray-500); display:inline-block;}
+  .sync-pill.ok i{background:var(--green); box-shadow:0 0 0 0 rgba(26,156,111,.6); animation:syncPulse 2.2s ease-out infinite;}
+  .sync-pill.warn i{background:var(--orange);}
+  .sync-pill.load i{background:var(--blue-500); animation:syncPulse 1s ease-out infinite;}
+  @keyframes syncPulse{0%{box-shadow:0 0 0 0 rgba(27,148,208,.55);} 100%{box-shadow:0 0 0 9px rgba(27,148,208,0);}}
+  .sync-btn{border:1px solid var(--gray-300); background:rgba(255,255,255,0.7); color:var(--blue-700); font-family:inherit;
+    font-size:12px; font-weight:800; padding:6px 13px; border-radius:999px; cursor:pointer;}
+  .sync-btn:hover{background:var(--blue-600); color:#fff; border-color:var(--blue-600);}
+  @media (prefers-reduced-motion: reduce){ .sync-pill i{animation:none !important;} }
+
+  /* ---------- PDF export ---------- */
+  .pdf-nav{margin-inline-start:auto; color:var(--blue-700);
+    background:linear-gradient(135deg, rgba(233,244,250,0.85), rgba(255,255,255,0.6));}
+  .pdf-nav:hover{background:linear-gradient(135deg, rgba(12,68,104,0.92), rgba(20,111,163,0.92)); color:#fff;}
+  #printHead{display:none;}
+  .print-expand{display:none;}
+  @page{size:A4 landscape; margin:12mm 11mm;}
+  @media print{
+    html,body{background:#fff !important; min-height:0 !important;}
+    *{-webkit-print-color-adjust:exact; print-color-adjust:exact;
+      backdrop-filter:none !important; -webkit-backdrop-filter:none !important;}
+    .topbar, .section-nav, .toolbar, .tabs, .wfp-switch, .wfp-frow, .panel-head, .credits,
+    .gate-overlay, .modal-overlay, .toast, .sx-close, .filter-note, .row-actions, .sync-bar{display:none !important;}
+    .app{max-width:none; padding:0;}
+    #printHead{display:block; border-bottom:2px solid var(--blue-500); padding-bottom:8px; margin-bottom:14px; text-align:right;}
+    .ph-org{font-size:10px; color:var(--gray-500);}
+    .ph-title{font-size:18px; font-weight:900; color:var(--blue-700); margin:3px 0;}
+    .ph-sub{font-size:11.5px; font-weight:700; color:var(--gray-700);}
+    .ph-date{font-size:10px; color:var(--gray-500); margin-top:2px;}
+
+    .section-panel{animation:none !important; transform:none !important; opacity:1 !important;}
+    .stat-card, .pulse-wrap, .sx-card, .sx-panel, .rd-card, .project-card, .staff-card, .dr-row, .table-wrap{
+      box-shadow:none !important; border:1px solid #d6dde3 !important;}
+    .stat-card, .sx-card, .project-card, .staff-card, .sx-row, .dr-row, .rd-row, tr, .pulse-wrap{break-inside:avoid;}
+    .rd-card{break-inside:auto;}
+    .stats-row{grid-template-columns:repeat(auto-fit,minmax(110px,1fr)) !important; margin-bottom:12px; gap:10px;}
+    .stat-card{padding:12px 14px !important;}
+    .pulse-wrap{padding:10px 18px !important; gap:18px; margin-bottom:12px;}
+    .pulse-ring{width:130px !important; height:130px !important;}
+    .pulse-pct{font-size:22px !important;}
+    .pulse-legend{min-width:0 !important; display:grid !important; grid-template-columns:repeat(3,auto); gap:6px 26px !important;}
+    .sx-card:hover, .rd-card:hover{transform:none !important;}
+    .sx-card.is-mute{opacity:1 !important;}
+    .sx-card{cursor:default;}
+
+    .table-wrap{overflow:visible !important; border-radius:10px;}
+    table, thead{display:table !important;} tbody{display:table-row-group !important;}
+    tr{display:table-row !important;} td, th{display:table-cell !important;}
+    thead{display:table-header-group !important;}
+    tbody td::before{content:none !important;}
+    table th:nth-child(n+9), table td:nth-child(n+9){display:none !important;}
+    tbody td{padding:8px 10px;}
+
+    #sxDetail{display:none !important;}
+    .print-expand{display:block !important;}
+    .pe-panel{margin:0 0 14px;}
+    .sx-b, .progress-bar-fill, .wf-bar > *{transition:none !important;}
+    .sx-b{min-width:46px; overflow:visible; white-space:nowrap;}
+    .sx-b.y25, .sx-b.h26{justify-content:flex-start; padding-inline-start:8px; padding-inline-end:0;}
+    a{color:inherit; text-decoration:none;}
+  }
+
 </style>
 </head>
 <body>
@@ -670,6 +738,7 @@
     <div class="section-nav" id="sectionNav"></div>
 
     <div id="section-tasks" class="section-panel">
+    <div class="sync-bar" id="syncBar"></div>
     <div class="pulse-wrap" id="pulseWrap">
       <div class="pulse-ring">
         <svg viewBox="0 0 200 200" id="pulseSvg" aria-label="توزيع حالات المهام">
@@ -830,7 +899,10 @@ function renderSectionNav(){
     <button class="section-nav-btn ${s.id===activeSection?'active':''}" data-section="${s.id}">${s.icon} ${s.label}</button>
   `).join('') + `
     <a class="section-nav-btn section-nav-link" href="./archive.html">🗄️ أرشيف الإدارة</a>
+    <button class="section-nav-btn pdf-nav" id="pdfNavBtn" type="button" title="تنزيل التبويب المفتوح بصيغة PDF">⬇ تحميل PDF</button>
   `;
+  const pdfBtn = document.getElementById('pdfNavBtn');
+  if(pdfBtn) pdfBtn.addEventListener('click', () => exportSectionPdf());
   el.querySelectorAll('.section-nav-btn[data-section]').forEach(btn => {
     btn.addEventListener('click', () => switchSection(btn.dataset.section));
   });
@@ -850,6 +922,102 @@ function switchSection(id){
   // numbers re-run their count-up each time a tab is opened
   const panel = document.getElementById('section-' + id);
   if(panel && id !== 'tasks') animateStatNumbers(panel);
+}
+
+
+/* ---------- PDF export ----------
+   Static page → the browser's print engine produces the PDF (keeps Arabic shaping,
+   selectable text). We label the document, expand anything collapsed, print, then undo. */
+const PDF_TITLES = {
+  tasks:'متابعة المهام', stats:'إحصائيات الخدمات المقدمة', workforceplan:'التوظيف وإعادة التوزيع',
+  projects:'لوحة متابعة المشاريع', staff:'بيانات موظفي إدارة الخدمات الصحية المساندة',
+};
+
+function pdfSubtitle(id){
+  if(id === 'tasks'){
+    const q = state.search.trim();
+    if(state.statusFilter || q){
+      return 'نتائج من جميع الأقسام' + (state.statusFilter ? ` — الحالة: ${state.statusFilter}` : '') + (q ? ` — بحث: ${q}` : '');
+    }
+    const d = state.departments.find(x => x.id === state.activeDept);
+    return d ? d.name : '';
+  }
+  if(id === 'workforceplan'){
+    const parts = [wfpScenario === 'withHiring' ? 'إعادة التوزيع مع التوظيف' : 'إعادة التوزيع بالكوادر الحالية فقط'];
+    const sp = WORKFORCE_REDISTRIBUTION.specialties.find(s => s.id === wfpDept);
+    if(sp) parts.push('التخصص: ' + sp.label);
+    return parts.join(' — ');
+  }
+  if(id === 'projects'){
+    return [projectDeptFilter, projectStatusFilter && ('الحالة: ' + projectStatusFilter)].filter(Boolean).join(' — ') || 'جميع الأقسام';
+  }
+  if(id === 'stats') return 'التفصيل حسب المنشأة لكل قسم — عام 2025 والنصف الأول من 2026';
+  return '';
+}
+
+function sxPrintPanel(d){
+  const max = Math.max(...d.rows.map(r => Math.max(r.y2025, r.h2026)), 1);
+  const w = v => Math.max((v / max) * 100, 4);
+  return `
+    <div class="sx-panel pe-panel" style="--sx-c:${d.color}">
+      <div class="sx-head"><div class="sx-head-t"><span>${d.icon}</span> ${escapeHtml(d.name)} — التفصيل حسب المنشأة</div></div>
+      <div class="sx-scale">
+        <span><i style="background:${d.color}"></i> ${escapeHtml(d.unit)} عام 2025</span>
+        <span><i style="background:${d.color}; opacity:.45"></i> ${escapeHtml(d.unit)} النصف الأول 2026</span>
+      </div>
+      ${d.rows.map(r => `
+        <div class="sx-row">
+          <div class="sx-fac">${escapeHtml(r.facility)}</div>
+          <div class="sx-bars">
+            <div class="sx-b y25" style="width:${w(r.y2025)}%">${sxFmt(r.y2025)}</div>
+            <div class="sx-b h26" style="width:${w(r.h2026)}%">${sxFmt(r.h2026)}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function expandForPrint(id){
+  const undo = [];
+  if(id === 'stats'){
+    const host = document.getElementById('sxDetail');
+    const wrap = document.createElement('div');
+    wrap.className = 'print-expand';
+    wrap.innerHTML = STATISTICS.departments.filter(d => d.reported).map(sxPrintPanel).join('');
+    host.after(wrap);
+    undo.push(() => wrap.remove());
+  }
+  return () => undo.forEach(fn => fn());
+}
+
+function exportSectionPdf(){
+  const id = activeSection;
+  const panel = document.getElementById('section-' + id);
+  if(!panel) return;
+  const title = PDF_TITLES[id] || 'المنصة';
+  const sub = pdfSubtitle(id);
+  const prevTitle = document.title;
+  const stamp = new Date().toLocaleDateString('ar-SA-u-ca-gregory', {year:'numeric', month:'long', day:'numeric'});
+
+  const head = document.createElement('div');
+  head.id = 'printHead';
+  head.innerHTML = `
+    <div class="ph-org">تجمع الحدود الشمالية الصحي — إدارة الخدمات الصحية المساندة</div>
+    <div class="ph-title">${escapeHtml(title)}</div>
+    ${sub ? `<div class="ph-sub">${escapeHtml(sub)}</div>` : ''}
+    <div class="ph-date">${escapeHtml(stamp)} · إعداد وتصميم: خلود المطيري · اعتماد: هاني زبن العنزي</div>`;
+  panel.before(head);
+
+  const undo = expandForPrint(id);
+  document.title = 'منصة الخدمات الصحية المساندة - ' + title;
+
+  const cleanup = () => {
+    window.removeEventListener('afterprint', cleanup);
+    undo(); head.remove();
+    document.title = prevTitle;
+  };
+  window.addEventListener('afterprint', cleanup);
+  // let the browser lay the expanded DOM out before the dialog opens
+  requestAnimationFrame(() => setTimeout(() => window.print(), 60));
 }
 
 /* ---------- Statistics (service volume per department) ---------- */
@@ -1401,6 +1569,177 @@ function uid(prefix){
   return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 }
 
+
+/* ---------- Live sync from the Google Sheet ----------
+   The page reads the team's tracking sheet on every open (and every 30 min while open).
+   The sheet is fetched as one .xlsx workbook, so every cell keeps its real text — mixed
+   date formats and text in date columns survive intact. If the sheet can't be reached
+   the last good copy (localStorage) or the copy embedded in the page is shown instead. */
+const SHEET_ID = '17DTfH2xhpSs4z8ZBGYNf8BwQsuYEEHA-M6uU-BMeeDs';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/export?format=xlsx';
+const SHEET_CACHE_KEY = 'ahs_sheet_cache_v1';
+// xlsx tab names are cut at 31 characters, so tabs are recognised by a keyword
+const SHEET_TAB_KEYS = [
+  {id:'pharmacy',  keys:['الصيدلان']},
+  {id:'nutrition', keys:['التغذية']},
+  {id:'rehab',     keys:['التأهيل','التاهيل']},
+  {id:'mental',    keys:['الصحة النفسية']},
+  {id:'radiology', keys:['الأشعة','الاشعة']},
+  {id:'labs',      keys:['المختبرات']},
+];
+const SHEET_COLS = {
+  'المهمة':'task', 'تاريخ التكليف':'assignDate', 'تاريخ الاستحقاق':'dueDate',
+  'المسؤول':'responsible', 'الحالة':'status', 'آخر تحديث':'lastUpdate', 'ملاحظات':'managerNotes',
+};
+const KNOWN_STATUS = ['مكتمل','تحت الإجراء','لم يبدأ','بانتظار رد','يتابع بشكل دوري','متأخر'];
+
+function sheetClean(v){
+  return String(v == null ? '' : v).replace(/[​-‏‪-‮­]/g, '').replace(/\s+/g, ' ').trim();
+}
+function sheetKey(s){
+  return sheetClean(s).replace(/[إأآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+}
+function normStatus(v){
+  const s = sheetClean(v);
+  if(!s) return '';
+  const k = sheetKey(s);
+  const hit = KNOWN_STATUS.find(x => sheetKey(x) === k);
+  return hit || s;
+}
+function sheetDateText(v){
+  const s = sheetClean(v).replace(/^\\/, '');
+  return /^[-–—]+$/.test(s) ? '' : s;
+}
+
+function parseSheetRows(rows, deptId){
+  const hi = rows.findIndex(r => r.some(cell => sheetClean(cell) === 'المهمة'));
+  if(hi < 0) return [];
+  const map = {};
+  rows[hi].forEach((cell, i) => { const f = SHEET_COLS[sheetClean(cell)]; if(f && map[f] === undefined) map[f] = i; });
+  if(map.task === undefined) return [];
+  const out = [];
+  for(let r = hi + 1; r < rows.length; r++){
+    const row = rows[r];
+    const get = f => map[f] === undefined ? '' : sheetClean(row[map[f]]);
+    const task = get('task');
+    if(!task) continue;
+    const t = {
+      id: deptId + '-' + (out.length + 1),
+      task,
+      assignDate: sheetDateText(map.assignDate === undefined ? '' : row[map.assignDate]),
+      dueDate: sheetDateText(map.dueDate === undefined ? '' : row[map.dueDate]),
+      responsible: get('responsible'),
+      status: normStatus(map.status === undefined ? '' : row[map.status]),
+      lastUpdate: get('lastUpdate'),
+      managerNotes: get('managerNotes'),
+    };
+    // stray text under the table (legends, totals) has no owner, date or status
+    if(!(t.status || t.responsible || t.assignDate || t.dueDate)) continue;
+    out.push(t);
+  }
+  return out;
+}
+
+function parseSheetWorkbook(wb){
+  const depts = {};
+  for(const name of wb.SheetNames){
+    const k = sheetKey(name);
+    const m = SHEET_TAB_KEYS.find(x => x.keys.some(w => k.includes(sheetKey(w))));
+    if(!m || depts[m.id]) continue;
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, raw:false, defval:'', blankrows:false});
+    const tasks = parseSheetRows(rows, m.id);
+    if(tasks.length) depts[m.id] = tasks;
+  }
+  return depts;
+}
+
+function loadScriptOnce(src){
+  return new Promise((resolve, reject) => {
+    if(window.XLSX) return resolve();
+    const s = document.createElement('script');
+    s.src = src; s.onload = () => resolve(); s.onerror = () => reject(new Error('script'));
+    document.head.appendChild(s);
+  });
+}
+
+async function fetchSheetDepts(){
+  await loadScriptOnce('./vendor/xlsx.mini.min.js');
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 25000);
+  try{
+    const res = await fetch(SHEET_URL, {cache:'no-store', signal: ctl.signal});
+    if(!res.ok) throw new Error('http ' + res.status);
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(new Uint8Array(buf), {type:'array'});
+    const depts = parseSheetWorkbook(wb);
+    if(!Object.keys(depts).length) throw new Error('no tasks found');
+    return depts;
+  } finally { clearTimeout(timer); }
+}
+
+function readSheetCache(){
+  try{
+    const o = JSON.parse(localStorage.getItem(SHEET_CACHE_KEY) || 'null');
+    return (o && o.depts && o.at) ? o : null;
+  }catch(e){ return null; }
+}
+function writeSheetCache(depts, at){
+  try{ localStorage.setItem(SHEET_CACHE_KEY, JSON.stringify({at, depts})); }catch(e){}
+}
+
+function sheetStamp(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  return d.toLocaleDateString('ar-SA-u-ca-gregory', {day:'numeric', month:'long'}) + ' — ' +
+         d.toLocaleTimeString('ar-SA-u-ca-gregory', {hour:'numeric', minute:'2-digit'});
+}
+
+let syncState = {kind:'embedded', at:null, busy:false};
+function renderSyncBar(){
+  const el = document.getElementById('syncBar');
+  if(!el) return;
+  const s = syncState;
+  let cls = 'warn', text = 'نسخة محفوظة داخل المنصة';
+  if(s.busy){ cls = 'load'; text = 'جاري التحديث من جوجل شيت…'; }
+  else if(s.kind === 'live'){ cls = 'ok'; text = 'متزامن مع جوجل شيت — آخر تحديث: ' + sheetStamp(s.at); }
+  else if(s.kind === 'cached'){ cls = 'warn'; text = 'تعذّر الوصول للشيت الآن — يعرض آخر نسخة محدّثة (' + sheetStamp(s.at) + ')'; }
+  else { text = 'تعذّر الوصول للشيت — تُعرض النسخة المحفوظة داخل المنصة'; }
+  el.innerHTML = `<span class="sync-pill ${cls}"><i></i>${escapeHtml(text)}</span>` +
+    (s.busy ? '' : '<button class="sync-btn" id="syncNowBtn" type="button">🔄 تحديث الآن</button>');
+  const b = document.getElementById('syncNowBtn');
+  if(b) b.addEventListener('click', () => syncFromSheet());
+}
+
+function applySheetDepts(depts){
+  state.departments.forEach(d => {
+    if(depts[d.id] && depts[d.id].length){
+      d.tasks = JSON.parse(JSON.stringify(depts[d.id]));
+      storageSet('deptTasks:' + d.id, d.tasks);
+    }
+  });
+}
+function repaintTasks(){
+  renderStats(); renderPulse(); renderTabs(); renderTable();
+}
+
+async function syncFromSheet(){
+  if(syncState.busy) return;
+  syncState.busy = true; renderSyncBar();
+  try{
+    const depts = await fetchSheetDepts();
+    const at = new Date().toISOString();
+    applySheetDepts(depts);
+    writeSheetCache(depts, at);
+    syncState = {kind:'live', at, busy:false};
+  }catch(e){
+    const cache = readSheetCache();
+    syncState = cache ? {kind:'cached', at:cache.at, busy:false} : {kind:'embedded', at:null, busy:false};
+    console.warn('sheet sync failed:', e && e.message);
+  }
+  renderSyncBar();
+  repaintTasks();
+}
+
 async function loadAllDepartments(){
   invalidateMainDoc();
   const depts = [];
@@ -1693,6 +2032,9 @@ async function init(){
   renderIdentityBar();
   renderSectionNav();
   state.departments = await loadAllDepartments();
+  // last good copy of the sheet shows instantly while the live copy loads
+  const cached = readSheetCache();
+  if(cached){ applySheetDepts(cached.depts); syncState = {kind:'cached', at:cached.at, busy:false}; }
   state.activeDept = state.departments[0]?.id || null;
   animateBrand();
   renderStats();
@@ -1701,6 +2043,9 @@ async function init(){
   renderTable();
   setupEvents();
   document.getElementById('staffSearchInput').addEventListener('input', renderStaff);
+  renderSyncBar();
+  syncFromSheet();
+  setInterval(() => { if(!document.hidden) syncFromSheet(); }, 30 * 60 * 1000);
 }
 
 init();
