@@ -1611,7 +1611,20 @@ function sheetDateText(v){
   return /^[-–—]+$/.test(s) ? '' : s;
 }
 
-function parseSheetRows(rows, deptId){
+// The sheet's own counter (e.g. =COUNTA(A6:A49)) defines which rows count as tasks;
+// the platform follows the same range so its numbers match the sheet exactly.
+function sheetCounterRange(ws){
+  for(const addr in ws){
+    if(addr[0] === '!') continue;
+    const f = ws[addr] && ws[addr].f;
+    const m = f && String(f).match(/^\s*COUNTA\(\s*\$?A\$?(\d+)\s*:\s*\$?A\$?(\d+)\s*\)\s*$/i);
+    if(m) return {from: parseInt(m[1], 10), to: parseInt(m[2], 10)};
+  }
+  return null;
+}
+
+function parseSheetRows(rows, deptId, firstRow, range){
+  firstRow = firstRow || 1;
   const hi = rows.findIndex(r => r.some(cell => sheetClean(cell) === 'المهمة'));
   if(hi < 0) return [];
   const map = {};
@@ -1619,7 +1632,10 @@ function parseSheetRows(rows, deptId){
   if(map.task === undefined) return [];
   const out = [];
   for(let r = hi + 1; r < rows.length; r++){
+    const excelRow = firstRow + r;
+    if(range && (excelRow < range.from || excelRow > range.to)) continue;
     const row = rows[r];
+    if(!row) continue;
     const get = f => map[f] === undefined ? '' : sheetClean(row[map[f]]);
     const task = get('task');
     if(!task) continue;
@@ -1644,8 +1660,10 @@ function parseSheetWorkbook(wb){
     const k = sheetKey(name);
     const m = SHEET_TAB_KEYS.find(x => x.keys.some(w => k.includes(sheetKey(w))));
     if(!m || depts[m.id]) continue;
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, raw:false, defval:'', blankrows:false});
-    const tasks = parseSheetRows(rows, m.id);
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:'', blankrows:true});
+    const firstRow = ws['!ref'] ? XLSX.utils.decode_range(ws['!ref']).s.r + 1 : 1;
+    const tasks = parseSheetRows(rows, m.id, firstRow, sheetCounterRange(ws));
     if(tasks.length) depts[m.id] = tasks;
   }
   return depts;
