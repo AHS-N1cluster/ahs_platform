@@ -1633,8 +1633,6 @@ function parseSheetRows(rows, deptId){
       lastUpdate: get('lastUpdate'),
       managerNotes: get('managerNotes'),
     };
-    // stray text under the table (legends, totals) has no owner, date or status
-    if(!(t.status || t.responsible || t.assignDate || t.dueDate)) continue;
     out.push(t);
   }
   return out;
