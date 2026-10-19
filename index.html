@@ -695,6 +695,14 @@
   .alerts-list{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
   .al{display:flex; align-items:flex-start; gap:12px; border-radius:14px; padding:12px 14px; border:1px solid;}
   .al-warn{background:#fff6e8; border-color:#f1c98d; color:#5a3606;}
+  .al-late{background:#fdecea; border-color:#f2b8b0; color:#5c1a12;}
+  .al-late .al-cat{color:#b3261e;} .al-late .al-t{color:#4a120c;} .al-late .al-x{color:#6e2a22;}
+  .al-late .al-btn{background:#c23b2e;} .al-late .al-btn:hover{background:#9e2c21;}
+  button.al-btn{border:none; cursor:pointer; font-family:inherit;}
+  tr.row-late td{background:rgba(194,59,46,0.05);}
+  .late-tag{display:inline-block; margin-top:4px; font-size:11px; font-weight:800; color:#b3261e; background:#fdecea; border-radius:999px; padding:2px 8px;}
+  .late-only{display:flex; align-items:center; gap:10px; font-size:12.5px; font-weight:700; color:#b3261e; margin:0 0 10px;}
+  .late-only button{font-family:inherit; font-size:12px; font-weight:800; border:1px solid #f2b8b0; background:#fff; color:#b3261e; border-radius:999px; padding:4px 12px; cursor:pointer;}
   .al-ico{font-size:20px; line-height:1; flex-shrink:0; margin-top:2px;}
   .al-body{flex:1; min-width:0;}
   .al-cat{font-size:11px; font-weight:800; color:#9a4f08; margin-bottom:2px;}
@@ -817,6 +825,7 @@
       </select>
     </div>
 
+    <div id="lateOnlyBar"></div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -1784,8 +1793,37 @@ function applySheetDepts(depts){
     }
   });
 }
+/* ---------- Overdue tasks: due date passed and the task is still open ----------
+   Dates in the sheet mix d/m/y and m/d/y. A date like 5/7/2026 can be read both ways,
+   so a task counts as overdue only when every possible reading is already past. */
+const OPEN_EXCLUDE = ['مكتمل', 'يتابع بشكل دوري'];
+function dueCandidates(str){
+  const m = String(str || '').trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(!m) return [];
+  const a = +m[1], b = +m[2], y = +m[3], out = [];
+  const add = (d, mo) => { if(mo >= 1 && mo <= 12 && d >= 1 && d <= 31) out.push(new Date(y, mo - 1, d)); };
+  add(a, b); if(a !== b) add(b, a);
+  return out;
+}
+function isOverdue(t){
+  if(t.status === 'متأخر') return true;
+  if(OPEN_EXCLUDE.includes(t.status)) return false;
+  const c = dueCandidates(t.dueDate);
+  if(!c.length) return false;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return c.every(d => d < today);
+}
+function openLateTasks(deptId){
+  state.activeDept = deptId; state.statusFilter = ''; state.search = ''; state.lateOnly = true;
+  const sf = document.getElementById('statusFilter'); if(sf) sf.value = '';
+  const si = document.getElementById('searchInput'); if(si) si.value = '';
+  switchSection('tasks'); renderStats(); renderTabs(); renderTable();
+  const t = document.querySelector('.table-wrap'); if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 function repaintTasks(){
   renderStats(); renderPulse(); renderTabs(); renderTable();
+  if(typeof renderAlerts === 'function') renderAlerts();
 }
 
 async function syncFromSheet(){
@@ -1958,6 +1996,7 @@ function renderStats(){
   el.querySelectorAll('.stat-card.clickable').forEach(card => {
     card.addEventListener('click', () => {
       state.statusFilter = card.dataset.status;
+      state.lateOnly = false;
       const sf = document.getElementById('statusFilter'); if(sf) sf.value = state.statusFilter;
       renderStats(); renderTabs(); renderTable(); renderPulse();
     });
@@ -1976,6 +2015,7 @@ function renderTabs(){
   el.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       state.activeDept = tab.dataset.dept;
+      state.lateOnly = false;
       state.statusFilter = '';
       state.search = '';
       const sf = document.getElementById('statusFilter'); if(sf) sf.value = '';
@@ -2022,8 +2062,14 @@ function renderTable(){
   let tasks = source.filter(t => {
     const matchesSearch = !q || (t.task||'').toLowerCase().includes(q) || (t.responsible||'').toLowerCase().includes(q);
     const matchesStatus = !state.statusFilter || t.status === state.statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && (!state.lateOnly || isOverdue(t));
   });
+  const lb = document.getElementById('lateOnlyBar');
+  if(lb){
+    lb.innerHTML = state.lateOnly ? '<div class="late-only">⏰ يعرض المهام المتأخرة فقط <button type="button" id="lateAllBtn">عرض كل المهام</button></div>' : '';
+    const ab = document.getElementById('lateAllBtn');
+    if(ab) ab.addEventListener('click', () => { state.lateOnly = false; renderTable(); });
+  }
 
   if(tasks.length === 0){
     tbody.innerHTML = '';
@@ -2039,14 +2085,14 @@ function renderTable(){
       : `<span class="attach-empty">— بدون مرفق</span>`;
     const updateText = t.lastUpdate || '';
     return `
-      <tr data-id="${t.id}">
+      <tr data-id="${t.id}"${isOverdue(t) ? ' class="row-late"' : ''}>
         <td class="task-title" data-label="المهمة">${escapeHtml(t.task)}
           ${t.__dept ? `<div class="dept-tag">${escapeHtml(t.__dept)}</div>` : ''}
           ${t.lastEditedBy ? `<div class="edit-meta">✏️ آخر تعديل: ${escapeHtml(t.lastEditedBy)} — ${escapeHtml(t.lastEditedAt||'')}</div>` : ''}
         </td>
         <td data-label="تاريخ التكليف">${escapeHtml(t.assignDate) || '<span class="muted">—</span>'}</td>
         <td data-label="المسؤول">${escapeHtml(t.responsible) || '<span class="muted">—</span>'}</td>
-        <td data-label="تاريخ الاستحقاق">${escapeHtml(t.dueDate) || '<span class="muted">—</span>'}</td>
+        <td data-label="تاريخ الاستحقاق">${escapeHtml(t.dueDate) || '<span class="muted">—</span>'}${isOverdue(t) ? '<div class="late-tag">⏰ متأخرة</div>' : ''}</td>
         <td data-label="الحالة"><span class="badge ${st.cls}">${st.icon} ${escapeHtml(t.status)}</span></td>
         <td class="notes-cell" data-label="آخر تحديث">${escapeHtml(updateText) || '<span class="muted">—</span>'}</td>
         <td class="notes-cell" data-label="ملاحظاتي">${escapeHtml(t.myNotes) || '<span class="muted">—</span>'}</td>
@@ -2071,10 +2117,12 @@ function showToast(msg){
 function setupEvents(){
   document.getElementById('searchInput').addEventListener('input', (e) => {
     state.search = e.target.value;
+    state.lateOnly = false;
     renderTabs(); renderTable();
   });
   document.getElementById('statusFilter').addEventListener('change', (e) => {
     state.statusFilter = e.target.value;
+    state.lateOnly = false;
     renderStats(); renderTabs(); renderTable(); renderPulse();
   });
 }
@@ -2134,6 +2182,18 @@ function collectAlerts(){
     text: `${x.company ? escapeHtml(x.company) + ' · ' : ''}دخل فترة الـ180 يومًا قبل الانتهاء · ينتهي ${escapeHtml(x.end)} <span class="al-left">متبقٍ ${x.left} يومًا</span>`,
     href: './archive.html#nutrition', btn: 'عرض العقد', left: x.left,
   }));
+  // departments with overdue tasks
+  (state.departments || []).forEach(d => {
+    const late = d.tasks.filter(isOverdue);
+    if(!late.length) return;
+    const names = late.slice(0, 3).map(t => escapeHtml(t.task.length > 60 ? t.task.slice(0, 60) + '…' : t.task)).join('، ');
+    out.push({
+      cat: 'مهام متأخرة', ico: '⏰',
+      title: `${d.name} — ${late.length === 1 ? 'مهمة متأخرة' : late.length === 2 ? 'مهمتان متأخرتان' : late.length <= 10 ? late.length + ' مهام متأخرة' : late.length + ' مهمة متأخرة'}`,
+      text: names + (late.length > 3 ? ` وغيرها (${late.length - 3})` : ''),
+      onClick: () => openLateTasks(d.id), btn: 'عرض المهام', left: -late.length,
+    });
+  });
   return out.sort((a, b) => (a.left ?? 1e9) - (b.left ?? 1e9));
 }
 let alertsOpen = true;
@@ -2151,17 +2211,18 @@ function renderAlerts(){
         <span class="alerts-c ${list.length ? '' : 'zero'}">${list.length}</span>
         <span class="alerts-chev">${alertsOpen ? '▾ إخفاء' : '▸ عرض'}</span>
       </div>
-      ${alertsOpen ? (list.length ? `<div class="alerts-list">${list.map(a => `
-        <div class="al al-warn">
+      ${alertsOpen ? (list.length ? `<div class="alerts-list">${list.map((a, i) => `
+        <div class="al ${a.cat === 'مهام متأخرة' ? 'al-late' : 'al-warn'}">
           <div class="al-ico">${a.ico}</div>
           <div class="al-body">
             <div class="al-cat">${escapeHtml(a.cat)}</div>
             <div class="al-t">${escapeHtml(a.title)}</div>
             <div class="al-x">${a.text}</div>
           </div>
-          ${a.href ? `<a class="al-btn" href="${a.href}">${escapeHtml(a.btn || 'عرض')}</a>` : ''}
+          ${a.href ? `<a class="al-btn" href="${a.href}">${escapeHtml(a.btn || 'عرض')}</a>` : a.onClick ? `<button class="al-btn" type="button" data-al="${i}">${escapeHtml(a.btn || 'عرض')}</button>` : ''}
         </div>`).join('')}</div>` : '<div class="alerts-empty">✓ لا توجد تنبيهات حاليًا</div>') : ''}
     </div>`;
+  el.querySelectorAll('[data-al]').forEach(b => b.addEventListener('click', () => list[+b.dataset.al].onClick()));
   const head = document.getElementById('alertsHead');
   const toggle = () => { alertsOpen = !alertsOpen; try{ localStorage.setItem('ahs_alerts_open', alertsOpen ? '1' : '0'); }catch(e){} renderAlerts(); };
   head.addEventListener('click', toggle);
