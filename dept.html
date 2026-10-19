@@ -701,6 +701,23 @@
     a{color:inherit; text-decoration:none;}
   }
 
+  /* ---------- nutrition contracts 180-day alert ---------- */
+  #ctAlert:empty{display:none;}
+  .cta{display:flex; align-items:flex-start; gap:14px; background:#fff6e8; border:1px solid #f1c98d; border-radius:16px;
+    padding:14px 18px; margin:0 0 16px; box-shadow:0 6px 18px rgba(199,121,31,0.12); color:#5a3606;}
+  .cta-ico{font-size:22px; line-height:1; flex-shrink:0; margin-top:2px;}
+  .cta-body{flex:1; min-width:0;}
+  .cta-t{font-size:14px; font-weight:900; color:#9a4f08; margin-bottom:6px;}
+  .cta-row{font-size:12.5px; line-height:1.8;}
+  .cta-row b{color:#3d2405;}
+  .cta-left{display:inline-block; font-weight:900; color:#fff; background:#d9822b; border-radius:999px; padding:1px 9px; font-size:11.5px; margin-inline-start:4px;}
+  .cta-btn{flex-shrink:0; align-self:center; font-family:inherit; font-size:12px; font-weight:800; color:#fff; background:#c7791f; border:none;
+    border-radius:999px; padding:8px 16px; cursor:pointer; text-decoration:none; white-space:nowrap;}
+  .cta-btn:hover{background:#a8640f;}
+  .cta-x{flex-shrink:0; background:none; border:none; font-size:20px; line-height:1; color:#9a4f08; cursor:pointer; padding:0 2px;}
+  @media (max-width:560px){ .cta{flex-wrap:wrap;} .cta-btn{order:3;} }
+  @media print{ #ctAlert{display:none !important;} }
+
 </style>
 </head>
 <body>
@@ -764,6 +781,7 @@
   </div>
 
   <div class="app">
+    <div id="ctAlert"></div>
     <div class="dept-nav" id="deptNav"></div>
     <div id="deptContent"></div>
     <div class="credits">
@@ -2029,11 +2047,49 @@ async function renderDeptContent(){
   });
 }
 
+
+/* ---------- Nutrition contracts: 180-day alert at the top of the page ---------- */
+function contractAlertList(){
+  if(typeof NUTRITION_CONTRACTS === 'undefined') return [];
+  const parse = s => { const m = String(s || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return NUTRITION_CONTRACTS.contracts.map(x => {
+    const e = parse(x.end);
+    return {...x, left: e ? Math.round((e - today) / 86400000) : null};
+  }).filter(x => x.left !== null && x.left >= 0 && x.left <= 180).sort((a, b) => a.left - b.left);
+}
+function renderContractAlert(action){
+  const el = document.getElementById('ctAlert');
+  if(!el) return;
+  const list = contractAlertList();
+  if(!list.length){ el.innerHTML = ''; return; }
+  const head = list.length === 1 ? 'عقد تغذية دخل فترة الـ180 يومًا قبل الانتهاء' : `${list.length} عقود تغذية دخلت فترة الـ180 يومًا قبل الانتهاء`;
+  el.innerHTML = `
+    <div class="cta" role="alert">
+      <div class="cta-ico">⚠️</div>
+      <div class="cta-body">
+        <div class="cta-t">تنبيه: ${head}</div>
+        ${list.map(x => `<div class="cta-row"><b>${escapeHtml(x.title)}</b>${x.company ? ' — ' + escapeHtml(x.company) : ''} · ينتهي ${escapeHtml(x.end)} <span class="cta-left">متبقٍ ${x.left} يومًا</span></div>`).join('')}
+      </div>
+      ${action ? (action.href ? `<a class="cta-btn" href="${action.href}">عرض العقود</a>` : '<button class="cta-btn" type="button" id="ctaGo">عرض العقود</button>') : ''}
+      <button class="cta-x" type="button" id="ctaX" aria-label="إخفاء التنبيه">×</button>
+    </div>`;
+  document.getElementById('ctaX').addEventListener('click', () => { el.innerHTML = ''; });
+  const go = document.getElementById('ctaGo');
+  if(go && action.onClick) go.addEventListener('click', action.onClick);
+}
+function scrollToContracts(){
+  const list = document.querySelector('.ct-list');
+  const card = list && list.closest('.card');
+  if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 async function init(){
   if(!GRANTED) return;
   activeDept = GRANTED;
   renderDeptNav();
   await renderDeptContent();
+  if(activeDept === 'nutrition') renderContractAlert({onClick: scrollToContracts});
   document.getElementById('highlightModalCloseBtn').addEventListener('click', closeHighlightModal);
   document.getElementById('highlightModalOverlay').addEventListener('click', (e) => {
     if(e.target.id === 'highlightModalOverlay') closeHighlightModal();
