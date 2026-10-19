@@ -535,6 +535,7 @@ td.cell.rep{box-shadow:inset 0 0 0 2px var(--bad);border-radius:6px}
   window.claude = {use: async n => ({db, user, downloads, assets: null})[n] ?? null};
   window.rcAdmin = {
     async login(){
+      if(!db){ alert('دخول الإدارة يشتغل بعد تفعيل ربط الصفحة بشيت البلاغات (رابط Apps Script).'); return; }
       const v = window.prompt('كلمة مرور الإدارة:'); if(!v) return;
       key = v; adminP = null;
       if(await isAdmin()){ LS.set('rc_admin_key', v); location.hash = ''; location.reload(); }
