@@ -678,6 +678,35 @@
     a{color:inherit; text-decoration:none;}
   }
 
+  /* ---------- alerts box (main page) ---------- */
+  .bell{position:relative; width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,0.45);
+    background:rgba(255,255,255,0.16); color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .bell:hover{background:rgba(255,255,255,0.28);}
+  .bell-n{position:absolute; top:-4px; inset-inline-end:-4px; min-width:19px; height:19px; padding:0 5px; box-sizing:border-box;
+    border-radius:999px; background:#e0533f; color:#fff; font-size:11px; font-weight:900; line-height:19px; text-align:center; box-shadow:0 0 0 2px #1b6fa0;}
+  .bell-n:empty{display:none;}
+  .alerts{background:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.85); border-radius:18px;
+    box-shadow:0 6px 20px rgba(20,80,130,0.08); padding:14px 18px; margin:0 0 16px;}
+  .alerts-h{display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;}
+  .alerts-h h3{margin:0; font-size:15px; font-weight:900; color:var(--blue-700);}
+  .alerts-c{font-size:11.5px; font-weight:900; color:#fff; background:#e0533f; border-radius:999px; padding:2px 9px;}
+  .alerts-c.zero{background:var(--green);}
+  .alerts-chev{margin-inline-start:auto; color:var(--gray-500); font-size:13px;}
+  .alerts-list{display:flex; flex-direction:column; gap:10px; margin-top:12px;}
+  .al{display:flex; align-items:flex-start; gap:12px; border-radius:14px; padding:12px 14px; border:1px solid;}
+  .al-warn{background:#fff6e8; border-color:#f1c98d; color:#5a3606;}
+  .al-ico{font-size:20px; line-height:1; flex-shrink:0; margin-top:2px;}
+  .al-body{flex:1; min-width:0;}
+  .al-cat{font-size:11px; font-weight:800; color:#9a4f08; margin-bottom:2px;}
+  .al-t{font-size:13.5px; font-weight:900; color:#3d2405; line-height:1.6;}
+  .al-x{font-size:12px; line-height:1.8; color:#6b4a1c;}
+  .al-left{display:inline-block; font-weight:900; color:#fff; background:#d9822b; border-radius:999px; padding:1px 9px; font-size:11px; margin-inline-start:4px;}
+  .al-btn{flex-shrink:0; align-self:center; font-size:12px; font-weight:800; color:#fff; background:#c7791f; border-radius:999px; padding:7px 14px; text-decoration:none; white-space:nowrap;}
+  .al-btn:hover{background:#a8640f;}
+  .alerts-empty{font-size:12.5px; color:var(--gray-500); margin-top:10px;}
+  @media (max-width:560px){ .al{flex-wrap:wrap;} }
+  @media print{ .alerts, .bell{display:none !important;} }
+
   /* ---------- nutrition contracts 180-day alert ---------- */
   #ctAlert:empty{display:none;}
   .cta{display:flex; align-items:flex-start; gap:14px; background:#fff6e8; border:1px solid #f1c98d; border-radius:16px;
@@ -745,6 +774,7 @@
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:14px;">
+        <button class="bell" id="bellBtn" type="button" aria-label="التنبيهات"><span aria-hidden="true">🔔</span><b class="bell-n" id="bellN"></b></button>
         <div class="topbar-meta" id="lastSyncLabel"></div>
       </div>
     </div>
@@ -753,7 +783,7 @@
   <div class="app">
 
     <div class="section-nav" id="sectionNav"></div>
-    <div id="ctAlert"></div>
+    <div id="alertsBox"></div>
 
     <div id="section-tasks" class="section-panel">
     <div class="sync-bar" id="syncBar"></div>
@@ -2094,6 +2124,50 @@ function renderContractAlert(action){
   const go = document.getElementById('ctaGo');
   if(go && action.onClick) go.addEventListener('click', action.onClick);
 }
+/* ---------- Alerts box: every alert source adds items here ---------- */
+function collectAlerts(){
+  const out = [];
+  // nutrition contracts entering the last 180 days
+  contractAlertList().forEach(x => out.push({
+    cat: 'عقود التغذية', ico: '📑',
+    title: `${x.title}`,
+    text: `${x.company ? escapeHtml(x.company) + ' · ' : ''}دخل فترة الـ180 يومًا قبل الانتهاء · ينتهي ${escapeHtml(x.end)} <span class="al-left">متبقٍ ${x.left} يومًا</span>`,
+    href: './archive.html#nutrition', btn: 'عرض العقد', left: x.left,
+  }));
+  return out.sort((a, b) => (a.left ?? 1e9) - (b.left ?? 1e9));
+}
+let alertsOpen = true;
+try{ alertsOpen = localStorage.getItem('ahs_alerts_open') !== '0'; }catch(e){}
+function renderAlerts(){
+  const el = document.getElementById('alertsBox');
+  if(!el) return;
+  const list = collectAlerts();
+  const n = document.getElementById('bellN');
+  if(n) n.textContent = list.length ? String(list.length) : '';
+  el.innerHTML = `
+    <div class="alerts" id="alertsCard">
+      <div class="alerts-h" id="alertsHead" role="button" tabindex="0" aria-expanded="${alertsOpen}">
+        <span aria-hidden="true">🔔</span><h3>التنبيهات</h3>
+        <span class="alerts-c ${list.length ? '' : 'zero'}">${list.length}</span>
+        <span class="alerts-chev">${alertsOpen ? '▾ إخفاء' : '▸ عرض'}</span>
+      </div>
+      ${alertsOpen ? (list.length ? `<div class="alerts-list">${list.map(a => `
+        <div class="al al-warn">
+          <div class="al-ico">${a.ico}</div>
+          <div class="al-body">
+            <div class="al-cat">${escapeHtml(a.cat)}</div>
+            <div class="al-t">${escapeHtml(a.title)}</div>
+            <div class="al-x">${a.text}</div>
+          </div>
+          ${a.href ? `<a class="al-btn" href="${a.href}">${escapeHtml(a.btn || 'عرض')}</a>` : ''}
+        </div>`).join('')}</div>` : '<div class="alerts-empty">✓ لا توجد تنبيهات حاليًا</div>') : ''}
+    </div>`;
+  const head = document.getElementById('alertsHead');
+  const toggle = () => { alertsOpen = !alertsOpen; try{ localStorage.setItem('ahs_alerts_open', alertsOpen ? '1' : '0'); }catch(e){} renderAlerts(); };
+  head.addEventListener('click', toggle);
+  head.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
+}
+
 function scrollToContracts(){
   const list = document.querySelector('.ct-list');
   const card = list && list.closest('.card');
@@ -2104,7 +2178,13 @@ async function init(){
   await loadIdentity();
   renderIdentityBar();
   renderSectionNav();
-  renderContractAlert({href: './archive.html#nutrition'});
+  renderAlerts();
+  const bell = document.getElementById('bellBtn');
+  if(bell) bell.addEventListener('click', () => {
+    if(!alertsOpen){ alertsOpen = true; renderAlerts(); }
+    if(activeSection !== 'tasks') switchSection(activeSection);
+    document.getElementById('alertsCard').scrollIntoView({behavior:'smooth', block:'start'});
+  });
   state.departments = await loadAllDepartments();
   // last good copy of the sheet shows instantly while the live copy loads
   const cached = readSheetCache();
