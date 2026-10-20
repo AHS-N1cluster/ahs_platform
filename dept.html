@@ -2188,17 +2188,17 @@ async function renderDeptContent(){
       <h2>${dept.icon} ${escapeHtml(dept.name)}</h2>
       <p>الهيكل التنظيمي، القوى العاملة${dept.hasEquipment ? '، الأجهزة' : ''}، والخدمات والمنجزات</p>
     </div>
+    ${renderNutritionContractsCard(dept.id)}
+    ${dept.id === 'nutrition' ? renderSettlementUploads() : ''}
+    ${renderNutritionMealsCard(dept.id)}
     ${renderOrgChart(dept.id, dept.name)}
     ${renderDeptStatsCard(dept.id)}
-    ${renderNutritionContractsCard(dept.id)}
-    ${renderNutritionMealsCard(dept.id)}
     ${renderPharmacyStrategyCard(dept.id)}
     ${renderServicesCard(dept.id)}
     ${renderAchievementsCard(dept.id)}
     ${renderProjectsCard(dept.id)}
     ${detailedWorkforceCard(dept.id)}
     ${renderVisitsCard(dept.id)}
-    ${dept.id === 'nutrition' ? renderSettlementUploads() : ''}
     ${dept.hasEquipment === 'labs' ? renderLabEquipmentCard() : ''}
     ${dept.hasEquipment === 'radiology' ? renderRadiologyEquipmentCard() : ''}
     ${dept.hasEquipment === 'rehab' ? renderRehabEquipmentCard() : ''}
