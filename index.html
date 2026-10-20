@@ -626,6 +626,83 @@
   .sync-btn:hover{background:var(--blue-600); color:#fff; border-color:var(--blue-600);}
   @media (prefers-reduced-motion: reduce){ .sync-pill i{animation:none !important;} }
 
+  /* ---------- tasks page v2 ---------- */
+  .tk-hero{display:flex; align-items:center; gap:22px; background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border); border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:18px 24px; margin-bottom:14px;}
+  .tk-ring{position:relative; width:110px; height:110px; flex-shrink:0;}
+  .tk-ring svg{width:100%; height:100%;}
+  .tk-ring-bg{fill:none; stroke:var(--gray-100); stroke-width:11;}
+  .tk-ring-fg{fill:none; stroke:var(--green); stroke-width:11; stroke-linecap:round; transition:stroke-dasharray .8s cubic-bezier(.22,1,.36,1);}
+  .tk-ring-c{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .tk-ring-c b{font-size:25px; font-weight:900; color:var(--blue-700); line-height:1;} .tk-ring-c span{font-size:11px; color:var(--gray-500); font-weight:700; margin-top:3px;}
+  .tk-hero-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:10px;}
+  .tk-hero-top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-direction:row-reverse; flex-wrap:wrap;}
+  .tk-sync{margin:0; font-size:11.5px;} .tk-sync .sync-pill{padding:5px 11px; box-shadow:none;} .tk-sync .sync-btn{padding:4px 10px; font-size:11px;}
+  .tk-hero-t{font-size:17px; font-weight:900; color:var(--blue-700);}
+  .tk-hero-s{font-size:12.5px; color:var(--gray-500); font-weight:700; margin-top:2px;}
+  .tk-late-txt{color:var(--red);}
+  .tk-bar{display:flex; height:14px; border-radius:999px; overflow:hidden; gap:2px; background:var(--gray-100);}
+  .tk-seg{border:none; padding:0; cursor:pointer; min-width:6px; transition:opacity .2s, transform .2s;}
+  .tk-hero.has-sel .tk-seg:not(.is-sel){opacity:.28;}
+  .tk-legend{display:flex; flex-wrap:wrap; gap:6px;}
+  .tk-chip{display:inline-flex; align-items:center; gap:6px; font-family:inherit; font-size:12px; font-weight:800; color:var(--gray-700);
+    background:rgba(255,255,255,.7); border:1px solid var(--gray-300); border-radius:999px; padding:5px 11px; cursor:pointer;}
+  .tk-chip i{width:9px; height:9px; border-radius:50%;} .tk-chip b{font-weight:900; color:var(--blue-700);}
+  .tk-chip.is-sel{background:var(--blue-700); color:#fff; border-color:var(--blue-700);} .tk-chip.is-sel b{color:#fff;}
+  .tk-clear{color:var(--red); border-color:#f2b8b0;}
+  .tk-depts{display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:10px; margin-bottom:14px;}
+  .tk-dept{font-family:inherit; text-align:right; display:flex; flex-direction:column; gap:6px; cursor:pointer; padding:13px 14px; border-radius:16px;
+    background:rgba(255,255,255,.62); border:1px solid rgba(255,255,255,.85); box-shadow:0 4px 14px rgba(20,80,130,.07); transition:transform .15s, box-shadow .15s;}
+  .tk-dept:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(20,80,130,.12);}
+  .tk-dept.is-on{background:linear-gradient(135deg, rgba(12,68,104,.95), rgba(20,111,163,.95)); color:#fff; border-color:transparent;}
+  .tk-dept-n{font-size:12.5px; font-weight:900; color:var(--blue-700); line-height:1.4;}
+  .tk-dept-row{display:flex; align-items:baseline; gap:5px; font-size:11.5px; color:var(--gray-500); font-weight:700;}
+  .tk-dept-row b{font-size:20px; font-weight:900; color:var(--gray-900);}
+  .tk-dept-late{margin-inline-start:auto; font-style:normal; font-size:11px; font-weight:900; color:#fff; background:var(--red); border-radius:999px; padding:1px 8px;}
+  .tk-dept-bar{height:5px; border-radius:999px; background:var(--gray-100); overflow:hidden;} .tk-dept-bar i{display:block; height:100%; background:var(--green); border-radius:999px;}
+  .tk-dept-p{font-size:10.5px; font-weight:700; color:var(--gray-500);}
+  .tk-dept.is-on .tk-dept-n, .tk-dept.is-on .tk-dept-row b, .tk-dept.is-on .tk-dept-row, .tk-dept.is-on .tk-dept-p{color:#fff;}
+  .tk-dept.is-on .tk-dept-bar{background:rgba(255,255,255,.25);} .tk-dept.is-on .tk-dept-bar i{background:#7ce0c0;}
+  .tk-panel{background:var(--glass-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur); border:1px solid var(--glass-border);
+    border-radius:var(--radius-lg); box-shadow:var(--shadow); overflow:hidden;}
+  .tk-panel-h{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:14px 18px; border-bottom:1px solid rgba(214,221,227,.5);}
+  .tk-scope{display:flex; align-items:baseline; gap:10px;} .tk-scope b{font-size:15px; font-weight:900; color:var(--blue-700);} .tk-scope span{font-size:12px; font-weight:800; color:var(--gray-500);}
+  .tk-toolbar{margin:0; flex:1; justify-content:flex-end; min-width:260px;} .tk-toolbar input{max-width:320px;}
+  .tk-panel .table-wrap{background:none; box-shadow:none; border:none; border-radius:0; backdrop-filter:none; -webkit-backdrop-filter:none;}
+  .tk-panel #lateOnlyBar:empty{display:none;} .tk-panel #lateOnlyBar{padding:10px 18px 0;}
+  .tk-tr td:first-child{border-inline-start:4px solid transparent;}
+  .tk-tr.st-done td:first-child{border-inline-start-color:var(--green);} .tk-tr.st-progress td:first-child{border-inline-start-color:var(--blue-600);}
+  .tk-tr.st-waiting td:first-child{border-inline-start-color:var(--orange);} .tk-tr.st-recurring td:first-child{border-inline-start-color:var(--purple);}
+  .tk-tr.st-late td:first-child, .tk-tr.row-late td:first-child{border-inline-start-color:var(--red);} .tk-tr.st-notstarted td:first-child{border-inline-start-color:var(--gray-300);}
+  .tk-task{font-weight:800; line-height:1.6;}
+  .tk-sub{display:flex; flex-wrap:wrap; gap:6px 10px; margin-top:4px; font-size:11.5px; font-weight:600; color:var(--gray-500);}
+  .tk-sub .dept-tag{margin:0;}
+  .tk-date{white-space:nowrap; font-size:12.5px; color:var(--gray-700);}
+  .tk-note{display:inline-block; background:var(--orange-bg); color:#8a5414; border-radius:10px; padding:5px 9px; font-size:12px; line-height:1.6;}
+  .tk-panel .manager-note{background:none !important; padding:13px 14px !important;}
+  /* alerts v2 */
+  .alx{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.85);
+    border-radius:16px; box-shadow:0 4px 14px rgba(20,80,130,.07); padding:8px 10px 8px 14px; margin:0 0 14px;}
+  .alx-h{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--blue-700);} .alx-h b{font-weight:900;}
+  .alx-chips{display:flex; flex-wrap:wrap; gap:8px; flex:1;}
+  .alx-chip{display:inline-flex; align-items:center; gap:9px; font-family:inherit; text-align:right; cursor:pointer; border-radius:12px; padding:6px 12px; border:1px solid;}
+  .alx-chip.is-late{background:#fdecea; border-color:#f2b8b0; color:#7a1d14;} .alx-chip.is-warn{background:#fff3e2; border-color:#f1c98d; color:#7a4a0b;}
+  .alx-chip.is-open{box-shadow:0 0 0 2px currentColor inset;}
+  .alx-ico{font-size:16px;} .alx-t{display:flex; flex-direction:column; line-height:1.3;} .alx-t b{font-size:12.5px; font-weight:900;} .alx-t small{font-size:10.5px; font-weight:700; opacity:.8;}
+  .alx-chev{font-size:11px; opacity:.7;}
+  .alx-ok{font-size:12.5px; font-weight:700; color:var(--green);}
+  .alx-panel{flex-basis:100%; display:flex; flex-wrap:wrap; gap:8px; padding:6px 2px 4px;}
+  .alx-dept{display:inline-flex; align-items:center; gap:8px; font-family:inherit; font-size:12px; font-weight:800; color:#7a1d14; background:#fff; border:1px solid #f2b8b0; border-radius:999px; padding:5px 6px 5px 12px; cursor:pointer;}
+  .alx-dept b{background:var(--red); color:#fff; border-radius:999px; padding:1px 8px; font-size:11.5px;}
+  .alx-dept:hover{background:#fdecea;}
+  .alx-panel-list{flex-direction:column;}
+  .alx-row{display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none; background:#fff; border:1px solid #f1c98d; border-radius:12px; padding:8px 12px; color:#5a3606;}
+  .alx-row span{display:flex; flex-direction:column;} .alx-row b{font-size:12.5px;} .alx-row small{font-size:11px; opacity:.8;}
+  .alx-row em{font-style:normal; font-size:11.5px; font-weight:900; color:#fff; background:#d9822b; border-radius:999px; padding:2px 10px; white-space:nowrap;}
+  @media (max-width:640px){ .tk-hero{flex-direction:column; align-items:stretch; text-align:center;} .tk-ring{margin:0 auto;} .tk-legend{justify-content:center;}
+    .tk-depts{grid-template-columns:repeat(2,minmax(0,1fr));} .tk-toolbar{min-width:0;} .tk-toolbar input{max-width:none;} }
+  @media print{ .alx{display:none !important;} .tk-dept:hover{transform:none;} .tk-hero, .tk-dept{break-inside:avoid; box-shadow:none !important;} }
+
   /* ---------- PDF export ---------- */
   .pdf-nav{margin-inline-start:auto; color:var(--blue-700);
     background:linear-gradient(135deg, rgba(233,244,250,0.85), rgba(255,255,255,0.6));}
@@ -794,52 +871,36 @@
     <div id="alertsBox"></div>
 
     <div id="section-tasks" class="section-panel">
-    <div class="sync-bar" id="syncBar"></div>
-    <div class="pulse-wrap" id="pulseWrap">
-      <div class="pulse-ring">
-        <svg viewBox="0 0 200 200" id="pulseSvg" aria-label="توزيع حالات المهام">
-          <circle class="pulse-track" cx="100" cy="100" r="78"></circle>
-          <g id="pulseArcs"></g>
-        </svg>
-        <div class="pulse-center">
-          <div class="pulse-pct" id="pulsePct">0%</div>
-          <div class="pulse-cap" id="pulseCap">نسبة الإنجاز</div>
-        </div>
+    <div class="tk-hero" id="tkHero"></div>
+    <div class="tk-depts" id="tabsRow"></div>
+
+    <div class="tk-panel">
+    <div class="tk-panel-h">
+      <div class="tk-scope" id="tkScope"></div>
+      <div class="toolbar tk-toolbar">
+        <input type="text" id="searchInput" placeholder="ابحث عن مهمة أو مسؤول..." aria-label="بحث">
+        <select id="statusFilter" aria-label="الحالة">
+          <option value="">كل الحالات</option>
+          <option value="مكتمل">مكتمل</option>
+          <option value="تحت الإجراء">تحت الإجراء</option>
+          <option value="لم يبدأ">لم يبدأ</option>
+          <option value="بانتظار رد">بانتظار رد</option>
+          <option value="يتابع بشكل دوري">يتابع بشكل دوري</option>
+          <option value="متأخر">متأخر</option>
+        </select>
       </div>
-      <div class="pulse-legend" id="pulseLegend"></div>
     </div>
-    <div class="stats-row" id="statsRow"></div>
-
-    <div class="tabs" id="tabsRow"></div>
-
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="ابحث عن مهمة أو مسؤول...">
-      <select id="statusFilter">
-        <option value="">كل الحالات</option>
-        <option value="مكتمل">مكتمل</option>
-        <option value="تحت الإجراء">تحت الإجراء</option>
-        <option value="لم يبدأ">لم يبدأ</option>
-        <option value="بانتظار رد">بانتظار رد</option>
-        <option value="يتابع بشكل دوري">يتابع بشكل دوري</option>
-        <option value="متأخر">متأخر</option>
-      </select>
-    </div>
-
     <div id="lateOnlyBar"></div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>المهمة</th>
-            <th>تاريخ التكليف</th>
-            <th>المسؤول</th>
-            <th>تاريخ الاستحقاق</th>
+            <th>التكليف</th>
+            <th>الاستحقاق</th>
             <th>الحالة</th>
             <th>آخر تحديث</th>
-            <th>ملاحظاتي</th>
             <th>ملاحظات المدير</th>
-            <th>المرفق</th>
-            <th></th>
           </tr>
         </thead>
         <tbody id="taskTableBody"></tbody>
@@ -848,6 +909,7 @@
         <div class="big">📭</div>
         لا توجد مهام مطابقة
       </div>
+    </div>
     </div>
     </div>
 
@@ -1920,109 +1982,87 @@ const PULSE_SEGMENTS = [
   {key:'لم يبدأ',          color:'var(--gray-status)'},
 ];
 
+function statusCounts(tasks){
+  const counts = {}; PULSE_SEGMENTS.forEach(seg => counts[seg.key] = 0);
+  tasks.forEach(t => { if(counts[t.status] !== undefined) counts[t.status]++; });
+  return counts;
+}
+function applyStatusFilter(st){
+  state.statusFilter = (state.statusFilter === st) ? '' : st;
+  state.lateOnly = false;
+  const sf = document.getElementById('statusFilter'); if(sf) sf.value = state.statusFilter;
+  renderPulse(); renderTabs(); renderTable();
+}
+
+// hero: completion ring + one stacked bar of every status (click a slice to filter)
 function renderPulse(){
-  const wrap = document.getElementById('pulseWrap');
-  if(!wrap) return;
-  const s = computeOverallStats(state.departments);
-  const counts = {
-    'مكتمل': s.done, 'تحت الإجراء': s.progress, 'يتابع بشكل دوري': s.recurring,
-    'بانتظار رد': s.waiting, 'متأخر': s.late, 'لم يبدأ': s.notstarted,
-  };
-  const total = s.total || 1;
-  const R = 78, C = 2 * Math.PI * R;
-  const active = PULSE_SEGMENTS.filter(seg => counts[seg.key] > 0);
-
-  let offset = 0;
-  document.getElementById('pulseArcs').innerHTML = active.map(seg => {
-    const len = (counts[seg.key] / total) * C;
-    const dash = `${len} ${C - len}`;
-    const arc = `<circle class="pulse-arc${state.statusFilter === seg.key ? ' is-sel' : ''}"
-      data-status="${escapeHtml(seg.key)}" cx="100" cy="100" r="${R}"
-      stroke="${seg.color}" stroke-dasharray="${dash}" stroke-dashoffset="${-offset}"></circle>`;
-    offset += len;
-    return arc;
-  }).join('');
-
-  document.getElementById('pulseLegend').innerHTML = active.map(seg => `
-    <div class="pulse-li${state.statusFilter === seg.key ? ' is-sel' : ''}" data-status="${escapeHtml(seg.key)}">
-      <span class="pulse-dot" style="background:${seg.color}"></span>
-      <span>${escapeHtml(seg.key)}</span>
-      <span class="n">${counts[seg.key]}</span>
-    </div>`).join('');
-
-  wrap.classList.toggle('has-sel', !!state.statusFilter);
-
-  // centre reflects the picked slice, or overall completion when nothing is picked
-  const picked = state.statusFilter && counts[state.statusFilter] !== undefined;
-  const value = picked ? Math.round((counts[state.statusFilter] / total) * 100)
-                       : Math.round((s.done / total) * 100);
-  document.getElementById('pulseCap').textContent = picked
-    ? `${state.statusFilter} من الإجمالي` : 'نسبة الإنجاز';
-  const pctEl = document.getElementById('pulsePct');
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce){ pctEl.textContent = value + '%'; }
-  else {
-    const t0 = performance.now();
-    const step = now => {
-      const p = Math.min((now - t0) / 750, 1);
-      pctEl.textContent = Math.round(value * (1 - Math.pow(1 - p, 3))) + '%';
-      if(p < 1) requestAnimationFrame(step);
-      else pctEl.textContent = value + '%';
-    };
-    requestAnimationFrame(step);
-  }
-
-  const pick = st => {
-    state.statusFilter = (state.statusFilter === st) ? '' : st;
-    const sf = document.getElementById('statusFilter'); if(sf) sf.value = state.statusFilter;
-    renderStats(); renderTabs(); renderTable(); renderPulse();
-  };
-  wrap.querySelectorAll('.pulse-arc, .pulse-li').forEach(n =>
-    n.addEventListener('click', () => pick(n.dataset.status)));
-}
-
-function renderStats(){
-  const s = computeOverallStats(state.departments);
-  const el = document.getElementById('statsRow');
-  const sel = st => state.statusFilter === st ? ' stat-active' : '';
+  const el = document.getElementById('tkHero');
+  if(!el) return;
+  const all = state.departments.flatMap(d => d.tasks);
+  const total = all.length, counts = statusCounts(all);
+  const lateN = all.filter(isOverdue).length;
+  const done = counts['مكتمل'] || 0;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const R = 46, C = 2 * Math.PI * R;
+  const segs = PULSE_SEGMENTS.filter(s => counts[s.key]);
   el.innerHTML = `
-    <div class="stat-card total clickable${state.statusFilter===''?' stat-active':''}" data-status=""><div class="num">${s.total}</div><div class="lbl">إجمالي المهام</div></div>
-    <div class="stat-card done clickable${sel('مكتمل')}" data-status="مكتمل"><div class="num">${s.done}</div><div class="lbl">مكتمل</div></div>
-    <div class="stat-card progress clickable${sel('تحت الإجراء')}" data-status="تحت الإجراء"><div class="num">${s.progress}</div><div class="lbl">تحت الإجراء</div></div>
-    <div class="stat-card notstarted clickable${sel('لم يبدأ')}" data-status="لم يبدأ"><div class="num">${s.notstarted}</div><div class="lbl">لم يبدأ</div></div>
-    <div class="stat-card waiting clickable${sel('بانتظار رد')}" data-status="بانتظار رد"><div class="num">${s.waiting}</div><div class="lbl">بانتظار رد</div></div>
-    <div class="stat-card late clickable${sel('متأخر')}" data-status="متأخر"><div class="num">${s.late}</div><div class="lbl">متأخر</div></div>
-    <div class="stat-card recurring clickable${sel('يتابع بشكل دوري')}" data-status="يتابع بشكل دوري"><div class="num">${s.recurring}</div><div class="lbl">يتابع بشكل دوري</div></div>
-  `;
-  el.querySelectorAll('.stat-card.clickable').forEach(card => {
-    card.addEventListener('click', () => {
-      state.statusFilter = card.dataset.status;
-      state.lateOnly = false;
-      const sf = document.getElementById('statusFilter'); if(sf) sf.value = state.statusFilter;
-      renderStats(); renderTabs(); renderTable(); renderPulse();
-    });
-  });
-  animateStatNumbers(el);
+    <div class="tk-ring">
+      <svg viewBox="0 0 110 110" role="img" aria-label="نسبة الإنجاز ${pct}٪">
+        <circle cx="55" cy="55" r="${R}" class="tk-ring-bg"></circle>
+        <circle cx="55" cy="55" r="${R}" class="tk-ring-fg" stroke-dasharray="${C * pct / 100} ${C}" transform="rotate(-90 55 55)"></circle>
+      </svg>
+      <div class="tk-ring-c"><b>${pct}٪</b><span>إنجاز</span></div>
+    </div>
+    <div class="tk-hero-body">
+      <div class="tk-hero-top">
+        <div class="sync-bar tk-sync" id="syncBar"></div>
+        <div>
+          <div class="tk-hero-t">متابعة مهام الأقسام</div>
+          <div class="tk-hero-s">${total} مهمة · ${state.departments.length} أقسام${lateN ? ` · <b class="tk-late-txt">⏰ ${lateN} متأخرة</b>` : ''}</div>
+        </div>
+      </div>
+      <div class="tk-bar" role="group" aria-label="توزيع الحالات">
+        ${segs.map(s => `<button type="button" class="tk-seg${state.statusFilter === s.key ? ' is-sel' : ''}" data-st="${escapeHtml(s.key)}" style="flex:${counts[s.key]}; background:${s.color}" title="${escapeHtml(s.key)}: ${counts[s.key]}" aria-label="${escapeHtml(s.key)} ${counts[s.key]}"></button>`).join('')}
+      </div>
+      <div class="tk-legend">
+        ${segs.map(s => `<button type="button" class="tk-chip${state.statusFilter === s.key ? ' is-sel' : ''}" data-st="${escapeHtml(s.key)}"><i style="background:${s.color}"></i>${escapeHtml(s.key)}<b>${counts[s.key]}</b></button>`).join('')}
+        ${state.statusFilter ? '<button type="button" class="tk-chip tk-clear" data-st="">✕ إلغاء التصفية</button>' : ''}
+      </div>
+    </div>`;
+  el.classList.toggle('has-sel', !!state.statusFilter);
+  if(typeof renderSyncBar === 'function') renderSyncBar();
+  el.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => {
+    if(b.dataset.st === ''){ state.statusFilter = ''; state.lateOnly = false; const sf = document.getElementById('statusFilter'); if(sf) sf.value = ''; renderPulse(); renderTabs(); renderTable(); }
+    else applyStatusFilter(b.dataset.st);
+  }));
 }
 
+// kept for older call sites: the hero now carries the counts
+function renderStats(){ renderPulse(); }
+
+// department tiles double as tabs
 function renderTabs(){
   const el = document.getElementById('tabsRow');
-  const filtering = !!(state.statusFilter || state.search.trim());
-  el.innerHTML = state.departments.map(d => `
-    <div class="tab ${(!filtering && d.id===state.activeDept) ? 'active':''}" data-dept="${d.id}">
-      ${d.name} <span class="count">${d.tasks.length}</span>
-    </div>
-  `).join('') + (filtering ? '<span class="filter-note">🔎 عرض النتائج من جميع الأقسام</span>' : '');
-  el.querySelectorAll('.tab').forEach(tab => {
+  const filtering = !!(state.statusFilter || state.search.trim() || state.lateOnly);
+  el.innerHTML = state.departments.map(d => {
+    const n = d.tasks.length, done = d.tasks.filter(t => t.status === 'مكتمل').length;
+    const late = d.tasks.filter(isOverdue).length, pct = n ? Math.round(done / n * 100) : 0;
+    const on = d.id === state.activeDept && (!filtering || state.lateOnly);
+    return `
+      <button type="button" class="tk-dept${on ? ' is-on' : ''}" data-dept="${d.id}">
+        <span class="tk-dept-n">${escapeHtml(d.name.replace(/^قسم /, ''))}</span>
+        <span class="tk-dept-row"><b>${n}</b><span>مهمة</span>${late ? `<em class="tk-dept-late">⏰ ${late}</em>` : ''}</span>
+        <span class="tk-dept-bar"><i style="width:${pct}%"></i></span>
+        <span class="tk-dept-p">${pct}٪ مكتمل</span>
+      </button>`;
+  }).join('');
+  el.querySelectorAll('.tk-dept').forEach(tab => {
     tab.addEventListener('click', () => {
       state.activeDept = tab.dataset.dept;
-      state.lateOnly = false;
-      state.statusFilter = '';
-      state.search = '';
+      state.lateOnly = false; state.statusFilter = ''; state.search = '';
       const sf = document.getElementById('statusFilter'); if(sf) sf.value = '';
       const si = document.getElementById('searchInput');  if(si) si.value = '';
-      renderTabs();
-      renderTable();
+      renderPulse(); renderTabs(); renderTable();
     });
   });
 }
@@ -2072,6 +2112,12 @@ function renderTable(){
     if(ab) ab.addEventListener('click', () => { state.lateOnly = false; renderTable(); });
   }
 
+  const scope = document.getElementById('tkScope');
+  if(scope){
+    const d = state.departments.find(x => x.id === state.activeDept);
+    const label = state.lateOnly ? `${d ? d.name : ''} — المهام المتأخرة` : crossDept ? 'نتائج من جميع الأقسام' : (d ? d.name : '');
+    scope.innerHTML = `<b>${escapeHtml(label)}</b><span>${tasks.length} مهمة</span>`;
+  }
   if(tasks.length === 0){
     tbody.innerHTML = '';
     emptyState.style.display = 'block';
@@ -2081,26 +2127,22 @@ function renderTable(){
 
   tbody.innerHTML = tasks.map(t => {
     const st = STATUS_STYLE[t.status] || STATUS_STYLE['لم يبدأ'];
-    const attach = t.attachmentName
-      ? `<button class="attach-link" data-open-attach="${t.id}" data-fname="${escapeHtml(t.attachmentName)}" data-ftype="${escapeHtml(t.attachmentType||'')}">📎 ${escapeHtml(t.attachmentName)}</button>`
-      : `<span class="attach-empty">— بدون مرفق</span>`;
-    const updateText = t.lastUpdate || '';
+    const late = isOverdue(t);
     return `
-      <tr data-id="${t.id}"${isOverdue(t) ? ' class="row-late"' : ''}>
-        <td class="task-title" data-label="المهمة">${escapeHtml(t.task)}
-          ${t.__dept ? `<div class="dept-tag">${escapeHtml(t.__dept)}</div>` : ''}
-          ${t.lastEditedBy ? `<div class="edit-meta">✏️ آخر تعديل: ${escapeHtml(t.lastEditedBy)} — ${escapeHtml(t.lastEditedAt||'')}</div>` : ''}
+      <tr data-id="${t.id}" class="tk-tr st-${st.cls.replace('badge-', '')}${late ? ' row-late' : ''}">
+        <td class="task-title" data-label="المهمة">
+          <div class="tk-task">${escapeHtml(t.task)}</div>
+          <div class="tk-sub">
+            ${t.responsible ? `<span>👤 ${escapeHtml(t.responsible)}</span>` : ''}
+            ${t.__dept ? `<span class="dept-tag">${escapeHtml(t.__dept.replace(/^قسم /, ''))}</span>` : ''}
+          </div>
         </td>
-        <td data-label="تاريخ التكليف">${escapeHtml(t.assignDate) || '<span class="muted">—</span>'}</td>
-        <td data-label="المسؤول">${escapeHtml(t.responsible) || '<span class="muted">—</span>'}</td>
-        <td data-label="تاريخ الاستحقاق">${escapeHtml(t.dueDate) || '<span class="muted">—</span>'}${isOverdue(t) ? '<div class="late-tag">⏰ متأخرة</div>' : ''}</td>
-        <td data-label="الحالة"><span class="badge ${st.cls}">${st.icon} ${escapeHtml(t.status)}</span></td>
-        <td class="notes-cell" data-label="آخر تحديث">${escapeHtml(updateText) || '<span class="muted">—</span>'}</td>
-        <td class="notes-cell" data-label="ملاحظاتي">${escapeHtml(t.myNotes) || '<span class="muted">—</span>'}</td>
-        <td class="notes-cell manager-note" data-label="ملاحظات المدير">${escapeHtml(t.managerNotes) || '<span class="muted">—</span>'}</td>
-        <td data-label="المرفق">${attach}</td>
-      </tr>
-    `;
+        <td data-label="التكليف" class="tk-date">${escapeHtml(t.assignDate) || '<span class="muted">—</span>'}</td>
+        <td data-label="الاستحقاق" class="tk-date">${escapeHtml(t.dueDate) || '<span class="muted">—</span>'}${late ? '<div class="late-tag">⏰ متأخرة</div>' : ''}</td>
+        <td data-label="الحالة"><span class="badge ${st.cls}">${st.icon} ${escapeHtml(t.status || 'بدون حالة')}</span></td>
+        <td class="notes-cell" data-label="آخر تحديث">${escapeHtml(t.lastUpdate) || '<span class="muted">—</span>'}</td>
+        <td class="notes-cell" data-label="ملاحظات المدير">${t.managerNotes ? `<span class="tk-note">${escapeHtml(t.managerNotes)}</span>` : '<span class="muted">—</span>'}</td>
+      </tr>`;
   }).join('');
 
   tbody.querySelectorAll('[data-open-attach]').forEach(btn => {
@@ -2197,37 +2239,39 @@ function collectAlerts(){
   });
   return out.sort((a, b) => (a.left ?? 1e9) - (b.left ?? 1e9));
 }
-let alertsOpen = true;
-try{ alertsOpen = localStorage.getItem('ahs_alerts_open') !== '0'; }catch(e){}
+let alertsOpen = '';   // which alert group is expanded: '' | 'late' | 'contracts'
 function renderAlerts(){
   const el = document.getElementById('alertsBox');
   if(!el) return;
-  const list = collectAlerts();
+  const contracts = contractAlertList();
+  const lateDepts = (state.departments || []).map(d => ({d, n: d.tasks.filter(isOverdue).length})).filter(x => x.n).sort((a, b) => b.n - a.n);
+  const lateN = lateDepts.reduce((a, x) => a + x.n, 0);
+  const groups = [];
+  if(lateN) groups.push({k:'late', cls:'is-late', ico:'⏰', t:`${lateN} مهمة متأخرة`, s:`في ${lateDepts.length} ${lateDepts.length > 2 && lateDepts.length < 11 ? 'أقسام' : 'قسم'}`});
+  if(contracts.length) groups.push({k:'contracts', cls:'is-warn', ico:'📑', t: contracts.length === 1 ? 'عقد تغذية قارب على الانتهاء' : `${contracts.length} عقود تغذية قاربت على الانتهاء`, s:`أقل من 180 يومًا`});
   const n = document.getElementById('bellN');
-  if(n) n.textContent = list.length ? String(list.length) : '';
+  if(n) n.textContent = groups.length ? String(lateDepts.length + contracts.length) : '';
+  if(alertsOpen && !groups.some(g => g.k === alertsOpen)) alertsOpen = '';
   el.innerHTML = `
-    <div class="alerts" id="alertsCard">
-      <div class="alerts-h" id="alertsHead" role="button" tabindex="0" aria-expanded="${alertsOpen}">
-        <span aria-hidden="true">🔔</span><h3>التنبيهات</h3>
-        <span class="alerts-c ${list.length ? '' : 'zero'}">${list.length}</span>
-        <span class="alerts-chev">${alertsOpen ? '▾ إخفاء' : '▸ عرض'}</span>
+    <div class="alx" id="alertsCard">
+      <div class="alx-h"><span class="alx-bell" aria-hidden="true">🔔</span><b>التنبيهات</b></div>
+      <div class="alx-chips">
+        ${groups.length ? groups.map(g => `
+          <button type="button" class="alx-chip ${g.cls}${alertsOpen === g.k ? ' is-open' : ''}" data-g="${g.k}" aria-expanded="${alertsOpen === g.k}">
+            <span class="alx-ico">${g.ico}</span><span class="alx-t"><b>${g.t}</b><small>${g.s}</small></span><span class="alx-chev">${alertsOpen === g.k ? '▴' : '▾'}</span>
+          </button>`).join('') : '<span class="alx-ok">✓ لا توجد تنبيهات حاليًا</span>'}
       </div>
-      ${alertsOpen ? (list.length ? `<div class="alerts-list">${list.map((a, i) => `
-        <div class="al ${a.cat === 'مهام متأخرة' ? 'al-late' : 'al-warn'}">
-          <div class="al-ico">${a.ico}</div>
-          <div class="al-body">
-            <div class="al-cat">${escapeHtml(a.cat)}</div>
-            <div class="al-t">${escapeHtml(a.title)}</div>
-            <div class="al-x">${a.text}</div>
-          </div>
-          ${a.href ? `<a class="al-btn" href="${a.href}">${escapeHtml(a.btn || 'عرض')}</a>` : a.onClick ? `<button class="al-btn" type="button" data-al="${i}">${escapeHtml(a.btn || 'عرض')}</button>` : ''}
-        </div>`).join('')}</div>` : '<div class="alerts-empty">✓ لا توجد تنبيهات حاليًا</div>') : ''}
+      ${alertsOpen === 'late' ? `
+        <div class="alx-panel">
+          ${lateDepts.map(x => `<button type="button" class="alx-dept" data-dept="${x.d.id}"><span>${escapeHtml(x.d.name.replace(/^قسم /, ''))}</span><b>${x.n}</b></button>`).join('')}
+        </div>` : ''}
+      ${alertsOpen === 'contracts' ? `
+        <div class="alx-panel alx-panel-list">
+          ${contracts.map(x => `<a class="alx-row" href="./archive.html#nutrition"><span><b>${escapeHtml(x.title)}</b><small>${escapeHtml(x.company || '')} · ينتهي ${escapeHtml(x.end)}</small></span><em>${x.left} يومًا</em></a>`).join('')}
+        </div>` : ''}
     </div>`;
-  el.querySelectorAll('[data-al]').forEach(b => b.addEventListener('click', () => list[+b.dataset.al].onClick()));
-  const head = document.getElementById('alertsHead');
-  const toggle = () => { alertsOpen = !alertsOpen; try{ localStorage.setItem('ahs_alerts_open', alertsOpen ? '1' : '0'); }catch(e){} renderAlerts(); };
-  head.addEventListener('click', toggle);
-  head.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
+  el.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => { alertsOpen = alertsOpen === b.dataset.g ? '' : b.dataset.g; renderAlerts(); }));
+  el.querySelectorAll('.alx-dept').forEach(b => b.addEventListener('click', () => openLateTasks(b.dataset.dept)));
 }
 
 function scrollToContracts(){
@@ -2243,7 +2287,7 @@ async function init(){
   renderAlerts();
   const bell = document.getElementById('bellBtn');
   if(bell) bell.addEventListener('click', () => {
-    if(!alertsOpen){ alertsOpen = true; renderAlerts(); }
+    const card0 = document.querySelector('.alx-chip'); if(card0 && !alertsOpen){ alertsOpen = card0.dataset.g; renderAlerts(); }
     if(activeSection !== 'tasks') switchSection(activeSection);
     document.getElementById('alertsCard').scrollIntoView({behavior:'smooth', block:'start'});
   });
