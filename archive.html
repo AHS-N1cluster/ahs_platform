@@ -2013,10 +2013,10 @@ async function renderDeptContent(){
       <h2>${dept.icon} ${escapeHtml(dept.name)}</h2>
       <p>الهيكل التنظيمي، القوى العاملة${dept.hasEquipment ? '، الأجهزة' : ''}، والخدمات والمنجزات</p>
     </div>
+    ${renderOrgChart(dept.id, dept.name)}
     ${renderNutritionContractsCard(dept.id)}
     ${dept.id === 'nutrition' ? renderSettlementUploads() : ''}
     ${renderNutritionMealsCard(dept.id)}
-    ${renderOrgChart(dept.id, dept.name)}
     ${renderPharmacyStrategyCard(dept.id)}
     ${renderServicesCard(dept.id)}
     ${renderAchievementsCard(dept.id)}
