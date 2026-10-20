@@ -550,6 +550,11 @@
   .rd-flow-cap{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:7px; font-size:11px; font-weight:800;}
   .rd-c-in{color:var(--green);} .rd-c-out{color:var(--red);}
   .rd-c-done{color:var(--gray-500);} .rd-c-jobs{color:var(--blue-700); margin-inline-start:auto;}
+  .hj-total{display:flex; align-items:baseline; gap:4px; background:var(--blue-50, #eaf4fb); border-radius:12px; padding:4px 12px;} .hj-total b{font-size:22px; font-weight:900; color:var(--blue-700);} .hj-total small{font-size:11px; color:var(--gray-500); font-weight:700;}
+  .hj-bar{height:6px; border-radius:999px; background:var(--gray-100); overflow:hidden; margin-bottom:12px;} .hj-bar i{display:block; height:100%; background:linear-gradient(90deg, var(--blue-500), var(--blue-700)); border-radius:999px;}
+  .hj-list{display:flex; flex-direction:column; gap:7px;}
+  .hj-row{display:flex; align-items:center; gap:9px; background:rgba(255,255,255,.7); border:1px solid var(--gray-300); border-radius:10px; padding:8px 12px; font-size:12.5px; font-weight:800; color:var(--gray-700);}
+  .hj-row b{margin-inline-start:auto; font-size:15px; font-weight:900; color:var(--blue-700);} .hj-ico{font-size:15px;}
   .rd-jobs{display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;}
   .rd-jobs span{font-size:10.5px; color:var(--gray-700); background:var(--gray-50); border:1px solid var(--gray-300);
     border-radius:999px; padding:3px 9px;}
@@ -935,11 +940,14 @@
         <button class="wfp-sw" data-sc="withHiring">
           <b>إعادة التوزيع مع التوظيف</b><span>بافتراض وصول الوظائف المقترحة</span>
         </button>
+        <button class="wfp-sw" data-sc="hiringOnly">
+          <b>التوظيف فقط</b><span>الوظائف المقترحة لكل منشأة دون إعادة توزيع</span>
+        </button>
       </div>
       <div class="dr-card" id="drCard"></div>
       <div class="wfp-frow"><span class="wfp-flbl">التخصص</span><div class="wfp-filter" id="wfpFilter"></div></div>
       <div class="wfp-frow"><span class="wfp-flbl">المنشأة</span><div class="wfp-filter" id="wfpFacFilter"></div></div>
-      <div class="tr-legend">
+      <div class="tr-legend" id="wfpLegend">
         <span><i style="background:var(--blue-500);"></i> عدد الوظائف المقترحة</span>
         <span><i style="background:var(--green);"></i> دعم تم إنجازه فعليًا</span>
         <span><i style="background:var(--orange);"></i> قيد الإنجاز — نوصي باستكماله من خلال التوزيع الداخلي</span>
@@ -1300,7 +1308,57 @@ function renderDoctorRequests(){
   document.getElementById('drToggle').addEventListener('click', () => { drOpen = !drOpen; renderDoctorRequests(); });
 }
 
+let wfpJobCat = '';
+function renderHiringOnly(){
+  const H = JOB_DISTRIBUTION.hospitals, cats = JOB_DISTRIBUTION.categories;
+  const shownCats = wfpJobCat ? cats.filter(x => x.id === wfpJobCat) : cats;
+  const facs = H.map((name, i) => {
+    const jobs = shownCats.map(cat => ({cat, raw: cat.values[i], num: jobDistNumeric(cat.values[i])})).filter(j => j.num > 0);
+    return {id: 'jh-' + i, name, jobs, total: jobs.reduce((a, j) => a + j.num, 0)};
+  }).filter(f => f.total > 0).sort((a, b) => b.total - a.total);
+  if(wfpFac && !facs.some(f => f.id === wfpFac)) wfpFac = '';
+  const shown = wfpFac ? facs.filter(f => f.id === wfpFac) : facs;
+
+  const fe = document.getElementById('wfpFilter');
+  fe.innerHTML = `<button class="wfp-chip${wfpJobCat ? '' : ' is-on'}" data-c="">كل التخصصات</button>` +
+    cats.filter(x => x.total > 0).map(x => `<button class="wfp-chip${wfpJobCat === x.id ? ' is-on' : ''}" data-c="${escapeHtml(x.id)}">${x.icon} ${escapeHtml(x.label)}</button>`).join('');
+  fe.querySelectorAll('.wfp-chip').forEach(b => b.addEventListener('click', () => { wfpJobCat = b.dataset.c; renderWorkforcePlan(); }));
+  const ff = document.getElementById('wfpFacFilter');
+  ff.innerHTML = `<button class="wfp-chip${wfpFac ? '' : ' is-on'}" data-f="">كل المنشآت</button>` +
+    facs.map(f => `<button class="wfp-chip${wfpFac === f.id ? ' is-on' : ''}" data-f="${f.id}">${escapeHtml(f.name.replace(/^مستشفى /, ''))}</button>`).join('');
+  ff.querySelectorAll('.wfp-chip').forEach(b => b.addEventListener('click', () => { wfpFac = b.dataset.f; renderWorkforcePlan(); }));
+
+  const total = shown.reduce((a, f) => a + f.total, 0);
+  const catSet = new Set(shown.flatMap(f => f.jobs.map(j => j.cat.id)));
+  document.getElementById('wfPlanStatsRow').innerHTML = `
+    <div class="stat-card total"><div class="num">${total}</div><div class="lbl">🗂️ وظيفة مقترحة</div></div>
+    <div class="stat-card progress"><div class="num">${shown.length}</div><div class="lbl">🏥 منشأة مستفيدة</div></div>
+    <div class="stat-card done"><div class="num">${catSet.size}</div><div class="lbl">🧩 تخصص</div></div>`;
+  animateStatNumbers(document.getElementById('wfPlanStatsRow'));
+  renderDoctorRequests();
+
+  const max = Math.max(...shown.map(f => f.total), 1);
+  const wrap = document.getElementById('wfPlanCards');
+  wrap.innerHTML = shown.length ? shown.map(f => `
+    <div class="rd-card hj-card">
+      <div class="rd-head">
+        <div class="rd-title">${escapeHtml(f.name)}</div>
+        <div class="hj-total"><b>${f.total}</b><small>وظيفة</small></div>
+      </div>
+      <div class="hj-bar"><i style="width:${(f.total / max) * 100}%"></i></div>
+      <div class="hj-list">
+        ${f.jobs.map(j => `<div class="hj-row"><span class="hj-ico">${j.cat.icon}</span><span class="hj-lbl">${escapeHtml(j.cat.label)}</span><b>${escapeHtml(String(j.raw))}</b></div>`).join('')}
+      </div>
+    </div>`).join('') : '<div class="empty-state">لا توجد وظائف مقترحة مطابقة</div>';
+}
+
 function renderWorkforcePlan(){
+  document.querySelectorAll('.wfp-sw').forEach(b => {
+    b.classList.toggle('is-on', b.dataset.sc === wfpScenario);
+    if(!b.dataset.wired){ b.dataset.wired = '1'; b.addEventListener('click', () => { wfpScenario = b.dataset.sc; wfpFac = ''; renderWorkforcePlan(); }); }
+  });
+  const lg = document.getElementById('wfpLegend'); if(lg) lg.style.display = wfpScenario === 'hiringOnly' ? 'none' : '';
+  if(wfpScenario === 'hiringOnly'){ renderHiringOnly(); return; }
   const list = (WORKFORCE_REDISTRIBUTION.scenarios[wfpScenario] || [])
     .map(r => {
       // filtering by specialty re-derives each facility's figures from what's shown
