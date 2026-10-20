@@ -364,10 +364,10 @@ td.cell.rep{box-shadow:inset 0 0 0 2px var(--bad);border-radius:6px}
         <div class="field"><label for="f-desc" class="req">وصف التحدي</label><textarea id="f-desc" placeholder="ماذا يحدث، ومنذ متى، وما أثره على المرضى"></textarea></div>
         <div class="field"><label for="f-action">الإجراء المتخذ حتى الآن</label><textarea id="f-action" style="min-height:70px" placeholder="مثال: تحويل العينات للمختبر الإقليمي، طلب توريد عاجل، صرف بديل علاجي"></textarea></div>
         <div class="field">
-          <span class="lbl">هل تحتاجون دعمًا من التجمع؟</span>
+          <span class="lbl">نوع التذكرة</span>
           <div class="yn">
-            <label class="opt"><input type="radio" name="support" value="yes" id="sup-yes"><span>نعم، نحتاج تدخل التجمع</span></label>
-            <label class="opt"><input type="radio" name="support" value="no" id="sup-no" checked><span>لا، للعلم والمتابعة</span></label>
+            <label class="opt"><input type="radio" name="support" value="yes" id="sup-yes"><span>الحاجة للدعم</span></label>
+            <label class="opt"><input type="radio" name="support" value="no" id="sup-no" checked><span>للعلم والإحاطة</span></label>
           </div>
         </div>
         <div class="submit-bar">
@@ -391,7 +391,7 @@ td.cell.rep{box-shadow:inset 0 0 0 2px var(--bad);border-radius:6px}
   <section id="view-mine" hidden>
     <div class="glass card">
       <h2>بلاغاتي</h2>
-      <p class="muted small">البلاغات التي رفعتها وحالتها لدى التجمع. لا يطّلع عليها غيرك وإدارة التجمع.</p>
+      <p class="muted small">البلاغات المقدمة يتم عرضها لدى الإدارة المختصة بالتجمع الصحي فقط.</p>
       <div class="list" id="mineList"></div>
     </div>
   </section>
@@ -707,7 +707,7 @@ function reportCard(r,admin){
   const stCls=r.status==='closed'?'p-ok':r.status==='progress'?'p-warn':'p-neutral';
   const sevCls=r.severity==='crit'||r.severity==='high'?'p-bad':r.severity==='med'?'p-warn':'p-ok';
   const card=el('article',{class:'rep-card sev-'+r.severity},
-    el('div',{class:'rep-head'},el('div',{class:'row'},el('h3',{text:hname(r.hospitalId)}),el('span',{class:'pill p-brand',text:DEPTS[deptOf(r)].name}),el('span',{class:'pill p-neutral',text:catName(r.category)}),el('span',{class:'pill dot '+sevCls,text:sevName(r.severity)}),r.needSupport?el('span',{class:'pill p-bad',text:'يطلب دعم التجمع'}):null),el('span',{class:'pill dot '+stCls,text:STATUS[r.status]||r.status})),
+    el('div',{class:'rep-head'},el('div',{class:'row'},el('h3',{text:hname(r.hospitalId)}),el('span',{class:'pill p-brand',text:DEPTS[deptOf(r)].name}),el('span',{class:'pill p-neutral',text:catName(r.category)}),el('span',{class:'pill dot '+sevCls,text:sevName(r.severity)}),r.needSupport?el('span',{class:'pill p-bad',text:'الحاجة للدعم'}):null),el('span',{class:'pill dot '+stCls,text:STATUS[r.status]||r.status})),
     el('div',{class:'meta'},el('span',{class:'num',text:'#'+refOf(r.id)}),el('span',{text:fmtDate(r.createdAt)}),el('span',{text:r.role||''}),r.item?el('span',{text:'المتأثر: '+r.item}):null,r.since?el('span',{text:'منذ: '+r.since}):null,r.affected!=null?el('span',{text:'مرضى متأثرون: '+r.affected}):null),
     el('p',{class:'rep-body',text:r.description||''}),
     r.action?el('p',{class:'small muted rep-body',text:'الإجراء المتخذ: '+r.action}):null,
@@ -869,7 +869,7 @@ function renderDash(){
   const pr=periodReports(),open=pr.filter(r=>r.status!=='closed');
   const k=$('#kpis');k.replaceChildren();
   const kpi=(l,v,s,alert)=>el('div',{class:'glass kpi'+(alert&&v>0?' alert':'')},el('span',{class:'k-l',text:l}),el('b',{text:String(v)}),el('span',{class:'k-s',text:s}));
-  k.append(kpi('بلاغات مفتوحة',open.length,'من '+pr.length+' في الفترة'),kpi('منشآت لديها تحدٍّ',new Set(open.map(r=>r.hospitalId)).size,'من '+hospitals.length+' منشأة'),kpi('عالية أو حرجة مفتوحة',open.filter(r=>r.severity==='crit'||r.severity==='high').length,'تحتاج متابعة عاجلة',true),kpi('تطلب دعم التجمع',open.filter(r=>r.needSupport).length,'من البلاغات المفتوحة',true),kpi('أُغلقت',pr.filter(r=>r.status==='closed').length,'في الفترة'));
+  k.append(kpi('بلاغات مفتوحة',open.length,'من '+pr.length+' في الفترة'),kpi('منشآت لديها تحدٍّ',new Set(open.map(r=>r.hospitalId)).size,'من '+hospitals.length+' منشأة'),kpi('عالية أو حرجة مفتوحة',open.filter(r=>r.severity==='crit'||r.severity==='high').length,'تحتاج متابعة عاجلة',true),kpi('تذاكر الحاجة للدعم',open.filter(r=>r.needSupport).length,'من البلاغات المفتوحة',true),kpi('أُغلقت',pr.filter(r=>r.status==='closed').length,'في الفترة'));
   const wrap=$('#heatWrap');wrap.replaceChildren();
   if(!hospitals.length){wrap.append(el('div',{class:'empty',text:'أضف المنشآت من تبويب «المنشآت والباركود».'}))}
   else{
@@ -908,8 +908,8 @@ $('#d-period').addEventListener('change',renderDash);$('#d-dept').addEventListen
 $('#l-hosp').addEventListener('change',renderList);$('#l-status').addEventListener('change',renderList);
 $('#exportBtn').addEventListener('click',async()=>{
   if(!downloads)return;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const head=['رقم البلاغ','التاريخ','المنشأة','القسم','المرحلة','نوع التحدي','مستوى الأثر','المتأثر','بداية المشكلة','مرضى متأثرون','الوصف','الإجراء المتخذ','يطلب دعم','صفة الرافع','الحالة','ملاحظة التجمع'];
-  const rows=periodReports().map(r=>[refOf(r.id),new Date(r.createdAt).toISOString().slice(0,10),hname(r.hospitalId),DEPTS[deptOf(r)].name,STAGES[deptOf(r)][catOf(r.category).stage]||'',catName(r.category),sevName(r.severity),r.item,r.since,r.affected,r.description,r.action,r.needSupport?'نعم':'لا',r.role,STATUS[r.status],r.statusNote]);
+  const head=['رقم البلاغ','التاريخ','المنشأة','القسم','المرحلة','نوع التحدي','مستوى الأثر','المتأثر','بداية المشكلة','مرضى متأثرون','الوصف','الإجراء المتخذ','نوع التذكرة','صفة الرافع','الحالة','ملاحظة التجمع'];
+  const rows=periodReports().map(r=>[refOf(r.id),new Date(r.createdAt).toISOString().slice(0,10),hname(r.hospitalId),DEPTS[deptOf(r)].name,STAGES[deptOf(r)][catOf(r.category).stage]||'',catName(r.category),sevName(r.severity),r.item,r.since,r.affected,r.description,r.action,r.needSupport?'الحاجة للدعم':'للعلم والإحاطة',r.role,STATUS[r.status],r.statusNote]);
   const csv='﻿'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n');
   try{await downloads.save({filename:'بلاغات-'+DEPTS[curDept()].name+'-'+new Date().toISOString().slice(0,10)+'.csv',data:csv})}catch(x){if(x&&x.code!=='declined')toast('تعذر التصدير في هذا العرض')}
 });
@@ -1023,7 +1023,7 @@ function renderLive(){
     kp('بلاغات مفتوحة',open.length,'من '+rs.length+' في الفترة'),
     kp('عالية أو حرجة مفتوحة',crit,'تحتاج متابعة عاجلة',true),
     kp('مستشفيات تحتاج تدخل',hsBad,'من '+hospitals.length+' مستشفى',true),
-    kp('تطلب دعم التجمع',sup,'من المفتوحة',true),
+    kp('تذاكر الحاجة للدعم',sup,'من المفتوحة',true),
     kp('وصلت اليوم',today,'بلاغ'),
     kp('متوسط عمر المفتوح',ageAvg?ageAvg.toFixed(1):'0','يوم منذ رفع البلاغ')));
 
@@ -1089,7 +1089,7 @@ function renderLive(){
     const key=r.uid+'/'+r.id,c=catOf(r.category);const sevCls=r.severity==='crit'||r.severity==='high'?'p-bad':r.severity==='med'?'p-warn':'p-ok';
     feed.append(el('li',{class:liveFresh.has(key)?'new':null},el('i',{style:'background:'+STAGE_COLOR[c.stage]}),el('div',{style:'min-width:0'},
       el('div',{class:'f-top'},el('b',{text:hname(r.hospitalId)}),el('span',{class:'ago','data-t':String(r.createdAt||0),text:agoText(r.createdAt||0)})),
-      el('div',{class:'f-sub'},el('span',{text:c.short||c.name}),el('span',{class:'pill dot '+sevCls,text:sevName(r.severity)}),r.status==='closed'?el('span',{class:'pill p-ok',text:'مغلق'}):r.needSupport?el('span',{class:'pill p-bad',text:'يطلب دعم'}):null))));
+      el('div',{class:'f-sub'},el('span',{text:c.short||c.name}),el('span',{class:'pill dot '+sevCls,text:sevName(r.severity)}),r.status==='closed'?el('span',{class:'pill p-ok',text:'مغلق'}):r.needSupport?el('span',{class:'pill p-bad',text:'الحاجة للدعم'}):null))));
   }
   setTimeout(()=>liveFresh.clear(),6500);
   right.append(el('div',{class:'glass card'},el('div',{class:'row between'},el('h2',{text:'آخر البلاغات'}),el('span',{class:'live-dot'},el('i'),'مباشر')),feed));
