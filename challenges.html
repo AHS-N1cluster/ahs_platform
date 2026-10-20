@@ -475,7 +475,7 @@ td.cell.rep{box-shadow:inset 0 0 0 2px var(--bad);border-radius:6px}
    to a Google Apps Script web app instead, which stores everything in the cluster's
    Google Sheet. This bridge offers the same small API the page already uses. */
 (function(){
-  const API_URL = '';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwEY_lLnaVo1YpSDxXXM37Wxu4QjVAUTUt6taMIbudNPZ_cFnxkHMxJwJQqFOiN-532/exec';
   const LS = {get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}, del(k){try{localStorage.removeItem(k)}catch(e){}}};
   let uid = LS.get('rc_uid');
   if(!uid || !/^[A-Za-z0-9_-]{16,64}$/.test(uid)){
