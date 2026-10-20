@@ -1143,8 +1143,8 @@ renderGuide();setMode();showTab('report');renderAll();
 
 <div style="position:fixed;bottom:12px;left:12px;z-index:50;display:flex;gap:6px;">
 <a id="rcBack" href="./index.html" hidden style="font:inherit;font-size:12px;font-weight:700;color:#fff;background:#0c4468;border-radius:999px;padding:6px 14px;text-decoration:none;box-shadow:0 4px 12px rgba(12,68,104,.2)">↩ الرجوع للمنصة الرئيسية</a>
-<button type="button" id="rcAdminBtn" onclick="window.rcAdmin.login()" style="font:inherit;font-size:12px;font-weight:700;color:#0c4468;background:rgba(255,255,255,.85);border:1px solid #c9d8e4;border-radius:999px;padding:6px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(12,68,104,.12)">🔐 دخول الإدارة</button>
+<button type="button" id="rcAdminBtn" hidden onclick="window.rcAdmin.login()" style="font:inherit;font-size:12px;font-weight:700;color:#0c4468;background:rgba(255,255,255,.85);border:1px solid #c9d8e4;border-radius:999px;padding:6px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(12,68,104,.12)">🔐 دخول الإدارة</button>
 </div>
-<script>(function(){var f=/[?&]from=platform/.test(location.search);try{if(f)sessionStorage.setItem('rc_from','1');f=f||sessionStorage.getItem('rc_from')==='1'}catch(e){}if(f)document.getElementById('rcBack').hidden=false})();
-window.rcAdmin.isAdmin().then(a=>{if(a)document.getElementById('rcBack').hidden=false;if(!a)return;const b=document.getElementById('rcAdminBtn');b.textContent='↩ خروج الإدارة';b.onclick=()=>window.rcAdmin.logout();});</script>
+<script>(function(){var f=/[?&]from=platform/.test(location.search);try{if(f)sessionStorage.setItem('rc_from','1');f=f||sessionStorage.getItem('rc_from')==='1'}catch(e){}if(f||location.hash==='#admin'){document.getElementById('rcBack').hidden=!f;document.getElementById('rcAdminBtn').hidden=false}})();
+window.rcAdmin.isAdmin().then(a=>{if(a){document.getElementById('rcBack').hidden=false;document.getElementById('rcAdminBtn').hidden=false;}if(!a)return;const b=document.getElementById('rcAdminBtn');b.textContent='↩ خروج الإدارة';b.onclick=()=>window.rcAdmin.logout();});</script>
 </body></html>
