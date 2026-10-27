@@ -53,7 +53,7 @@
     <div class="filters" id="filters">
       <button type="button" data-f="all" class="on">الكل</button>
       <button type="button" data-f="owner">خلود</button>
-      <button type="button" data-f="manager">المدير</button>
+      <button type="button" data-f="manager">هاني</button>
       <button type="button" id="refresh" style="margin-inline-start:auto">تحديث</button>
     </div>
     <table>
@@ -68,7 +68,7 @@
   var OWNER_HASH = "ff953a922b9ee7e75f97abd7df23deb5447a0330302b262a0038f06576ec668f"; /* gate-hash:owner */
   var LOG_URL = ""; /* login-log-url */
   var KEY = "n1cluster_gate_v3", VKEY = "ahs_login_log_key";
-  var NAMES = {owner:"خلود", manager:"المدير"};
+  var NAMES = {owner:"خلود", manager:"هاني"};
   var $ = function(id){ return document.getElementById(id); };
   var rows = [], filter = 'all';
   function ls(k, v){ try{ if(v === undefined) return localStorage.getItem(k); if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } }
