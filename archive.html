@@ -718,23 +718,52 @@
       <div class="gate-logo">🔒</div>
       <h2>الدخول للمنصة</h2>
       <p>هذه المنصة خاصة بفريق إدارة الخدمات الصحية المساندة</p>
-      <input type="password" id="gatePassword" placeholder="كلمة المرور" autocomplete="off">
+      <input type="password" id="gatePassword" placeholder="كلمة المرور الخاصة بك" autocomplete="off">
       <button id="gateSubmit" type="button">دخول</button>
       <div id="gateError" class="gate-error">كلمة المرور غير صحيحة</div>
     </div>
   </div>
   <script>
   (function(){
-    var PASS_HASH = "8797b72fb28e652ca852f9d30359f4bf999263bccc2e3cfc2b9008eb36244b87"; /* gate-hash */
-    var KEY = "n1cluster_gate_v2";
+    /* One account per person. Each line holds the SHA-256 of that person's password. */
+    var GATE_USERS = [
+      {id:"owner",   name:"خلود",   hash:"ff953a922b9ee7e75f97abd7df23deb5447a0330302b262a0038f06576ec668f"}, /* gate-hash:owner */
+      {id:"manager", name:"المدير", hash:"9be5e1a2fcabc084ccac43685178c86fa6c4498c47760b74e16b621603e5e72d"} /* gate-hash:manager */
+    ];
+    /* Google Apps Script web app that records each login (name + time). Empty = logging off. */
+    var LOG_URL = ""; /* login-log-url */
+    var KEY = "n1cluster_gate_v3";
     var overlay = document.getElementById('gateOverlay');
-    function unlock(){
+    function findUser(h){ for(var i=0;i<GATE_USERS.length;i++){ if(GATE_USERS[i].hash === h) return GATE_USERS[i]; } return null; }
+    function logLogin(u, how){
+      if(!LOG_URL) return;
+      try{
+        fetch(LOG_URL, {method:'POST', mode:'no-cors', keepalive:true, headers:{'Content-Type':'text/plain;charset=utf-8'},
+          body: JSON.stringify({action:'log', user:u.id, how:how, page:location.pathname.split('/').pop() || 'index.html', ua:navigator.userAgent})});
+      }catch(e){}
+    }
+    function unlock(u){
       overlay.style.display = 'none';
       document.documentElement.style.overflow = '';
+      window.AHS_USER = {id:u.id, name:u.name};
+      if(u.id === 'owner'){
+        var add = function(){
+          if(document.getElementById('loginLogLink')) return;
+          var a = document.createElement('a');
+          a.id = 'loginLogLink'; a.href = 'logins.html'; a.textContent = '🕒 سجل الدخول';
+          a.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9000;background:#0c4468;color:#fff;padding:8px 14px;border-radius:999px;font:700 12.5px inherit;font-family:inherit;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18)';
+          document.body.appendChild(a);
+        };
+        if(document.body) add(); else document.addEventListener('DOMContentLoaded', add);
+      }
     }
-    try {
-      if(localStorage.getItem(KEY) === PASS_HASH){ unlock(); return; }
-    } catch(e){}
+    var saved = null;
+    try { saved = findUser(localStorage.getItem(KEY)); } catch(e){}
+    if(saved){
+      unlock(saved);
+      try{ if(!sessionStorage.getItem(KEY+'_logged')){ sessionStorage.setItem(KEY+'_logged','1'); logLogin(saved, 'auto'); } }catch(e){}
+      return;
+    }
     document.documentElement.style.overflow = 'hidden';
     function sha256Hex(str){
       var data = new TextEncoder().encode(str);
@@ -745,9 +774,11 @@
     function tryLogin(){
       var val = document.getElementById('gatePassword').value.trim();
       sha256Hex(val).then(function(hx){
-        if(hx === PASS_HASH){
-          try{ localStorage.setItem(KEY, PASS_HASH); localStorage.removeItem('n1cluster_gate_ok'); }catch(e){}
-          unlock();
+        var u = findUser(hx);
+        if(u){
+          try{ localStorage.setItem(KEY, hx); localStorage.removeItem('n1cluster_gate_v2'); localStorage.removeItem('n1cluster_gate_ok'); sessionStorage.setItem(KEY+'_logged','1'); }catch(e){}
+          logLogin(u, 'password');
+          unlock(u);
         } else {
           document.getElementById('gateError').style.display = 'block';
         }

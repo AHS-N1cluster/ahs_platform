@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>سجل الدخول — منصة الخدمات الصحية المساندة</title>
+<style>
+  :root{--blue-500:#1b94d0;--blue-600:#146fa3;--blue-700:#0c4468;--blue-900:#061f33;--gray-100:#eef1f4;--gray-300:#d6dde3;--gray-500:#8a97a3;--gray-700:#3d4a56;--gray-900:#1a232c;--red:#c23b2e;--green:#1a9c6f;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Tahoma,"Segoe UI",system-ui,sans-serif;background:#f3f6f9;color:var(--gray-900);}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 16px 48px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  h1{margin:0;font-size:20px;color:var(--blue-700);}
+  a.back{color:var(--blue-600);font-weight:700;text-decoration:none;font-size:13px;}
+  .card{background:#fff;border:1px solid var(--gray-300);border-radius:18px;padding:16px;box-shadow:0 4px 18px rgba(6,31,51,.06);}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .filters button{border:1px solid var(--gray-300);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer;}
+  .filters button.on{background:var(--blue-700);border-color:var(--blue-700);color:#fff;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{text-align:right;padding:10px 8px;border-bottom:1px solid var(--gray-100);}
+  th{color:var(--gray-500);font-weight:700;font-size:12px;}
+  td.dev{color:var(--gray-500);font-size:12px;}
+  .muted{color:var(--gray-500);font-size:13px;padding:18px 4px;text-align:center;}
+  .err{color:var(--red);}
+  .gate{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,var(--blue-900),var(--blue-700) 55%,var(--blue-600));}
+  .gate[hidden]{display:none;}
+  .gate-box{width:100%;max-width:380px;background:#fff;border-radius:24px;padding:30px 26px;text-align:center;}
+  .gate-box h2{margin:0 0 8px;color:var(--blue-700);font-size:18px;}
+  .gate-box p{margin:0 0 16px;font-size:12.5px;color:var(--gray-700);line-height:1.7;}
+  .gate-box input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--gray-300);font:inherit;text-align:center;margin-bottom:10px;}
+  .gate-box button{width:100%;padding:12px;border:0;border-radius:12px;background:var(--blue-500);color:#fff;font:inherit;font-weight:700;cursor:pointer;}
+  .gate-box .e{display:none;color:var(--red);font-size:12px;margin-top:10px;font-weight:700;}
+  @media (max-width:560px){ td.dev, th.dev{display:none;} }
+</style>
+</head>
+<body>
+<div class="gate" id="gate" hidden>
+  <div class="gate-box">
+    <h2 id="gTitle">سجل الدخول</h2>
+    <p id="gText">هذه الصفحة لصاحبة المنصة فقط. أدخلي كلمة المرور الخاصة بك.</p>
+    <input type="password" id="gInput" autocomplete="off">
+    <button type="button" id="gBtn">متابعة</button>
+    <div class="e" id="gErr">غير صحيح</div>
+  </div>
+</div>
+<div class="wrap">
+  <header>
+    <h1>🕒 سجل الدخول للمنصة</h1>
+    <a class="back" href="index.html">← العودة للمنصة</a>
+  </header>
+  <div class="card">
+    <div class="filters" id="filters">
+      <button type="button" data-f="all" class="on">الكل</button>
+      <button type="button" data-f="owner">خلود</button>
+      <button type="button" data-f="manager">المدير</button>
+      <button type="button" id="refresh" style="margin-inline-start:auto">تحديث</button>
+    </div>
+    <table>
+      <thead><tr><th>الحساب</th><th>اليوم والوقت</th><th>الطريقة</th><th>الصفحة</th><th class="dev">الجهاز</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="muted" id="status">جارٍ التحميل…</div>
+  </div>
+</div>
+<script>
+(function(){
+  var OWNER_HASH = "ff953a922b9ee7e75f97abd7df23deb5447a0330302b262a0038f06576ec668f"; /* gate-hash:owner */
+  var LOG_URL = ""; /* login-log-url */
+  var KEY = "n1cluster_gate_v3", VKEY = "ahs_login_log_key";
+  var NAMES = {owner:"خلود", manager:"المدير"};
+  var $ = function(id){ return document.getElementById(id); };
+  var rows = [], filter = 'all';
+  function ls(k, v){ try{ if(v === undefined) return localStorage.getItem(k); if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } }
+  function sha(s){ return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)).then(function(b){ return Array.prototype.map.call(new Uint8Array(b), function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); }); }
+  function ask(title, text, cb){
+    $('gTitle').textContent = title; $('gText').textContent = text; $('gInput').value = ''; $('gErr').style.display = 'none';
+    $('gate').hidden = false; $('gInput').focus();
+    var go = function(){ cb($('gInput').value.trim()); };
+    $('gBtn').onclick = go; $('gInput').onkeydown = function(e){ if(e.key === 'Enter') go(); };
+  }
+  function fmt(iso){
+    var d = new Date(iso); if(isNaN(d)) return iso;
+    return d.toLocaleString('ar-SA-u-ca-gregory-nu-latn', {timeZone:'Asia/Riyadh', weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'numeric', minute:'2-digit'});
+  }
+  function device(ua){
+    ua = ua || '';
+    var os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'Mac' : '—';
+    var br = /Edg\//.test(ua) ? 'Edge' : /CriOS|Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : /Firefox\//.test(ua) ? 'Firefox' : '';
+    return os + (br ? ' · ' + br : '');
+  }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function render(){
+    var list = rows.filter(function(r){ return filter === 'all' || r.user === filter; });
+    $('rows').innerHTML = list.map(function(r){
+      return '<tr><td><b>' + esc(NAMES[r.user] || r.user) + '</b></td><td>' + esc(fmt(r.time)) + '</td><td>' + (r.how === 'auto' ? 'دخول محفوظ' : 'كلمة المرور') + '</td><td>' + esc(r.page) + '</td><td class="dev">' + esc(device(r.ua)) + '</td></tr>';
+    }).join('');
+    $('status').textContent = list.length ? '' : 'لا توجد عمليات دخول مسجلة بعد.';
+    $('status').className = 'muted';
+  }
+  function load(){
+    if(!LOG_URL){ $('status').textContent = 'تسجيل الدخول غير مفعّل بعد: لم يُربط رابط Google Apps Script.'; return; }
+    var key = ls(VKEY);
+    if(!key){ return ask('رمز السجل', 'أدخلي رمز السجل (مرة واحدة على هذا الجهاز).', function(v){ if(v){ ls(VKEY, v); $('gate').hidden = true; load(); } }); }
+    $('status').textContent = 'جارٍ التحميل…';
+    fetch(LOG_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify({action:'list', key:key})})
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(!j.ok){
+          if(j.error === 'denied'){ ls(VKEY, null); $('status').textContent = 'رمز السجل غير صحيح.'; $('status').className = 'muted err'; return load(); }
+          throw new Error(j.error || 'error');
+        }
+        rows = j.rows || []; render();
+      })
+      .catch(function(){ $('status').textContent = 'تعذّر تحميل السجل. حاولي مرة أخرى.'; $('status').className = 'muted err'; });
+  }
+  $('filters').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    if(b.id === 'refresh') return load();
+    filter = b.getAttribute('data-f');
+    Array.prototype.forEach.call(this.querySelectorAll('[data-f]'), function(x){ x.classList.toggle('on', x === b); });
+    render();
+  });
+  if(ls(KEY) === OWNER_HASH){ load(); }
+  else ask('سجل الدخول', 'هذه الصفحة لصاحبة المنصة فقط. أدخلي كلمة المرور الخاصة بك.', function(v){
+    sha(v).then(function(h){
+      if(h === OWNER_HASH){ ls(KEY, h); $('gate').hidden = true; load(); }
+      else $('gErr').style.display = 'block';
+    });
+  });
+})();
+</script>
+</body>
+</html>
