@@ -2135,9 +2135,6 @@ function scrollToContracts(){
 
 async function init(){
   if(location.hash === '#nutrition' && DEPARTMENTS.some(d => d.id === 'nutrition')) activeDept = 'nutrition';
-  // links from the platform's projects tab: #pj=<dept>:<projectId> or #hl=<dept>:<highlightIndex>
-  const deep = /^#(pj|hl)=(\w+):(.+)$/.exec(location.hash);
-  if(deep && DEPARTMENTS.some(d => d.id === deep[2])) activeDept = deep[2];
   renderDeptNav();
   await renderDeptContent();
   renderContractAlert({onClick: async () => {
@@ -2145,13 +2142,6 @@ async function init(){
     setTimeout(scrollToContracts, 80);
   }});
   if(location.hash === '#nutrition') setTimeout(scrollToContracts, 300);
-  if(deep){
-    const ref = decodeURIComponent(deep[3]);
-    setTimeout(() => {
-      if(deep[1] === 'pj'){ const t = document.querySelector('.pj-tile[data-pj="' + CSS.escape(ref) + '"]'); if(t) t.click(); }
-      else if(DEPARTMENT_HIGHLIGHTS[activeDept] && DEPARTMENT_HIGHLIGHTS[activeDept][+ref]) openHighlightModal(activeDept, +ref);
-    }, 300);
-  }
   document.getElementById('highlightModalCloseBtn').addEventListener('click', closeHighlightModal);
   document.getElementById('highlightModalOverlay').addEventListener('click', (e) => {
     if(e.target.id === 'highlightModalOverlay') closeHighlightModal();
