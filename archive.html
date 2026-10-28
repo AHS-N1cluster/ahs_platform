@@ -355,6 +355,11 @@
     background:var(--accent); color:#fff; font-size:16px; font-weight:900;
     display:flex; align-items:center; justify-content:center;
   }
+  .wfd-split{flex:0 0 auto; display:flex; flex-direction:column; gap:5px; align-items:stretch;}
+  .wfd-sp{display:flex; align-items:center; justify-content:space-between; gap:8px; border-radius:9px; padding:4px 10px; font-size:11px; font-weight:800; white-space:nowrap;}
+  .wfd-sp b{font-size:15px; font-weight:900;}
+  .wfd-sp-spec{background:var(--green-bg); color:var(--green);}
+  .wfd-sp-doc{background:#efe9fb; color:#5a3fa6;}
   .wfd-group{margin-bottom:10px;}
   .wfd-group:last-of-type{margin-bottom:0;}
   .wfd-group-name{font-size:10.5px; font-weight:800; color:var(--ink-faint); margin-bottom:5px;}
@@ -1960,6 +1965,11 @@ function detailedWorkforceCard(deptId){
   const META = ['متسربين', 'موفدين ومبتعثين', 'متسربين خارج المختبر', 'خارج قسم الأشعة', 'المجموع الكلي', 'المجموع', 'الدعم'];
   const isMeta = i => META.includes(parsed[i].role) || META.includes(d.columns[i]);
 
+  // physicians are counted apart from everyone else (same rule as the headline badges)
+  const isDocCol = i => !isMeta(i) && ((parsed[i].group || '').includes('الأطباء') || (parsed[i].role || '').includes('طبيب'));
+  const docsIn = r => parsed.reduce((a, p, i) => a + (isDocCol(i) && typeof r.values[i] === 'number' ? r.values[i] : 0), 0);
+  const deptHasDocs = d.rows.some(r => docsIn(r) > 0);
+
   const cards = d.rows.map(r => {
     const groups = {};
     let total = 0;
@@ -1999,7 +2009,10 @@ function detailedWorkforceCard(deptId){
       <div class="wfd-card">
         <div class="wfd-head">
           <div class="wfd-fac">${escapeHtml(r.facility)}</div>
-          <div class="wfd-total">${shown}</div>
+          ${deptHasDocs ? `<div class="wfd-split">
+            <span class="wfd-sp wfd-sp-spec" title="الأخصائيون والفنيون">🧑‍🔬 أخصائيون <b>${shown - docsIn(r)}</b></span>
+            <span class="wfd-sp wfd-sp-doc" title="الأطباء">🩺 أطباء <b>${docsIn(r)}</b></span>
+          </div>` : `<div class="wfd-total">${shown}</div>`}
         </div>
         ${chips || '<div class="wfd-empty">لا يوجد كادر مسجّل</div>'}
         ${metaBits ? `<div class="wfd-metas">${metaBits}</div>` : ''}
