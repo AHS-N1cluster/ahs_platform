@@ -937,7 +937,7 @@ function renderSettlementUploads(){
   return `
     <div class="card">
       <h3>${iconBadge("📅","badge-teal")} لوحة متابعة المستخلصات الشهرية</h3>
-      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">آخر تحديث من قسم التغذية: ${escapeHtml(d.asOf)}</p>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">آخر تحديث: ${escapeHtml(d.asOf)} — بناءً على إفادة مشرف العقود والإعاشة</p>
       <div class="sd-tiles" style="grid-template-columns:repeat(2,minmax(0,1fr));">
         <div class="sd-tile sd-ok"><div class="sd-tile-n">${done}</div><div class="sd-tile-l">عقود مرفوعة مستخلصاتها</div></div>
         <div class="sd-tile sd-info"><div class="sd-tile-n">${prog}</div><div class="sd-tile-l">عقود جاري العمل على مستخلصاتها</div></div>
