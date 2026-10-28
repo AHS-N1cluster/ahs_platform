@@ -783,6 +783,12 @@
   .bell-n{position:absolute; top:-4px; inset-inline-end:-4px; min-width:19px; height:19px; padding:0 5px; box-sizing:border-box;
     border-radius:999px; background:#e0533f; color:#fff; font-size:11px; font-weight:900; line-height:19px; text-align:center; box-shadow:0 0 0 2px #1b6fa0;}
   .bell-n:empty{display:none;}
+  .bell-wrap{position:relative;}
+  .bell-pop{position:absolute; top:0; left:0; width:min(380px, calc(100vw - 32px)); z-index:1000; color:var(--gray-900); direction:rtl;}
+  .bell-pop[hidden]{display:none;}
+  .bell-pop .alx{flex-direction:column; align-items:stretch; margin:0; background:#fff; backdrop-filter:none; box-shadow:0 14px 34px rgba(6,31,51,.25); padding:12px;}
+  .bell-pop .alx-chips{flex-direction:column;}
+  .bell-pop .alx-chip{width:100%;} .bell-pop .alx-chev{margin-inline-start:auto;}
   .alerts{background:rgba(255,255,255,0.62); border:1px solid rgba(255,255,255,0.85); border-radius:18px;
     box-shadow:0 6px 20px rgba(20,80,130,0.08); padding:14px 18px; margin:0 0 16px;}
   .alerts-h{display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none;}
@@ -919,7 +925,10 @@
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:14px;">
-        <button class="bell" id="bellBtn" type="button" aria-label="التنبيهات"><span aria-hidden="true">🔔</span><b class="bell-n" id="bellN"></b></button>
+        <div class="bell-wrap">
+          <button class="bell" id="bellBtn" type="button" aria-label="التنبيهات" aria-expanded="false"><span aria-hidden="true">🔔</span><b class="bell-n" id="bellN"></b></button>
+          <div class="bell-pop" id="alertsBox" hidden></div>
+        </div>
         <div class="topbar-meta" id="lastSyncLabel"></div>
       </div>
     </div>
@@ -928,7 +937,6 @@
   <div class="app">
 
     <div class="section-nav" id="sectionNav"></div>
-    <div id="alertsBox"></div>
 
     <div id="section-tasks" class="section-panel">
     <div class="tk-hero" id="tkHero"></div>
@@ -2331,11 +2339,20 @@ async function init(){
   renderSectionNav();
   renderAlerts();
   const bell = document.getElementById('bellBtn');
-  if(bell) bell.addEventListener('click', () => {
-    const card0 = document.querySelector('.alx-chip'); if(card0 && !alertsOpen){ alertsOpen = card0.dataset.g; renderAlerts(); }
-    if(activeSection !== 'tasks') switchSection(activeSection);
-    document.getElementById('alertsCard').scrollIntoView({behavior:'smooth', block:'start'});
-  });
+  // alerts live only in the bell's dropdown
+  const pop = document.getElementById('alertsBox');
+  document.body.appendChild(pop);   // out of the blurred topbar so it can float above the page
+  const placePop = () => {
+    const r = bell.getBoundingClientRect(), vw = document.documentElement.clientWidth, w = pop.offsetWidth;
+    pop.style.top = (r.bottom + window.scrollY + 10) + 'px';
+    pop.style.left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, vw - w - 16)) + 'px';
+  };
+  const setPop = open => { pop.hidden = !open; bell.setAttribute('aria-expanded', String(open)); if(open) placePop(); };
+  window.addEventListener('resize', () => { if(!pop.hidden) placePop(); });
+  if(bell) bell.addEventListener('click', e => { e.stopPropagation(); setPop(pop.hidden); });
+  document.addEventListener('click', e => { if(!pop.hidden && !e.composedPath().includes(pop) && !bell.contains(e.target)) setPop(false); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') setPop(false); });
+  pop.addEventListener('click', e => { if(e.target.closest('.alx-dept, .alx-row')) setPop(false); });
   state.departments = await loadAllDepartments();
   // last good copy of the sheet shows instantly while the live copy loads
   const cached = readSheetCache();
