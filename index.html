@@ -854,8 +854,8 @@
         var add = function(){
           if(document.getElementById('loginLogLink')) return;
           var a = document.createElement('a');
-          a.id = 'loginLogLink'; a.href = 'logins.html'; a.textContent = '🕒 سجل الدخول';
-          a.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9000;background:#0c4468;color:#fff;padding:8px 14px;border-radius:999px;font:700 12.5px inherit;font-family:inherit;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.18)';
+          a.id = 'loginLogLink'; a.href = 'logins.html'; a.textContent = 'سجل الدخول';
+          a.style.cssText = 'display:block;width:max-content;margin:4px auto 14px;font-size:10.5px;font-family:inherit;color:#8a97a3;opacity:.45;text-decoration:none';
           document.body.appendChild(a);
         };
         if(document.body) add(); else document.addEventListener('DOMContentLoaded', add);
