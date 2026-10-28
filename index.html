@@ -597,6 +597,17 @@
   .rd-card.rd-jobsonly{background:linear-gradient(135deg, rgba(27,148,208,.10), rgba(255,255,255,.55)); border:1.5px dashed var(--blue-500); border-inline-start:5px solid var(--blue-500);}
   .rd-jobsonly .rd-net, .rd-jobsonly .rd-c-in, .rd-jobsonly .rd-c-out{display:none;}
   .rd-prog-jobs{background:var(--blue-500); color:#fff;}
+  .rd-peer-k{display:block; font-size:10px; font-weight:800; color:var(--green);}
+  .jo-sec{margin-top:6px;}
+  .jo-h{font-size:13px; font-weight:900; color:var(--blue-700); margin:4px 2px 10px;}
+  .jo-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; align-items:start;}
+  .jo-card{display:flex; flex-direction:column; align-items:flex-start; gap:10px; min-height:250px; padding:16px; border-radius:16px;
+    background:linear-gradient(180deg, rgba(27,148,208,.12), rgba(255,255,255,.6)); border:1.5px dashed var(--blue-500); border-top:5px solid var(--blue-500); break-inside:avoid;}
+  .jo-name{font-size:14px; font-weight:900; color:var(--gray-900); line-height:1.5;}
+  .jo-total{display:flex; align-items:baseline; gap:6px;} .jo-total b{font-size:30px; font-weight:900; color:var(--blue-700); line-height:1;} .jo-total small{font-size:11px; font-weight:700; color:var(--gray-500);}
+  .jo-list{display:flex; flex-direction:column; gap:6px; width:100%; margin-top:auto;}
+  .jo-row{display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--gray-300); border-radius:10px; padding:7px 10px; font-size:12px; font-weight:800; color:var(--gray-700);}
+  .jo-row b{font-size:14px; color:var(--blue-700);}
   .rd-jobs-k{background:none !important; border:none !important; font-weight:800; color:var(--blue-700) !important; padding-inline-start:0 !important;}
   .rd-peers{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:10px; margin-top:6px;}
   .rd-peer{background:rgba(255,255,255,.75); border:1px solid var(--gray-300); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:6px; break-inside:avoid;}
@@ -1387,7 +1398,8 @@ function renderWorkforcePlan(){
       const jobs = jobsFor(r.name);
       return {...r, in: ins, out: outs, inCount: tin, outCount: tout, net: tin - tout, jobs, jobsTotal: jobs.reduce((a,j) => a + j.num, 0)};
     })
-    .filter(r => r.in.length || r.out.length || r.jobsTotal)
+    // each move is shown once, on the receiving facility's card
+    .filter(r => r.in.length || r.jobsTotal)
     .sort((a,b) => (b.net + b.jobsTotal) - (a.net + a.jobsTotal));
   const facList = wfpFac ? list.filter(r => r.id === wfpFac) : list;
 
@@ -1431,7 +1443,6 @@ function renderWorkforcePlan(){
     const tip = [x.note, st === 'done' ? 'تم' : 'قيد الإنجاز'].filter(Boolean).join(' — ');
     return `
       <div class="rd-pl rd-${st}" title="${escapeHtml(tip)}">
-        <span class="rd-dir rd-dir-${kind}">${kind === 'in' ? '↓ دخول' : '↑ خروج'}</span>
         <div class="rd-pl-main">
           <div class="rd-who">${who}${x.count > 1 ? ` <b class="rd-cnt">×${x.count}</b>` : ''}</div>
           <div class="rd-sub">${role}${x.deptLabel ? `<span class="rd-spec">${escapeHtml(x.deptLabel)}</span>` : ''}</div>
@@ -1440,12 +1451,11 @@ function renderWorkforcePlan(){
         <span class="rd-st">${st === 'done' ? 'تم' : 'قيد الإنجاز'}</span>
       </div>`;
   }
-  // group every move of a facility by the other hospital: one box per hospital
+  // group a facility's incoming moves by where they come from: one box per hospital
   function peers(r){
     const m = new Map();
     const get = p => { const k = String(p || 'غير محدد').trim(); if(!m.has(k)) m.set(k, {name: k, in: [], out: []}); return m.get(k); };
     r.in.forEach(x => get(x.origin).in.push(x));
-    r.out.forEach(x => get(x.destination).out.push(x));
     const cnt = a => a.reduce((s,x) => s + (x.count || 1), 0);
     return [...m.values()].map(p => ({...p, inN: cnt(p.in), outN: cnt(p.out)}))
       .sort((a,b) => (b.inN + b.outN) - (a.inN + a.outN));
@@ -1456,9 +1466,18 @@ function renderWorkforcePlan(){
   const wrap = document.getElementById('wfPlanCards');
   if(!facList.length){ wrap.innerHTML = '<div class="empty-state">لا توجد بيانات مطابقة</div>'; return; }
 
-  wrap.innerHTML = facList.map(r => {
+  const jobCard = r => `
+    <div class="jo-card">
+      <div class="jo-name">${escapeHtml(r.name)}</div>
+      <span class="rd-prog rd-prog-jobs">توظيف فقط</span>
+      <div class="jo-total"><b>${r.jobsTotal}</b><small>وظيفة مقترحة</small></div>
+      <div class="jo-list">${r.jobs.map(j => `<div class="jo-row"><span>${j.icon} ${escapeHtml(j.label)}</span><b>${escapeHtml(String(j.raw))}</b></div>`).join('')}</div>
+    </div>`;
+  const moveFacs = facList.filter(r => r.in.length), jobOnly = facList.filter(r => !r.in.length);
+
+  wrap.innerHTML = moveFacs.map(r => {
     const netCls = r.net > 0 ? 'pos' : (r.net < 0 ? 'neg' : 'zero');
-    const allMoves = [...r.in, ...r.out];
+    const allMoves = r.in;
     const moveTotal = allMoves.reduce((a,x) => a + (x.count || 1), 0);
     const moveDone = allMoves.filter(x => x.status === 'done').reduce((a,x) => a + (x.count || 1), 0);
     const prog = !moveTotal ? 'jobs' : moveDone === moveTotal ? 'done' : moveDone > 0 ? 'part' : 'wait';
@@ -1468,7 +1487,7 @@ function renderWorkforcePlan(){
     const doneIn = r.in.filter(x => x.status === 'done').reduce((a,x) => a + (x.count || 1), 0);
     const ps = peers(r);
     return `
-      <div class="rd-card rd-p-${prog}${moveTotal ? '' : ' rd-jobsonly'}">
+      <div class="rd-card rd-p-${prog}">
         <div class="rd-head">
           <div class="rd-title">${escapeHtml(r.name)}<span class="rd-prog rd-prog-${prog}">${progLabel}</span></div>
           <div class="rd-net rd-net-${netCls}" title="صافي النقل (دخول − خروج)">${netLabel}<small>صافي</small></div>
@@ -1493,14 +1512,18 @@ function renderWorkforcePlan(){
         ${ps.length ? `<div class="rd-peers">${ps.map(p => `
           <div class="rd-peer">
             <div class="rd-peer-h">
-              <span class="rd-peer-n">🏥 ${escapeHtml(p.name.replace(/^مستشفى /, ''))}</span>
+              <span class="rd-peer-n"><small class="rd-peer-k">قادمون من</small> 🏥 ${escapeHtml(p.name.replace(/^مستشفى /, ''))}</span>
               ${p.inN ? `<span class="rd-c-in">↓ ${p.inN}</span>` : ''}
               ${p.outN ? `<span class="rd-c-out">↑ ${p.outN}</span>` : ''}
             </div>
             ${p.in.map(x => line(x, 'in')).join('')}${p.out.map(x => line(x, 'out')).join('')}
           </div>`).join('')}</div>` : ''}
       </div>`;
-  }).join('');
+  }).join('') + (jobOnly.length ? `
+    <div class="jo-sec">
+      <div class="jo-h">🗂️ منشآت لها وظائف مقترحة فقط</div>
+      <div class="jo-grid">${jobOnly.map(jobCard).join('')}</div>
+    </div>` : '');
 }
 
 /* ---------- Projects (editable) ---------- */
