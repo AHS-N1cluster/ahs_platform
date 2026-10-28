@@ -221,6 +221,24 @@
   .sd-seg.sd-ok{background:var(--green);} .sd-seg.sd-info{background:var(--blue);}
   .sd-seg.sd-warn{background:#c79a1f;} .sd-seg.sd-bad{background:var(--red);}
   .sd-stack-cap{font-size:11px; color:var(--ink-faint); margin-bottom:16px;}
+  .sg-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; font-weight:700; color:var(--ink-soft); margin:0 0 10px;}
+  .sg-legend span{display:inline-flex; align-items:center; gap:6px;}
+  .sg-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--panel);}
+  .sg{width:100%; border-collapse:collapse; min-width:620px;}
+  .sg th, .sg td{padding:10px 8px; text-align:center; border-bottom:1px solid var(--line);}
+  .sg tbody tr:last-child td{border-bottom:none;}
+  .sg tbody tr:hover td{background:rgba(27,148,208,.04);}
+  .sg th{font-size:11.5px; font-weight:800; color:var(--ink-soft); background:rgba(234,244,250,.6);}
+  .sg th small{display:block; font-size:10px; font-weight:700; color:var(--ink-faint); margin-top:2px;}
+  .sg .sg-name{text-align:start; min-width:190px;}
+  .sg td.sg-name b{display:block; font-size:12.5px; color:var(--ink);} .sg td.sg-name small{font-size:11px; color:var(--ink-soft);}
+  .sg-c{display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; font-style:normal; font-size:13px; font-weight:900;}
+  .sg-legend .sg-c{width:20px; height:20px; font-size:11px; border-radius:6px;}
+  .sg-ok{background:var(--green-bg); color:var(--green);}
+  .sg-info{background:var(--blue-pale); color:var(--blue-deep);}
+  .sg-warn{background:#fdf3d0; color:#8a6d00; box-shadow:inset 0 0 0 1.5px #e3c463;}
+  .sg-st{font-size:11px; font-weight:800; padding:5px 10px; border-radius:8px; white-space:nowrap;}
+  .sg-st-ok{background:var(--green); color:#fff;} .sg-st-info{background:var(--blue); color:#fff;} .sg-st-warn{background:#c79a1f; color:#fff;}
   .sd-list{display:flex; flex-direction:column; gap:8px;}
   .su-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1.3fr) auto !important;}
   @media (max-width:640px){ .su-row{grid-template-columns:1fr !important;} }
@@ -932,38 +950,49 @@ function renderSettlementUploads(){
   const d = SETTLEMENT_UPLOADS;
   if(!d || !d.rows || !d.rows.length) return '';
   const mVal = s => { const m = String(s || '').match(/^(\d{1,2})-(\d{4})$/); return m ? (+m[2]) * 12 + (+m[1]) : 0; };
-  const rows = [...d.rows].sort((a, b) => (a.state === 'progress' ? 0 : 1) - (b.state === 'progress' ? 0 : 1) || mVal(a.upTo) - mVal(b.upTo));
-  const done = rows.filter(r => r.state === 'done').length, prog = rows.length - done;
-  // months after the last uploaded one, up to the latest month that should be uploaded by now
-  const missing = r => {
-    const from = mVal(r.upTo), to = mVal(d.dueThrough), out = [];
-    if(r.state !== 'done' || !from || !to) return out;
-    for(let v = from + 1; v <= to; v++){ const m = ((v - 1) % 12) + 1, y = Math.floor((v - 1) / 12); out.push(m + '-' + y); }
-    return out;
+  const mStr = v => (((v - 1) % 12) + 1) + '-' + Math.floor((v - 1) / 12);
+  const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const to = mVal(d.dueThrough) || Math.max(...d.rows.map(r => Math.max(mVal(r.upTo), ...(r.working || []).map(mVal))));
+  // grid of the last six months up to the month that should be uploaded by now
+  const cols = []; for(let v = to - 5; v <= to; v++) cols.push(v);
+  // each contract-month is uploaded (✓), being worked on (⏳) or not uploaded yet (✕)
+  const cell = (r, v) => {
+    if((r.working || []).some(m => mVal(m) === v)) return 'info';
+    if(r.state === 'done' && v <= mVal(r.upTo)) return 'ok';
+    if(r.state !== 'done'){ const first = Math.min(...(r.working || []).map(mVal)); if(v < first) return 'ok'; }
+    return 'warn';
   };
+  const rowsX = d.rows.map(r => {
+    const cells = cols.map(v => cell(r, v));
+    const late = cells.filter(c => c === 'warn').length, prog = cells.filter(c => c === 'info').length;
+    const st = late ? 'warn' : prog ? 'info' : 'ok';
+    return {r, cells, late, prog, st};
+  }).sort((a, b) => ({warn:0, info:1, ok:2}[a.st] - {warn:0, info:1, ok:2}[b.st]) || (b.late + b.prog) - (a.late + a.prog));
+  const n = k => rowsX.filter(x => x.st === k).length;
+  const ICON = {ok:'✓', info:'⏳', warn:'✕'}, LBL = {ok:'مرفوع', info:'جاري العمل', warn:'لم يُرفع'};
+  const stLabel = x => x.st === 'ok' ? 'مكتمل حتى ' + MONTHS[(to - 1) % 12]
+                     : x.st === 'info' ? `جاري العمل (${x.prog})` : `لم يُرفع ${x.late === 1 ? 'شهر' : x.late === 2 ? 'شهرين' : x.late + ' شهور'}`;
   return `
     <div class="card">
       <h3>${iconBadge("📅","badge-teal")} لوحة متابعة المستخلصات الشهرية</h3>
       <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">آخر تحديث: ${escapeHtml(d.asOf)} — بناءً على إفادة مشرف العقود والإعاشة</p>
-      <div class="sd-tiles" style="grid-template-columns:repeat(2,minmax(0,1fr));">
-        <div class="sd-tile sd-ok"><div class="sd-tile-n">${done}</div><div class="sd-tile-l">عقود مرفوعة مستخلصاتها</div></div>
-        <div class="sd-tile sd-info"><div class="sd-tile-n">${prog}</div><div class="sd-tile-l">عقود جاري العمل على مستخلصاتها</div></div>
+      <div class="sd-tiles" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+        <div class="sd-tile sd-ok"><div class="sd-tile-n">${n('ok')}</div><div class="sd-tile-l">عقود مكتملة حتى ${MONTHS[(to - 1) % 12]}</div></div>
+        <div class="sd-tile sd-info"><div class="sd-tile-n">${n('info')}</div><div class="sd-tile-l">عقود جاري العمل عليها</div></div>
+        <div class="sd-tile sd-warn"><div class="sd-tile-n">${n('warn')}</div><div class="sd-tile-l">عقود عليها شهور لم تُرفع</div></div>
       </div>
-      <div class="sd-list">
-        ${rows.map(r => `
-          <div class="sd-row su-row sd-row-${r.state === 'done' ? 'ok' : 'info'}">
-            <div class="sd-fac" style="flex-direction:column; align-items:flex-start; gap:3px;">
-              <span style="display:flex; align-items:center; gap:8px;"><span class="sd-dot sd-${r.state === 'done' ? 'ok' : 'info'}"></span>${escapeHtml(r.contract)}</span>
-              <span style="font-size:11.5px; font-weight:600; color:var(--ink-soft); padding-inline-start:18px;">🏢 ${escapeHtml(r.company)}</span>
-            </div>
-            <div class="sd-months">
-              ${r.state === 'done'
-                ? `<span class="sd-pill sd-ok"><b>✓</b>مرفوع حتى <bdi dir="ltr">${escapeHtml(r.upTo)}</bdi></span>` +
-                  missing(r).map(m => `<span class="sd-pill sd-warn" title="لم يُرفع بعد"><b>✕</b><bdi dir="ltr">${escapeHtml(m)}</bdi> لم يُرفع</span>`).join('')
-                : (r.working || []).map(m => `<span class="sd-pill sd-info"><b>⏳</b><bdi dir="ltr">${escapeHtml(m)}</bdi></span>`).join('')}
-            </div>
-            <div class="sd-status"><span class="sd-badge sd-${r.state === 'done' ? 'ok' : 'info'}">${r.state === 'done' ? 'تم الرفع' : 'جاري العمل'}</span></div>
-          </div>`).join('')}
+      <div class="sg-legend">${['ok','info','warn'].map(k => `<span><i class="sg-c sg-${k}">${ICON[k]}</i>${LBL[k]}</span>`).join('')}</div>
+      <div class="sg-wrap">
+        <table class="sg">
+          <thead><tr><th class="sg-name">العقد</th>${cols.map(v => `<th><span>${MONTHS[(v - 1) % 12]}</span><small dir="ltr">${mStr(v)}</small></th>`).join('')}<th>الحالة</th></tr></thead>
+          <tbody>${rowsX.map(x => `
+            <tr>
+              <td class="sg-name"><b>${escapeHtml(x.r.contract.replace(/^عقد /, ''))}</b><small>🏢 ${escapeHtml(x.r.company)}</small></td>
+              ${x.cells.map((c, i) => `<td><i class="sg-c sg-${c}" title="${LBL[c]} — ${mStr(cols[i])}">${ICON[c]}</i></td>`).join('')}
+              <td><span class="sg-st sg-st-${x.st}">${stLabel(x)}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
       </div>
     </div>`;
 }
