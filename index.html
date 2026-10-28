@@ -1747,20 +1747,29 @@ const pgDept = name => PG_DEPTS.find(d => String(name || '').includes(d.k)) || {
 const pgShort = name => String(name || '').replace(/^قسم /, '');
 const pgStCls = st => /مكتمل|منجز|منفَّذة|منفذة/.test(st) ? 'done' : /متأخر/.test(st) ? 'late' : /مقترح|لم يبدأ/.test(st) ? 'idle' : 'prog';
 
+// tracked projects that are finished move to the achievements view (unless the archive already lists them)
+const pgDoneTracked = p => p.status === 'مكتمل';
+const pgNorm = t => String(t || '').replace(/^فعالية\s+/, '').trim();
 function pgItems(view){
-  if(view === 'tracked') return projectsData.map((p, i) => ({i, view, dept:p.dept, title:p.name, desc:p.desc, status:p.status, icon:pgDept(p.dept).icon, pct:p.pct, resp:p.resp, end:p.end, blocker:p.blocker}));
+  const tracked = (p, i) => ({i, src:'tracked', dept:p.dept, title:p.name, desc:p.desc, status:p.status, icon:pgDept(p.dept).icon, pct:p.pct, resp:p.resp, end:p.end, blocker:p.blocker});
+  if(view === 'tracked') return projectsData.map(tracked).filter((it, k) => !pgDoneTracked(projectsData[it.i]));
   const kind = view === 'projects' ? 'project' : 'achievement';
-  return ARCHIVE_ITEMS.map((x, i) => ({x, i, view, dept:x.dept, title:x.title, desc:x.summary,
+  const arch = ARCHIVE_ITEMS.map((x, i) => ({x, i, src:'archive', dept:x.dept, title:x.title, desc:x.summary,
     status: kind === 'project' ? x.statusLabel : 'منجز', group: kind === 'project' ? x.status : 'منجز',
     icon: kind === 'project' ? x.icon : '🏆'})).filter(it => it.x.kind === kind);
+  if(kind !== 'achievement') return arch;
+  const known = new Set(ARCHIVE_ITEMS.map(x => pgNorm(x.title)));
+  const done = projectsData.map(tracked).filter(it => pgDoneTracked(projectsData[it.i]) && !known.has(pgNorm(it.title)))
+    .map(it => ({...it, status:'منجز', group:'منجز', icon:'🏆', pct:null}));
+  return [...done, ...arch];
 }
 
 async function renderProjects(){
   if(!projectsData) projectsData = await loadProjectsData();
   const views = [
-    {id:'tracked', label:'متابعة المشاريع', icon:'📊', n:projectsData.length},
-    {id:'projects', label:'مشاريع الأقسام', icon:'🚀', n:ARCHIVE_ITEMS.filter(x => x.kind === 'project').length},
-    {id:'achievements', label:'المنجزات', icon:'🏆', n:ARCHIVE_ITEMS.filter(x => x.kind === 'achievement').length}];
+    {id:'tracked', label:'متابعة المشاريع', icon:'📊', n:pgItems('tracked').length},
+    {id:'projects', label:'مشاريع الأقسام', icon:'🚀', n:pgItems('projects').length},
+    {id:'achievements', label:'المنجزات', icon:'🏆', n:pgItems('achievements').length}];
   const seg = document.getElementById('pgSeg');
   seg.innerHTML = views.map(v => `<button type="button" class="pg-sg${pgView === v.id ? ' on' : ''}" data-v="${v.id}"><span>${v.icon}</span>${v.label}<b>${v.n}</b></button>`).join('');
   seg.querySelectorAll('.pg-sg').forEach(b => b.addEventListener('click', () => { pgView = b.dataset.v; projectStatusFilter = ''; projectDeptFilter = ''; renderProjects(); }));
@@ -1791,7 +1800,7 @@ async function renderProjects(){
     const ds = pgDept(it.dept), cls = pgStCls(it.status);
     const pct = typeof it.pct === 'number' ? it.pct : null;
     return `
-      <button type="button" class="pg-card" style="--dc:${ds.c}" data-pg="${it.i}">
+      <button type="button" class="pg-card" style="--dc:${ds.c}" data-pg="${it.i}" data-src="${it.src}">
         <div class="pg-top">
           <span class="pg-ico">${it.icon}</span>
           <span class="pg-dept">${escapeHtml(pgShort(it.dept))}</span>
@@ -1808,7 +1817,7 @@ async function renderProjects(){
   }).join('') || '<div class="empty-state">لا توجد عناصر مطابقة</div>';
   grid.querySelectorAll('.pg-card').forEach(c => c.addEventListener('click', () => {
     const i = +c.dataset.pg;
-    if(pgView === 'tracked') openTrackedProject(projectsData[i]); else openArchiveItem(ARCHIVE_ITEMS[i]);
+    if(c.dataset.src === 'tracked') openTrackedProject(projectsData[i]); else openArchiveItem(ARCHIVE_ITEMS[i]);
   }));
 }
 
