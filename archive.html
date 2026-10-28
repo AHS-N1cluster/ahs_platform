@@ -224,7 +224,7 @@
   .sg-legend{display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; font-weight:700; color:var(--ink-soft); margin:0 0 10px;}
   .sg-legend span{display:inline-flex; align-items:center; gap:6px;}
   .sg-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--panel);}
-  .sg{width:100%; border-collapse:collapse; min-width:620px;}
+  .sg{width:100%; border-collapse:collapse; min-width:760px;}
   .sg th, .sg td{padding:10px 8px; text-align:center; border-bottom:1px solid var(--line);}
   .sg tbody tr:last-child td{border-bottom:none;}
   .sg tbody tr:hover td{background:rgba(27,148,208,.04);}
@@ -953,35 +953,34 @@ function renderSettlementUploads(){
   const mStr = v => (((v - 1) % 12) + 1) + '-' + Math.floor((v - 1) / 12);
   const MONTHS = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   const to = mVal(d.dueThrough) || Math.max(...d.rows.map(r => Math.max(mVal(r.upTo), ...(r.working || []).map(mVal))));
-  // grid of the last six months up to the month that should be uploaded by now
-  const cols = []; for(let v = to - 5; v <= to; v++) cols.push(v);
-  // each contract-month is uploaded (✓), being worked on (⏳) or not uploaded yet (✕)
+  // grid from January of that year up to the month that should be uploaded by now
+  const cols = []; for(let v = to - ((to - 1) % 12); v <= to; v++) cols.push(v);
+  // each contract-month is either uploaded (✓) or being worked on (⏳)
   const cell = (r, v) => {
     if((r.working || []).some(m => mVal(m) === v)) return 'info';
     if(r.state === 'done' && v <= mVal(r.upTo)) return 'ok';
     if(r.state !== 'done'){ const first = Math.min(...(r.working || []).map(mVal)); if(v < first) return 'ok'; }
-    return 'warn';
+    return 'info';
   };
   const rowsX = d.rows.map(r => {
     const cells = cols.map(v => cell(r, v));
-    const late = cells.filter(c => c === 'warn').length, prog = cells.filter(c => c === 'info').length;
-    const st = late ? 'warn' : prog ? 'info' : 'ok';
-    return {r, cells, late, prog, st};
-  }).sort((a, b) => ({warn:0, info:1, ok:2}[a.st] - {warn:0, info:1, ok:2}[b.st]) || (b.late + b.prog) - (a.late + a.prog));
+    const prog = cells.filter(c => c === 'info').length;
+    const st = prog ? 'info' : 'ok';
+    return {r, cells, prog, st};
+  }).sort((a, b) => b.prog - a.prog);
   const n = k => rowsX.filter(x => x.st === k).length;
-  const ICON = {ok:'✓', info:'⏳', warn:'✕'}, LBL = {ok:'مرفوع', info:'جاري العمل', warn:'لم يُرفع'};
+  const ICON = {ok:'✓', info:'⏳'}, LBL = {ok:'مرفوع', info:'جاري العمل عليه'};
   const stLabel = x => x.st === 'ok' ? 'مكتمل حتى ' + MONTHS[(to - 1) % 12]
-                     : x.st === 'info' ? `جاري العمل (${x.prog})` : `لم يُرفع ${x.late === 1 ? 'شهر' : x.late === 2 ? 'شهرين' : x.late + ' شهور'}`;
+                     : `جاري العمل على ${x.prog === 1 ? 'شهر' : x.prog === 2 ? 'شهرين' : x.prog + ' شهور'}`;
   return `
     <div class="card">
       <h3>${iconBadge("📅","badge-teal")} لوحة متابعة المستخلصات الشهرية</h3>
       <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">آخر تحديث: ${escapeHtml(d.asOf)} — بناءً على إفادة مشرف العقود والإعاشة</p>
-      <div class="sd-tiles" style="grid-template-columns:repeat(3,minmax(0,1fr));">
+      <div class="sd-tiles" style="grid-template-columns:repeat(2,minmax(0,1fr));">
         <div class="sd-tile sd-ok"><div class="sd-tile-n">${n('ok')}</div><div class="sd-tile-l">عقود مكتملة حتى ${MONTHS[(to - 1) % 12]}</div></div>
         <div class="sd-tile sd-info"><div class="sd-tile-n">${n('info')}</div><div class="sd-tile-l">عقود جاري العمل عليها</div></div>
-        <div class="sd-tile sd-warn"><div class="sd-tile-n">${n('warn')}</div><div class="sd-tile-l">عقود عليها شهور لم تُرفع</div></div>
       </div>
-      <div class="sg-legend">${['ok','info','warn'].map(k => `<span><i class="sg-c sg-${k}">${ICON[k]}</i>${LBL[k]}</span>`).join('')}</div>
+      <div class="sg-legend">${['ok','info'].map(k => `<span><i class="sg-c sg-${k}">${ICON[k]}</i>${LBL[k]}</span>`).join('')}</div>
       <div class="sg-wrap">
         <table class="sg">
           <thead><tr><th class="sg-name">العقد</th>${cols.map(v => `<th><span>${MONTHS[(v - 1) % 12]}</span><small dir="ltr">${mStr(v)}</small></th>`).join('')}<th>الحالة</th></tr></thead>
