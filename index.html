@@ -592,7 +592,19 @@
   .rd-from-k::before{margin-inline-end:3px;}
   .rd-from-in .rd-from-k::before{content:'⬅';} .rd-from-out .rd-from-k::before{content:'➡';}
   .rd-from-v{font-size:11px; font-weight:700; color:var(--gray-900); line-height:1.35;}
-  @media (max-width:520px){ .rd-rows{grid-template-columns:1fr;} .rd-card{padding:14px;} }
+  .rd-flow-jobs{background:var(--blue-500);}
+  .rd-jobs-k{background:none !important; border:none !important; font-weight:800; color:var(--blue-700) !important; padding-inline-start:0 !important;}
+  .rd-peers{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:10px; margin-top:6px;}
+  .rd-peer{background:rgba(255,255,255,.75); border:1px solid var(--gray-300); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:6px; break-inside:avoid;}
+  .rd-peer-h{display:flex; align-items:center; gap:10px; font-size:11.5px; font-weight:800; padding-bottom:6px; border-bottom:1px solid var(--gray-100);}
+  .rd-peer-n{color:var(--gray-900); font-size:12.5px; font-weight:900; margin-inline-end:auto; line-height:1.4;}
+  .rd-peer-h > span:not(.rd-peer-n){white-space:nowrap; flex:0 0 auto;}
+  .rd-pl{display:flex; align-items:center; gap:8px; padding:7px 9px; border-radius:9px; border:1px solid transparent;}
+  .rd-pl.rd-done{background:var(--green-bg);} .rd-pl.rd-pending{background:var(--orange-bg);}
+  .rd-pl-main{flex:1; min-width:0;}
+  .rd-dir{flex:0 0 auto; font-size:10px; font-weight:900; padding:2px 7px; border-radius:6px; background:#fff;}
+  .rd-dir-in{color:var(--green);} .rd-dir-out{color:var(--red);}
+  @media (max-width:520px){ .rd-rows, .rd-peers{grid-template-columns:1fr;} .rd-card{padding:14px;} }
 
   .dr-card{margin-bottom:14px;}
   .dr-toggle{display:flex; align-items:center; gap:10px; width:100%; text-align:start; cursor:pointer;
@@ -970,18 +982,7 @@
     <div id="section-workforceplan" class="section-panel" style="display:none;">
       <div class="panel-head">
         <h2>التوظيف وإعادة التوزيع</h2>
-        <p class="muted">التوزيع المقترح للوظائف مع إعادة التوزيع داخل الجهات لتحقيق التوازن (2025-2026)</p>
-      </div>
-      <div class="wfp-switch" id="wfpSwitch">
-        <button class="wfp-sw is-on" data-sc="noHiring">
-          <b>إعادة التوزيع</b><span>بالكوادر الحالية فقط</span>
-        </button>
-        <button class="wfp-sw" data-sc="withHiring">
-          <b>إعادة التوزيع مع التوظيف</b><span>بافتراض وصول الوظائف المقترحة</span>
-        </button>
-        <button class="wfp-sw" data-sc="hiringOnly">
-          <b>التوظيف فقط</b><span>الوظائف المقترحة لكل منشأة دون إعادة توزيع</span>
-        </button>
+        <p class="muted">إعادة التوزيع مع الوظائف المقترحة لكل منشأة لتحقيق التوازن (2025-2026)</p>
       </div>
       <div class="dr-card" id="drCard"></div>
       <div class="wfp-frow"><span class="wfp-flbl">التخصص</span><div class="wfp-filter" id="wfpFilter"></div></div>
@@ -1112,7 +1113,7 @@ function pdfSubtitle(id){
     return d ? d.name : '';
   }
   if(id === 'workforceplan'){
-    const parts = [wfpScenario === 'withHiring' ? 'إعادة التوزيع مع التوظيف' : 'إعادة التوزيع بالكوادر الحالية فقط'];
+    const parts = ['إعادة التوزيع مع التوظيف'];
     const sp = WORKFORCE_REDISTRIBUTION.specialties.find(s => s.id === wfpDept);
     if(sp) parts.push('التخصص: ' + sp.label);
     return parts.join(' — ');
@@ -1316,11 +1317,11 @@ function jobDistChipsFor(facilityName){
   return JOB_DISTRIBUTION.categories.map(cat => {
     const raw = cat.values[idx];
     const num = jobDistNumeric(raw);
-    return num > 0 ? {icon: cat.icon, label: cat.label, raw, num} : null;
+    return num > 0 ? {id: cat.id, icon: cat.icon, label: cat.label, raw, num} : null;
   }).filter(Boolean);
 }
 
-let wfpScenario = 'noHiring';
+const wfpScenario = 'withHiring';
 let wfpDept = '';
 let wfpFac = '';
 
@@ -1357,83 +1358,32 @@ function renderDoctorRequests(){
   document.getElementById('drToggle').addEventListener('click', () => { drOpen = !drOpen; renderDoctorRequests(); });
 }
 
-let wfpJobCat = '';
-function renderHiringOnly(){
-  const H = JOB_DISTRIBUTION.hospitals, cats = JOB_DISTRIBUTION.categories;
-  const shownCats = wfpJobCat ? cats.filter(x => x.id === wfpJobCat) : cats;
-  const facs = H.map((name, i) => {
-    const jobs = shownCats.map(cat => ({cat, raw: cat.values[i], num: jobDistNumeric(cat.values[i])})).filter(j => j.num > 0);
-    return {id: 'jh-' + i, name, jobs, total: jobs.reduce((a, j) => a + j.num, 0)};
-  }).filter(f => f.total > 0).sort((a, b) => b.total - a.total);
-  if(wfpFac && !facs.some(f => f.id === wfpFac)) wfpFac = '';
-  const shown = wfpFac ? facs.filter(f => f.id === wfpFac) : facs;
-
-  const fe = document.getElementById('wfpFilter');
-  fe.innerHTML = `<button class="wfp-chip${wfpJobCat ? '' : ' is-on'}" data-c="">كل التخصصات</button>` +
-    cats.filter(x => x.total > 0).map(x => `<button class="wfp-chip${wfpJobCat === x.id ? ' is-on' : ''}" data-c="${escapeHtml(x.id)}">${x.icon} ${escapeHtml(x.label)}</button>`).join('');
-  fe.querySelectorAll('.wfp-chip').forEach(b => b.addEventListener('click', () => { wfpJobCat = b.dataset.c; renderWorkforcePlan(); }));
-  const ff = document.getElementById('wfpFacFilter');
-  ff.innerHTML = `<button class="wfp-chip${wfpFac ? '' : ' is-on'}" data-f="">كل المنشآت</button>` +
-    facs.map(f => `<button class="wfp-chip${wfpFac === f.id ? ' is-on' : ''}" data-f="${f.id}">${escapeHtml(f.name.replace(/^مستشفى /, ''))}</button>`).join('');
-  ff.querySelectorAll('.wfp-chip').forEach(b => b.addEventListener('click', () => { wfpFac = b.dataset.f; renderWorkforcePlan(); }));
-
-  const total = shown.reduce((a, f) => a + f.total, 0);
-  const catSet = new Set(shown.flatMap(f => f.jobs.map(j => j.cat.id)));
-  document.getElementById('wfPlanStatsRow').innerHTML = `
-    <div class="stat-card total"><div class="num">${total}</div><div class="lbl">🗂️ وظيفة مقترحة</div></div>
-    <div class="stat-card progress"><div class="num">${shown.length}</div><div class="lbl">🏥 منشأة مستفيدة</div></div>
-    <div class="stat-card done"><div class="num">${catSet.size}</div><div class="lbl">🧩 تخصص</div></div>`;
-  animateStatNumbers(document.getElementById('wfPlanStatsRow'));
-  renderDoctorRequests();
-
-  const max = Math.max(...shown.map(f => f.total), 1);
-  const wrap = document.getElementById('wfPlanCards');
-  wrap.innerHTML = shown.length ? shown.map(f => `
-    <div class="rd-card hj-card">
-      <div class="rd-head">
-        <div class="rd-title">${escapeHtml(f.name)}</div>
-        <div class="hj-total"><b>${f.total}</b><small>وظيفة</small></div>
-      </div>
-      <div class="hj-bar"><i style="width:${(f.total / max) * 100}%"></i></div>
-      <div class="hj-list">
-        ${f.jobs.map(j => `<div class="hj-row"><span class="hj-ico">${j.cat.icon}</span><span class="hj-lbl">${escapeHtml(j.cat.label)}</span><b>${escapeHtml(String(j.raw))}</b></div>`).join('')}
-      </div>
-    </div>`).join('') : '<div class="empty-state">لا توجد وظائف مقترحة مطابقة</div>';
-}
-
 function renderWorkforcePlan(){
-  document.querySelectorAll('.wfp-sw').forEach(b => {
-    b.classList.toggle('is-on', b.dataset.sc === wfpScenario);
-    if(!b.dataset.wired){ b.dataset.wired = '1'; b.addEventListener('click', () => { wfpScenario = b.dataset.sc; wfpFac = ''; renderWorkforcePlan(); }); }
+  const jobsFor = name => jobDistChipsFor(name).filter(j => !wfpDept || (JOBDIST_DEPT[j.id] || '') === wfpDept);
+  const base = (WORKFORCE_REDISTRIBUTION.scenarios[wfpScenario] || []).slice();
+  // facilities that only have proposed jobs still get a card
+  JOB_DISTRIBUTION.hospitals.forEach((h, i) => {
+    if(!base.some(r => matchJobDistIndex(r.name) === i)) base.push({id: 'jh-' + i, name: h, in: [], out: []});
   });
-  const lg = document.getElementById('wfpLegend'); if(lg) lg.style.display = wfpScenario === 'hiringOnly' ? 'none' : '';
-  if(wfpScenario === 'hiringOnly'){ renderHiringOnly(); return; }
-  const list = (WORKFORCE_REDISTRIBUTION.scenarios[wfpScenario] || [])
+  const list = base
     .map(r => {
       // filtering by specialty re-derives each facility's figures from what's shown
       const keep = e => !wfpDept || e.dept === wfpDept;
       const ins = r.in.filter(keep), outs = r.out.filter(keep);
       const tin = ins.reduce((a,x) => a + (x.count || 1), 0);
       const tout = outs.reduce((a,x) => a + (x.count || 1), 0);
-      return {...r, in: ins, out: outs, inCount: tin, outCount: tout, net: tin - tout};
+      const jobs = jobsFor(r.name);
+      return {...r, in: ins, out: outs, inCount: tin, outCount: tout, net: tin - tout, jobs, jobsTotal: jobs.reduce((a,j) => a + j.num, 0)};
     })
-    .filter(r => r.in.length || r.out.length)
-    .sort((a,b) => b.net - a.net);
+    .filter(r => r.in.length || r.out.length || r.jobsTotal)
+    .sort((a,b) => (b.net + b.jobsTotal) - (a.net + a.jobsTotal));
   const facList = wfpFac ? list.filter(r => r.id === wfpFac) : list;
 
-  // scenario buttons
-  document.querySelectorAll('.wfp-sw').forEach(b => {
-    b.classList.toggle('is-on', b.dataset.sc === wfpScenario);
-    if(!b.dataset.wired){
-      b.dataset.wired = '1';
-      b.addEventListener('click', () => { wfpScenario = b.dataset.sc; renderWorkforcePlan(); });
-    }
-  });
-
-  // specialty chips, built from what this scenario actually contains
+  // specialty chips: anything that has a move or a proposed job
   const present = new Set();
   (WORKFORCE_REDISTRIBUTION.scenarios[wfpScenario] || [])
     .forEach(r => [...r.in, ...r.out].forEach(e => present.add(e.dept)));
+  JOB_DISTRIBUTION.categories.forEach(c => { if(c.total > 0 && JOBDIST_DEPT[c.id]) present.add(JOBDIST_DEPT[c.id]); });
   const chips = WORKFORCE_REDISTRIBUTION.specialties.filter(s => present.has(s.id));
   const fe = document.getElementById('wfpFilter');
   fe.innerHTML = `<button class="wfp-chip${wfpDept ? '' : ' is-on'}" data-d="">كل التخصصات</button>` +
@@ -1441,7 +1391,6 @@ function renderWorkforcePlan(){
   fe.querySelectorAll('.wfp-chip').forEach(b =>
     b.addEventListener('click', () => { wfpDept = b.dataset.d; renderWorkforcePlan(); }));
 
-  // facilities offered are the ones still on the board under the current specialty
   if(wfpFac && !list.some(r => r.id === wfpFac)) wfpFac = '';
   const ff = document.getElementById('wfpFacFilter');
   ff.innerHTML = `<button class="wfp-chip${wfpFac ? '' : ' is-on'}" data-f="">كل المنشآت</button>` +
@@ -1452,15 +1401,7 @@ function renderWorkforcePlan(){
   const totalIn = facList.reduce((a,r) => a + r.inCount, 0);
   const totalPending = facList.reduce((a,r) =>
     a + r.in.filter(x => x.status === 'pending').reduce((s,x) => s + (x.count || 1), 0), 0);
-  const selFac = wfpFac ? list.find(r => r.id === wfpFac) : null;
-  const totalJobs = selFac
-    ? jobDistChipsFor(selFac.name)
-        .filter(j => !wfpDept || JOB_DISTRIBUTION.categories.some(x => x.label === j.label && (JOBDIST_DEPT[x.id] || '') === wfpDept))
-        .reduce((a,j) => a + j.num, 0)
-    : wfpDept
-    ? (JOB_DISTRIBUTION.categories.filter(x => (JOBDIST_DEPT[x.id] || '') === wfpDept)
-        .reduce((a,x) => a + x.total, 0))
-    : JOB_DISTRIBUTION.categories.reduce((a,c) => a + c.total, 0);
+  const totalJobs = facList.reduce((a,r) => a + r.jobsTotal, 0);
 
   document.getElementById('wfPlanStatsRow').innerHTML = `
     <div class="stat-card total"><div class="num">${totalJobs}</div><div class="lbl">🗂️ وظيفة مقترحة</div></div>
@@ -1470,74 +1411,81 @@ function renderWorkforcePlan(){
   `;
   animateStatNumbers(document.getElementById('wfPlanStatsRow'));
 
-  // One compact line per person: status dot, who, specialty, and the other end
-  // of the move. The note moves to a tooltip so rows stay scannable.
-  function row(x, kind){
-    const place = kind === 'in' ? x.origin : x.destination;
+  // one line per person inside a hospital box; direction is shown, not the hospital again
+  function line(x, kind){
     const st = x.status === 'done' ? 'done' : 'pending';
     const who = x.name ? escapeHtml(x.name) : `<span class="rd-anon">${escapeHtml((x.role || '').replace(/\s*\(عدد\s*\d+\)/, ''))}</span>`;
     const role = x.name && x.role && x.role !== '—' ? `<span class="rd-role">${escapeHtml(x.role)}</span>` : '';
     const tip = [x.note, st === 'done' ? 'تم' : 'قيد الإنجاز'].filter(Boolean).join(' — ');
     return `
-      <div class="rd-row rd-${kind} rd-${st}" title="${escapeHtml(tip)}">
-        <div class="rd-top">
-          <span class="rd-dot"></span>
+      <div class="rd-pl rd-${st}" title="${escapeHtml(tip)}">
+        <span class="rd-dir rd-dir-${kind}">${kind === 'in' ? '↓ دخول' : '↑ خروج'}</span>
+        <div class="rd-pl-main">
           <div class="rd-who">${who}${x.count > 1 ? ` <b class="rd-cnt">×${x.count}</b>` : ''}</div>
-          <span class="rd-st">${st === 'done' ? 'تم' : 'قيد الإنجاز'}</span>
+          <div class="rd-sub">${role}${x.deptLabel ? `<span class="rd-spec">${escapeHtml(x.deptLabel)}</span>` : ''}</div>
         </div>
-        <div class="rd-sub">${role}${x.deptLabel ? `<span class="rd-spec">${escapeHtml(x.deptLabel)}</span>` : ''}</div>
-        <div class="rd-from rd-from-${kind}">
-          <span class="rd-from-k">${kind === 'in' ? 'قادم من' : 'متجه إلى'}</span>
-          <span class="rd-from-v">${escapeHtml(place.replace(/^مستشفى /, ''))}</span>
-        </div>
+        <span class="rd-st">${st === 'done' ? 'تم' : 'قيد الإنجاز'}</span>
       </div>`;
+  }
+  // group every move of a facility by the other hospital: one box per hospital
+  function peers(r){
+    const m = new Map();
+    const get = p => { const k = String(p || 'غير محدد').trim(); if(!m.has(k)) m.set(k, {name: k, in: [], out: []}); return m.get(k); };
+    r.in.forEach(x => get(x.origin).in.push(x));
+    r.out.forEach(x => get(x.destination).out.push(x));
+    const cnt = a => a.reduce((s,x) => s + (x.count || 1), 0);
+    return [...m.values()].map(p => ({...p, inN: cnt(p.in), outN: cnt(p.out)}))
+      .sort((a,b) => (b.inN + b.outN) - (a.inN + a.outN));
   }
 
   renderDoctorRequests();
 
   const wrap = document.getElementById('wfPlanCards');
-  if(!facList.length){ wrap.innerHTML = '<div class="empty-state">لا توجد قرارات مطابقة</div>'; return; }
+  if(!facList.length){ wrap.innerHTML = '<div class="empty-state">لا توجد بيانات مطابقة</div>'; return; }
 
   wrap.innerHTML = facList.map(r => {
     const netCls = r.net > 0 ? 'pos' : (r.net < 0 ? 'neg' : 'zero');
-    // the card itself is coloured by how much of this facility's movement is done
     const allMoves = [...r.in, ...r.out];
     const moveTotal = allMoves.reduce((a,x) => a + (x.count || 1), 0);
     const moveDone = allMoves.filter(x => x.status === 'done').reduce((a,x) => a + (x.count || 1), 0);
-    const prog = moveTotal && moveDone === moveTotal ? 'done'
-               : moveDone > 0 ? 'part' : 'wait';
-    const progLabel = prog === 'done' ? 'مكتمل'
-                    : prog === 'part' ? `منجز ${moveDone} من ${moveTotal}`
-                    : 'قيد الإنجاز';
+    const prog = !moveTotal ? 'part' : moveDone === moveTotal ? 'done' : moveDone > 0 ? 'part' : 'wait';
+    const progLabel = !moveTotal ? 'توظيف فقط' : prog === 'done' ? 'مكتمل'
+                    : prog === 'part' ? `منجز ${moveDone} من ${moveTotal}` : 'قيد الإنجاز';
     const netLabel = r.net > 0 ? `+${r.net}` : `${r.net}`;
-    const jobs = wfpDept ? [] : jobDistChipsFor(r.name);
-    const jobsTotal = jobs.reduce((a,j) => a + j.num, 0);
-    const flowTotal = r.inCount + r.outCount || 1;
     const doneIn = r.in.filter(x => x.status === 'done').reduce((a,x) => a + (x.count || 1), 0);
+    const ps = peers(r);
     return `
       <div class="rd-card rd-p-${prog}">
         <div class="rd-head">
           <div class="rd-title">${escapeHtml(r.name)}<span class="rd-prog rd-prog-${prog}">${progLabel}</span></div>
-          <div class="rd-net rd-net-${netCls}" title="صافي الدعم">${netLabel}<small>صافي</small></div>
+          <div class="rd-net rd-net-${netCls}" title="صافي النقل (دخول − خروج)">${netLabel}<small>صافي</small></div>
         </div>
 
         <div class="rd-flow">
           <div class="rd-flow-bar">
             ${r.inCount ? `<div class="rd-flow-in" style="flex:${r.inCount}"></div>` : ''}
             ${r.outCount ? `<div class="rd-flow-out" style="flex:${r.outCount}"></div>` : ''}
+            ${r.jobsTotal ? `<div class="rd-flow-jobs" style="flex:${r.jobsTotal}"></div>` : ''}
           </div>
           <div class="rd-flow-cap">
             <span class="rd-c-in">↓ ${r.inCount} دخول</span>
             <span class="rd-c-out">↑ ${r.outCount} خروج</span>
             ${doneIn ? `<span class="rd-c-done">✓ ${doneIn} تم</span>` : ''}
-            ${jobsTotal ? `<span class="rd-c-jobs">+${jobsTotal} توظيف</span>` : ''}
+            ${r.jobsTotal ? `<span class="rd-c-jobs">🗂️ ${r.jobsTotal} وظيفة مقترحة</span>` : ''}
           </div>
         </div>
 
-        ${jobs.length ? `<div class="rd-jobs">${jobs.map(j => `<span>${j.icon} ${escapeHtml(j.label)} <b>${escapeHtml(String(j.raw))}</b></span>`).join('')}</div>` : ''}
+        ${r.jobs.length ? `<div class="rd-jobs"><span class="rd-jobs-k">الوظائف المقترحة</span>${r.jobs.map(j => `<span>${j.icon} ${escapeHtml(j.label)} <b>${escapeHtml(String(j.raw))}</b></span>`).join('')}</div>` : ''}
 
-        ${r.in.length ? `<div class="rd-group"><div class="rd-gh rd-gh-in">الداخلون (${r.inCount})</div><div class="rd-rows">${r.in.map(x => row(x, 'in')).join('')}</div></div>` : ''}
-        ${r.out.length ? `<div class="rd-group"><div class="rd-gh rd-gh-out">الخارجون (${r.outCount})</div><div class="rd-rows">${r.out.map(x => row(x, 'out')).join('')}</div></div>` : ''}
+        ${ps.length ? `<div class="rd-peers">${ps.map(p => `
+          <div class="rd-peer">
+            <div class="rd-peer-h">
+              <span class="rd-peer-n">🏥 ${escapeHtml(p.name.replace(/^مستشفى /, ''))}</span>
+              ${p.inN ? `<span class="rd-c-in">↓ ${p.inN}</span>` : ''}
+              ${p.outN ? `<span class="rd-c-out">↑ ${p.outN}</span>` : ''}
+            </div>
+            ${p.in.map(x => line(x, 'in')).join('')}${p.out.map(x => line(x, 'out')).join('')}
+          </div>`).join('')}</div>` : ''}
       </div>`;
   }).join('');
 }
@@ -1963,25 +1911,10 @@ function applySheetDepts(depts){
     }
   });
 }
-/* ---------- Overdue tasks: due date passed and the task is still open ----------
-   Dates in the sheet mix d/m/y and m/d/y. A date like 5/7/2026 can be read both ways,
-   so a task counts as overdue only when every possible reading is already past. */
-const OPEN_EXCLUDE = ['مكتمل', 'يتابع بشكل دوري'];
-function dueCandidates(str){
-  const m = String(str || '').trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
-  if(!m) return [];
-  const a = +m[1], b = +m[2], y = +m[3], out = [];
-  const add = (d, mo) => { if(mo >= 1 && mo <= 12 && d >= 1 && d <= 31) out.push(new Date(y, mo - 1, d)); };
-  add(a, b); if(a !== b) add(b, a);
-  return out;
-}
+/* ---------- Overdue tasks ---------- */
+/* A task is late only when its status says so — a passed due date alone doesn't count. */
 function isOverdue(t){
-  if(t.status === 'متأخر') return true;
-  if(OPEN_EXCLUDE.includes(t.status)) return false;
-  const c = dueCandidates(t.dueDate);
-  if(!c.length) return false;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  return c.every(d => d < today);
+  return t.status === 'متأخر';
 }
 function openLateTasks(deptId){
   state.activeDept = deptId; state.statusFilter = ''; state.search = ''; state.lateOnly = true;
