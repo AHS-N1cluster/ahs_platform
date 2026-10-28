@@ -180,6 +180,8 @@ textarea{min-height:92px;resize:vertical}
 .seg span{color:var(--ink)}
 .sv-low{color:var(--ok)} .sv-med{color:var(--warn)} .sv-high,.sv-crit{color:var(--bad)}
 .yn{display:flex;gap:8px;flex-wrap:wrap}
+.yn .opt span{min-width:72px;text-align:center}
+.ph-no{margin-top:10px;display:flex;flex-direction:column;gap:6px;max-width:320px}
 .btn{font:inherit;font-weight:700;font-size:13.5px;border-radius:999px;padding:10px 20px;cursor:pointer;border:none;background:linear-gradient(135deg, var(--blue-500), var(--blue-600));color:#fff;box-shadow:0 8px 20px rgba(27,148,208,0.35)}
 .btn:hover{filter:brightness(1.08)}
 .btn.ghost{background:var(--glass);color:var(--gray-700);border:1px solid var(--glass-line);box-shadow:var(--shadow)}
@@ -360,6 +362,22 @@ td.cell.rep{box-shadow:inset 0 0 0 2px var(--bad);border-radius:6px}
           <div class="field"><label for="f-affected">عدد المرضى المتأثرين تقريبًا</label><input type="number" id="f-affected" min="0" inputmode="numeric" placeholder="0"></div>
           <div class="field"><label for="f-role">صفة رافع البلاغ</label>
             <select id="f-role"><option>مدير المختبر</option><option>مدير الصيدلية</option><option>مدير المستشفى</option><option>مدير المركز الصحي</option><option>مشرف الجودة</option><option>رئيس قسم</option></select></div>
+        </div>
+        <div class="field ph-extra" id="phOrder" hidden>
+          <span class="lbl req">هل تم طلب الدواء؟</span>
+          <div class="yn">
+            <label class="opt"><input type="radio" name="ordered" value="yes"><span>نعم</span></label>
+            <label class="opt"><input type="radio" name="ordered" value="no"><span>لا</span></label>
+          </div>
+          <div class="ph-no" id="phOrderNoWrap" hidden><label for="f-orderNo" class="req">رقم الطلب</label><input type="text" id="f-orderNo" inputmode="numeric"></div>
+        </div>
+        <div class="field ph-extra" id="phCirc" hidden>
+          <span class="lbl req">هل تم التعميم عليها خلال فترة ٣ شهور؟</span>
+          <div class="yn">
+            <label class="opt"><input type="radio" name="circulated" value="yes"><span>نعم</span></label>
+            <label class="opt"><input type="radio" name="circulated" value="no"><span>لا</span></label>
+          </div>
+          <div class="ph-no" id="phCircNoWrap" hidden><label for="f-circNo" class="req">رقم التعميم</label><input type="text" id="f-circNo" inputmode="numeric"></div>
         </div>
         <div class="field"><label for="f-desc" class="req">وصف التحدي</label><textarea id="f-desc" placeholder="ماذا يحدث، ومنذ متى، وما أثره على المرضى"></textarea></div>
         <div class="field"><label for="f-action">الإجراء المتخذ حتى الآن</label><textarea id="f-action" style="min-height:70px" placeholder="مثال: تحويل العينات للمختبر الإقليمي، طلب توريد عاجل، صرف بديل علاجي"></textarea></div>
@@ -654,10 +672,20 @@ function buildCats(dept){
     cols.append(el('div',{class:'phase-group'},el('span',{class:'phase-label',style:'color:'+STAGE_COLOR[p]},el('i',{style:'background:'+STAGE_COLOR[p]}),S[p]),opts));
   }
   g.append(cols);
-  g.onchange=e=>{if(e.target.name==='cat')$('#catDef').textContent=catOf(e.target.value).def||''};
+  g.onchange=e=>{if(e.target.name==='cat'){$('#catDef').textContent=catOf(e.target.value).def||'';syncPhExtra()}};
+  syncPhExtra();
   $('#catDef').textContent='اختر النوع الأقرب، ويظهر هنا تعريفه.';
   $('#lbl-item').textContent=D.itemLabel;$('#f-item').placeholder=D.itemPh;
 }
+/* pharmacy follow-up questions: shortage → was it ordered (order no.), expiry → circulated within 3 months (circular no.) */
+function syncPhExtra(){
+  const cat=(document.querySelector('input[name=cat]:checked')||{}).value;
+  $('#phOrder').hidden=cat!=='ph-shortage';
+  $('#phCirc').hidden=cat!=='ph-expiry';
+  $('#phOrderNoWrap').hidden=(document.querySelector('input[name=ordered]:checked')||{}).value!=='yes';
+  $('#phCircNoWrap').hidden=(document.querySelector('input[name=circulated]:checked')||{}).value!=='yes';
+}
+$('#reportForm').addEventListener('change',e=>{if(e.target.name==='ordered'||e.target.name==='circulated')syncPhExtra()});
 (function buildForm(){
   const t=$('#deptTiles');
   for(const[k,D]of Object.entries(DEPTS))t.append(el('label',{class:'tile'},el('input',{type:'radio',name:'dept',value:k,id:'dept-'+k}),el('span',{class:'ic',html:D.icon}),el('div',{},el('b',{text:D.name}),el('span',{class:'s',text:D.sub}))));
@@ -686,6 +714,9 @@ $('#reportForm').addEventListener('submit',async e=>{
   const sev=(document.querySelector('input[name=sev]:checked')||{}).value;
   const desc=$('#f-desc').value.trim();
   const missing=[];if(!hospitalId)missing.push('المستشفى');if(!dept)missing.push('القسم');if(!cat)missing.push('نوع التحدي');if(!sev)missing.push('مستوى الأثر');if(!desc)missing.push('وصف التحدي');
+  const yn=n=>(document.querySelector('input[name='+n+']:checked')||{}).value;
+  if(cat==='ph-shortage'){if(!yn('ordered'))missing.push('هل تم طلب الدواء');else if(yn('ordered')==='yes'&&!$('#f-orderNo').value.trim())missing.push('رقم الطلب')}
+  if(cat==='ph-expiry'){if(!yn('circulated'))missing.push('هل تم التعميم');else if(yn('circulated')==='yes'&&!$('#f-circNo').value.trim())missing.push('رقم التعميم')}
   if(missing.length){err.textContent='أكمل: '+missing.join('، ');err.hidden=false;return}
   if(!db||!uid){err.textContent='تعذر الاتصال بخادم البلاغات. تحقق من الإنترنت وحاول مرة أخرى.';err.hidden=false;return}
   const btn=$('#submitBtn');btn.disabled=true;btn.textContent='جارٍ الإرسال…';
@@ -693,16 +724,23 @@ $('#reportForm').addEventListener('submit',async e=>{
     const aff=parseInt($('#f-affected').value,10),now=Date.now();
     const rid='r'+now.toString(36)+Math.random().toString(36).slice(2,6);
     const rec={hospitalId,dept,category:cat,severity:sev,item:$('#f-item').value.trim(),since:$('#f-since').value||null,affected:Number.isFinite(aff)?aff:null,role:$('#f-role').value,description:desc,action:$('#f-action').value.trim(),needSupport:(document.querySelector('input[name=support]:checked')||{}).value==='yes',createdAt:now,status:'open',statusNote:'',updatedAt:now};
+    if(cat==='ph-shortage'){rec.drugOrdered=yn('ordered')==='yes';rec.orderNo=rec.drugOrdered?$('#f-orderNo').value.trim():''}
+    if(cat==='ph-expiry'){rec.circulated=yn('circulated')==='yes';rec.circularNo=rec.circulated?$('#f-circNo').value.trim():''}
     const ref=db.doc('reports/'+uid);const snap=await ref.get();
     if(snap.exists)await ref.update({items:{[rid]:rec},updatedAt:now});else await ref.set({items:{[rid]:rec},updatedAt:now});
     $('#doneRef').textContent=refOf(rid);$('#reportFormWrap').hidden=true;$('#reportDone').hidden=false;
   }catch(x){err.textContent=x&&x.code==='invalid_argument'?'تعذر حفظ البلاغ. حاول مرة أخرى.':x&&x.code==='quota_exceeded'?'امتلأت سعة البلاغات. تواصل مع إدارة التجمع.':'تعذر الإرسال. حاول مرة أخرى.';err.hidden=false}
   finally{btn.disabled=false;btn.textContent='إرسال البلاغ'}
 });
-$('#anotherBtn').addEventListener('click',()=>{const kh=$('#f-hospital').value,kr=$('#f-role').value;$('#reportForm').reset();$('#f-hospital').value=kh;$('#f-role').value=kr;buildCats(null);$('#reportDone').hidden=true;$('#reportFormWrap').hidden=false});
+$('#anotherBtn').addEventListener('click',()=>{const kh=$('#f-hospital').value,kr=$('#f-role').value;$('#reportForm').reset();$('#f-hospital').value=kh;$('#f-role').value=kr;buildCats(null);syncPhExtra();$('#reportDone').hidden=true;$('#reportFormWrap').hidden=false});
 
 /* ======== report cards ======== */
 const sevRank={crit:0,high:1,med:2,low:3};
+function phFollow(r){
+  if(typeof r.drugOrdered==='boolean')return 'تم طلب الدواء: '+(r.drugOrdered?'نعم — رقم الطلب: '+(r.orderNo||'—'):'لا');
+  if(typeof r.circulated==='boolean')return 'تم التعميم خلال ٣ شهور: '+(r.circulated?'نعم — رقم التعميم: '+(r.circularNo||'—'):'لا');
+  return '';
+}
 function reportCard(r,admin){
   const stCls=r.status==='closed'?'p-ok':r.status==='progress'?'p-warn':'p-neutral';
   const sevCls=r.severity==='crit'||r.severity==='high'?'p-bad':r.severity==='med'?'p-warn':'p-ok';
@@ -711,6 +749,7 @@ function reportCard(r,admin){
     el('div',{class:'meta'},el('span',{class:'num',text:'#'+refOf(r.id)}),el('span',{text:fmtDate(r.createdAt)}),el('span',{text:r.role||''}),r.item?el('span',{text:'المتأثر: '+r.item}):null,r.since?el('span',{text:'منذ: '+r.since}):null,r.affected!=null?el('span',{text:'مرضى متأثرون: '+r.affected}):null),
     el('p',{class:'rep-body',text:r.description||''}),
     r.action?el('p',{class:'small muted rep-body',text:'الإجراء المتخذ: '+r.action}):null,
+    phFollow(r)?el('p',{class:'small rep-body',text:phFollow(r)}):null,
     r.statusNote?el('p',{class:'small rep-body',text:'ملاحظة التجمع: '+r.statusNote}):null);
   if(admin){
     const sel=el('select',{id:'st-'+r.id,'aria-label':'حالة البلاغ'});for(const[k,v]of Object.entries(STATUS))sel.append(el('option',{value:k,text:v}));sel.value=r.status||'open';
@@ -908,8 +947,8 @@ $('#d-period').addEventListener('change',renderDash);$('#d-dept').addEventListen
 $('#l-hosp').addEventListener('change',renderList);$('#l-status').addEventListener('change',renderList);
 $('#exportBtn').addEventListener('click',async()=>{
   if(!downloads)return;const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const head=['رقم البلاغ','التاريخ','المنشأة','القسم','المرحلة','نوع التحدي','مستوى الأثر','المتأثر','بداية المشكلة','مرضى متأثرون','الوصف','الإجراء المتخذ','نوع التذكرة','صفة الرافع','الحالة','ملاحظة التجمع'];
-  const rows=periodReports().map(r=>[refOf(r.id),new Date(r.createdAt).toISOString().slice(0,10),hname(r.hospitalId),DEPTS[deptOf(r)].name,STAGES[deptOf(r)][catOf(r.category).stage]||'',catName(r.category),sevName(r.severity),r.item,r.since,r.affected,r.description,r.action,r.needSupport?'الحاجة للدعم':'للعلم والإحاطة',r.role,STATUS[r.status],r.statusNote]);
+  const head=['رقم البلاغ','التاريخ','المنشأة','القسم','المرحلة','نوع التحدي','مستوى الأثر','المتأثر','بداية المشكلة','مرضى متأثرون','الوصف','الإجراء المتخذ','نوع التذكرة','صفة الرافع','الحالة','ملاحظة التجمع','متابعة الصيدلة'];
+  const rows=periodReports().map(r=>[refOf(r.id),new Date(r.createdAt).toISOString().slice(0,10),hname(r.hospitalId),DEPTS[deptOf(r)].name,STAGES[deptOf(r)][catOf(r.category).stage]||'',catName(r.category),sevName(r.severity),r.item,r.since,r.affected,r.description,r.action,r.needSupport?'الحاجة للدعم':'للعلم والإحاطة',r.role,STATUS[r.status],r.statusNote,phFollow(r)]);
   const csv='﻿'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n');
   try{await downloads.save({filename:'بلاغات-'+DEPTS[curDept()].name+'-'+new Date().toISOString().slice(0,10)+'.csv',data:csv})}catch(x){if(x&&x.code!=='declined')toast('تعذر التصدير في هذا العرض')}
 });
