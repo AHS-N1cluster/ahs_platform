@@ -2255,9 +2255,9 @@ async function renderDeptContent(){
       <p>الهيكل التنظيمي، القوى العاملة${dept.hasEquipment ? '، الأجهزة' : ''}، والخدمات والمنجزات</p>
     </div>
     ${renderOrgChart(dept.id, dept.name)}
-    ${renderNutritionDashboardCard(dept.id)}
     ${renderNutritionContractsCard(dept.id)}
     ${dept.id === 'nutrition' ? renderSettlementUploads() : ''}
+    ${renderNutritionDashboardCard(dept.id)}
     ${renderNutritionMealsCard(dept.id)}
     ${renderDeptStatsCard(dept.id)}
     ${renderPharmacyStrategyCard(dept.id)}
