@@ -2332,20 +2332,7 @@ function openNutritionMagazine(){
 }
 
 /* Labs: Ayenati (NMR) results & TAT compliance report — 8-hour tests, Northern Borders cluster */
-const AYENATI = {"asOf":"29 أكتوبر 2026","pdf":"reports/ayenati-2026-10-29.pdf",
- "pages":["images/ayenati-2026-10-29/p-1.jpg","images/ayenati-2026-10-29/p-2.jpg","images/ayenati-2026-10-29/p-3.jpg","images/ayenati-2026-10-29/p-4.jpg","images/ayenati-2026-10-29/p-5.jpg","images/ayenati-2026-10-29/p-6.jpg","images/ayenati-2026-10-29/p-7.jpg"],
- "pageTitles":["الامتثال في إصدار النتائج","الالتزام بوقت الإنجاز (TAT)","رحلة العينة بالتفصيل","اكتمال بيانات المراحل","فحوصات بدون نتائج","مستوى عمليات المختبرات (المملكة)","الإدخال اليدوي للنتائج"],
- "gauges":[{"l":"نسبة الفحوصات التي صدرت نتائجها","sub":"النتائج ÷ العينات المسحوبة","v":97.2},
-   {"l":"نتائج صدرت ضمن الوقت المستهدف (SLA)","sub":"ضمن SLA ÷ النتائج","v":98.9},
-   {"l":"نتائج وصلت لتطبيق صحتي","sub":"في صحتي ÷ النتائج","v":100}],
- "gDate":"27 أكتوبر 2026",
- "tat":{"date":"28 أكتوبر 2026","collected":2116,"resulted":2070,"inSla":2067,"rate":99.86,"over":3,
-  "rows":[{"f":"المختبر الإقليمي وبنك الدم","c":1500,"r":1473,"s":1473,"v":100},{"f":"مستشفى رفحاء العام","c":322,"r":314,"s":311,"v":99.04},
-   {"f":"مستشفى العويقيلة العام","c":119,"r":119,"s":119,"v":100},{"f":"مستشفى طريف العام","c":115,"r":115,"s":115,"v":100},{"f":"مستشفى الشعبة العام","c":60,"r":49,"s":49,"v":100}]},
- "journey":{"date":"25 – 28 أكتوبر 2026","collected":8822,"resulted":8525,"rate":96.6,"sehhaty":100,"avgTat":4.5,
-  "rows":[{"f":"المختبر الإقليمي وبنك الدم","c":6577,"r":6391,"v":97.2,"t":4},{"f":"مستشفى رفحاء العام","c":1088,"r":1024,"v":94.1,"t":5},
-   {"f":"مستشفى العويقيلة العام","c":487,"r":468,"v":96.1,"t":3},{"f":"مستشفى طريف العام","c":486,"r":480,"v":98.8,"t":4},{"f":"مستشفى الشعبة العام","c":184,"r":162,"v":88.0,"t":2}]},
- "noResult":{"total":46,"of":2116,"phc":33,"lab":13}};
+const AYENATI = {"asOf": "29 أكتوبر 2026", "pdf": "reports/ayenati-2026-10-29.pdf", "pages": ["images/ayenati-2026-10-29/p-1.jpg?v=2", "images/ayenati-2026-10-29/p-2.jpg?v=2", "images/ayenati-2026-10-29/p-3.jpg?v=2", "images/ayenati-2026-10-29/p-4.jpg?v=2", "images/ayenati-2026-10-29/p-5.jpg?v=2", "images/ayenati-2026-10-29/p-6.jpg", "images/ayenati-2026-10-29/p-7.jpg"], "pageTitles": ["الامتثال في إصدار النتائج", "الالتزام بوقت الإنجاز (TAT)", "رحلة العينة بالتفصيل", "اكتمال بيانات المراحل", "فحوصات بدون نتائج", "مستوى عمليات المختبرات (المملكة)", "الإدخال اليدوي للنتائج"], "gauges": [{"l": "نسبة الفحوصات التي صدرت نتائجها", "sub": "النتائج ÷ العينات المسحوبة", "v": 96.6}, {"l": "نتائج صدرت ضمن الوقت المستهدف (SLA)", "sub": "ضمن SLA ÷ النتائج", "v": 99.3}, {"l": "نتائج وصلت لتطبيق صحتي", "sub": "في صحتي ÷ النتائج", "v": 100}], "gDate": "25 – 28 أكتوبر 2026", "tat": {"date": "25 – 28 أكتوبر 2026", "collected": 8822, "rejected": 11, "resulted": 8514, "inSla": 8452, "rate": 99.27, "over": 62, "rows": [{"f": "المختبر الإقليمي وبنك الدم", "c": 6577, "r": 6391, "s": 6367, "v": 99.62}, {"f": "مستشفى رفحاء العام", "c": 1088, "r": 1018, "s": 980, "v": 96.27, "rej": 6}, {"f": "مستشفى العويقيلة العام", "c": 487, "r": 468, "s": 468, "v": 100}, {"f": "مستشفى طريف العام", "c": 486, "r": 475, "s": 475, "v": 100, "rej": 5}, {"f": "مستشفى الشعبة العام", "c": 184, "r": 162, "s": 162, "v": 100}]}, "journey": {"date": "24 – 28 أكتوبر 2026", "collected": 8822, "resulted": 8525, "rate": 96.6, "sehhaty": 100, "avgTat": 4.5, "rows": [{"f": "المختبر الإقليمي وبنك الدم", "c": 6577, "r": 6391, "v": 97.2, "t": 4}, {"f": "مستشفى رفحاء العام", "c": 1088, "r": 1024, "v": 94.1, "t": 5}, {"f": "مستشفى العويقيلة العام", "c": 487, "r": 468, "v": 96.1, "t": 3}, {"f": "مستشفى طريف العام", "c": 486, "r": 480, "v": 98.8, "t": 4}, {"f": "مستشفى الشعبة العام", "c": 184, "r": 162, "v": 88.0, "t": 2}]}, "noResult": {"total": 46, "of": 2116, "phc": 33, "lab": 13, "date": "28 أكتوبر 2026"}};
 
 function renderAyenatiCard(deptId){
   const a = AYENATI;
@@ -2364,20 +2351,20 @@ function renderAyenatiCard(deptId){
       <h3>${iconBadge("🧪","badge-blue")} مؤشرات منصة عيّناتي — فحوصات الـ8 ساعات</h3>
       <p class="ay-sub">تقرير منصة عيّناتي (NMR) لتجمع الحدود الشمالية الصحي · تاريخ التقرير: ${escapeHtml(a.asOf)}</p>
       <div class="ay-gauges">${a.gauges.map(gauge).join('')}</div>
-      <div class="ay-cap">نتائج يوم ${escapeHtml(a.gDate)}</div>
+      <div class="ay-cap">فترة جمع العينات: ${escapeHtml(a.gDate)}</div>
 
       <div class="ay-grid">
         <div class="ay-box">
           <div class="ay-h">⏱️ الالتزام بوقت الإنجاز (SLA) <small>${escapeHtml(a.tat.date)}</small></div>
           <div class="ay-kpis">
             <div><b>${n(a.tat.collected)}</b><span>عينة مسحوبة</span></div>
-            <div><b>${n(a.tat.resulted)}</b><span>نتيجة صادرة</span></div>
+            <div><b>${n(a.tat.resulted)}</b><span>نتيجة صادرة${a.tat.rejected ? ` · ${a.tat.rejected} مرفوضة` : ''}</span></div>
             <div class="ay-hl ay-${band(a.tat.rate)}"><b>${pct(a.tat.rate)}</b><span>ضمن الوقت المستهدف</span></div>
             <div class="ay-warn"><b>${a.tat.over}</b><span>تجاوزت الوقت</span></div>
           </div>
           ${a.tat.rows.map(r => `
             <div class="ay-row ay-${band(r.v)}">
-              <span class="ay-f">${escapeHtml(r.f)}<small>${n(r.c)} عينة · ${n(r.r)} نتيجة</small></span>
+              <span class="ay-f">${escapeHtml(r.f)}<small>${n(r.c)} عينة · ${n(r.r)} نتيجة${r.rej ? ` · ${r.rej} مرفوضة` : ''}</small></span>
               <div class="ay-track"><i style="width:${r.v}%"></i></div>
               <b class="ay-v">${pct(r.v)}</b>
             </div>`).join('')}
@@ -2401,7 +2388,7 @@ function renderAyenatiCard(deptId){
 
       <div class="ay-nores">
         <span class="ay-nores-n">${a.noResult.total}</span>
-        <span>فحصًا بدون نتيجة من أصل ${n(a.noResult.of)} (${pct(Math.round(a.noResult.total / a.noResult.of * 1000) / 10)})</span>
+        <span>فحصًا بدون نتيجة${a.noResult.date ? ` (${escapeHtml(a.noResult.date)})` : ''} من أصل ${n(a.noResult.of)} (${pct(Math.round(a.noResult.total / a.noResult.of * 1000) / 10)})</span>
         <span class="ay-chip">⏳ بانتظار المراكز الصحية: ${a.noResult.phc}</span>
         <span class="ay-chip">🧪 بانتظار المختبرات: ${a.noResult.lab}</span>
       </div>
