@@ -1967,7 +1967,7 @@ function renderNutritionDashboardCard(deptId){
 }
 
 /* Radiology: emergency report turnaround time (TAT), from the radiology department's daily APEX report */
-const RADIOLOGY_TAT = {"reportDate":"28 أكتوبر 2026","source":"APEX","target":"ساعتين أو أقل","scope":"حالات الطوارئ (الرنين المغناطيسي، الأشعة المقطعية، الموجات فوق الصوتية)","preparedBy":"منى محمد العنزي",
+const RADIOLOGY_TAT = {"reportDate":"28 أكتوبر 2026","source":"APEX","target":"ساعتين أو أقل","scope":"حالات الطوارئ (الرنين المغناطيسي، الأشعة المقطعية، الموجات فوق الصوتية)","preparedBy":"منى محمد العنزي","pdf":"reports/radiology-tat-28-oct-2026.pdf",
  "day":{"cases":120,"within":113,"over":7,"rate":94.2,"perf":"يحتاج تحسين",
   "rows":[{"f":"مستشفى برج الشمال الطبي","cases":47,"over":3,"rate":93.6,"perf":"يحتاج تحسين"},
    {"f":"مستشفى الأمير عبدالعزيز بن مساعد","cases":35,"over":2,"rate":94.3,"perf":"يحتاج تحسين"},
@@ -2003,6 +2003,7 @@ function renderRadiologyTatCard(deptId){
         المستهدف: إصدار التقرير خلال <b>${escapeHtml(t.target)}</b> · النطاق: ${escapeHtml(t.scope)} · المصدر: ${escapeHtml(t.source)}<br>
         تاريخ التقرير: ${escapeHtml(t.reportDate)} · إعداد: ${escapeHtml(t.preparedBy)}
       </p>
+      ${t.pdf ? `<a href="${escapeHtml(t.pdf)}" target="_blank" rel="noopener" style="display:inline-block; margin:0 0 14px; padding:9px 18px; border-radius:10px; background:var(--accent); color:#fff; font-size:12.5px; font-weight:800; text-decoration:none;">📄 فتح التقرير (PDF)</a>` : ''}
       <div class="sd-tiles">
         <div class="sd-tile sd-info"><div class="sd-tile-n">${t.month.cases.toLocaleString('en-US')}</div><div class="sd-tile-l">حالة طوارئ (${escapeHtml(t.month.label)})</div></div>
         <div class="sd-tile sd-ok"><div class="sd-tile-n">${t.month.within.toLocaleString('en-US')}</div><div class="sd-tile-l">أُنجزت خلال ساعتين</div></div>
