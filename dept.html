@@ -838,6 +838,20 @@
   }
   @media print{ .nc-tl-bar.is-warn{animation:none;} }
 
+  .pj-poster-layout{display:grid; grid-template-columns:260px 1fr; gap:20px; align-items:start;}
+  .pj-poster-layout > .pj-poster-side > .pj-sec:first-child, .pj-poster-layout > .pj-poster-side > .pj-kpis{margin-top:0;}
+  @media (max-width:760px){ .pj-poster-layout{grid-template-columns:1fr;} .pj-poster{max-width:260px; margin:0 auto;} }
+  .pj-poster{position:sticky; top:16px; margin:0;}
+  .pj-poster button{display:block; width:100%; padding:8px; border:1px solid rgba(214,221,227,.8); border-radius:16px; background:#fff; cursor:zoom-in;
+    box-shadow:0 10px 26px rgba(12,68,104,.14); transition:transform .25s ease, box-shadow .25s ease;}
+  .pj-poster button:hover{transform:translateY(-3px) rotate(-.6deg); box-shadow:0 16px 34px rgba(12,68,104,.2);}
+  .pj-poster img{display:block; width:100%; border-radius:10px;}
+  .pj-poster figcaption{text-align:center; font-size:11.5px; font-weight:700; color:#8a97a3; margin-top:8px;}
+  .lb-overlay{position:fixed; inset:0; z-index:100000; background:rgba(6,31,51,.82); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    display:none; align-items:center; justify-content:center; padding:24px; cursor:zoom-out;}
+  .lb-overlay.open{display:flex;}
+  .lb-overlay img{max-width:min(92vw, 900px); max-height:92vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.45); cursor:default; background:#fff;}
+  .lb-x{position:absolute; top:16px; inset-inline-end:16px; width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,.9); font-size:18px; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -1783,10 +1797,18 @@ function projectDetail(p){
         <div class="pj-detail-head-title"><span>${p.icon}</span> ${escapeHtml(p.title)}</div>
         <button class="pj-detail-close" data-close-pj="${escapeHtml(p.id)}">▲ إغلاق</button>
       </div>
-      ${p.image ? `<div style="margin-bottom:16px;"><a href="${escapeHtml(p.image)}" target="_blank" rel="noopener"><img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" style="width:100%; ${p.imageFit === 'contain' ? 'max-height:820px; object-fit:contain; background:#fff;' : 'max-height:420px; object-fit:cover;'} border-radius:12px; display:block;"></a></div>` : ''}
-      <div class="pj-kpis">${p.kpis.map(k => `
-        <div class="pj-kpi"><div class="pj-kpi-v">${escapeHtml(k.value)}</div><div class="pj-kpi-l">${escapeHtml(k.label)}</div></div>`).join('')}</div>
-      ${p.sections.map(projectSection).join('')}
+      ${p.image && p.imageFit !== 'contain' ? `<div style="margin-bottom:16px;"><img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" style="width:100%; max-height:420px; object-fit:cover; border-radius:12px; display:block;"></div>` : ''}
+      ${(() => {
+        const body = `<div class="pj-kpis">${p.kpis.map(k => `
+          <div class="pj-kpi"><div class="pj-kpi-v">${escapeHtml(k.value)}</div><div class="pj-kpi-l">${escapeHtml(k.label)}</div></div>`).join('')}</div>
+          ${p.sections.map(projectSection).join('')}`;
+        // infographic: a framed poster beside the details, opening full size in a lightbox
+        return p.image && p.imageFit === 'contain' ? `
+          <div class="pj-poster-layout">
+            <figure class="pj-poster"><button type="button" data-lightbox="${escapeHtml(p.image)}" data-alt="${escapeHtml(p.title)}"><img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}"></button><figcaption>🔍 اضغطي على الانفوقرافيك لعرضه كاملًا</figcaption></figure>
+            <div class="pj-poster-side">${body}</div>
+          </div>` : body;
+      })()}
     </div>`;
 }
 
@@ -2489,6 +2511,21 @@ async function init(){
 
 window.startApp = init;
 if(GRANTED) init();
+
+/* poster-style images (infographics) open in an in-page lightbox */
+function openLightbox(src, alt){
+  let o = document.getElementById('lbOverlay');
+  if(!o){
+    o = document.createElement('div'); o.id = 'lbOverlay'; o.className = 'lb-overlay';
+    o.innerHTML = '<button type="button" class="lb-x" aria-label="إغلاق">✕</button><img alt="">';
+    o.addEventListener('click', e => { if(e.target.tagName !== 'IMG') o.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') o.classList.remove('open'); });
+    document.body.appendChild(o);
+  }
+  const img = o.querySelector('img'); img.src = src; img.alt = alt || '';
+  o.classList.add('open');
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-lightbox]'); if(b){ e.preventDefault(); openLightbox(b.dataset.lightbox, b.dataset.alt); } });
 </script>
 </body>
 </html>
