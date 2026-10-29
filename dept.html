@@ -256,6 +256,25 @@
   .tat-drow .tat-f{flex:1; min-width:120px;} .tat-n{font-size:11px; color:var(--ink-soft); font-weight:700;} .tat-n em{font-style:normal; color:var(--red);}
   .tat-pill{font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap;}
   .tat-p-ok{background:var(--green-bg); color:var(--green);} .tat-p-warn{background:#fdf3d0; color:#8a6d00;} .tat-p-bad{background:var(--red-bg); color:var(--red);} .tat-p-na{background:#eef1f4; color:var(--ink-faint);}
+  .lt-wrap{display:grid; grid-template-columns:240px 1fr; gap:18px; align-items:start;}
+  @media (max-width:720px){ .lt-wrap{grid-template-columns:1fr;} }
+  .lt-gauge{--lc:var(--green); position:relative; background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:18px 14px; text-align:center;}
+  .lt-gauge svg{width:170px; height:170px; transform:rotate(-90deg); display:block; margin:0 auto;}
+  .lt-g-bg{fill:none; stroke:#eef1f4; stroke-width:12;}
+  .lt-g-fg{fill:none; stroke:var(--lc); stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 1.2s ease;}
+  .lt-g-c{position:absolute; top:18px; left:0; right:0; height:170px; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .lt-g-c b{font-size:30px; font-weight:900; color:var(--lc); line-height:1;} .lt-g-c span{font-size:11.5px; font-weight:800; color:var(--ink-soft); margin-top:6px;}
+  .lt-g-legend{display:flex; flex-direction:column; gap:6px; margin-top:14px; text-align:start;}
+  .lt-lg{display:flex; align-items:center; gap:8px; font-size:11.5px; font-weight:700; color:var(--ink-soft);} .lt-lg i{width:10px; height:10px; border-radius:3px; background:var(--lc);}
+  .lt-list{display:flex; flex-direction:column; gap:8px;}
+  .lt-row{--lc:var(--green); display:flex; align-items:center; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:10px 14px; border-inline-start:4px solid var(--lc); transition:transform .2s;}
+  .lt-row:hover{transform:translateX(-3px);}
+  .lt-rank{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; color:var(--lc); background:color-mix(in srgb, var(--lc) 14%, #fff);}
+  .lt-main{flex:1; min-width:0;}
+  .lt-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px;}
+  .lt-f{font-size:12.5px; font-weight:800; color:var(--ink);} .lt-v{font-size:15px; font-weight:900; color:var(--lc);}
+  .lt-track{height:8px; border-radius:999px; background:#eef1f4; overflow:hidden;} .lt-track i{display:block; height:100%; border-radius:999px; background:var(--lc);}
+  .lt-ok{--lc:#1a9c6f;} .lt-warn{--lc:#d9a21f;} .lt-or{--lc:#e0782c;} .lt-bad{--lc:#c23b2e;}
   .sd-list{display:flex; flex-direction:column; gap:8px;}
   .su-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1.3fr) auto !important;}
   @media (max-width:640px){ .su-row{grid-template-columns:1fr !important;} }
@@ -2034,6 +2053,51 @@ function renderRadiologyTatCard(deptId){
     </div>`;
 }
 
+/* Labs: emergency sample turnaround time (TAT) indicator, from the labs department's indicator sheet */
+const LAB_TAT = {"asOf":"29 أكتوبر 2026","overall":92.5,
+ "rows":[{"f":"مجمع إرادة والصحة النفسية","v":100},{"f":"مستشفى جديدة عرعر العام","v":100},{"f":"مستشفى طريف العام","v":100},
+  {"f":"مستشفى العويقيلة العام","v":97.2},{"f":"مستشفى عرعر المركزي","v":93.16},{"f":"مستشفى الشعبة العام","v":93.02},
+  {"f":"مستشفى رفحاء العام","v":92.7},{"f":"مستشفى النساء والولادة والأطفال بعرعر","v":91.1},{"f":"مستشفى الأمير عبدالعزيز بن مساعد","v":88.56}]};
+
+function renderLabTatCard(deptId){
+  const t = LAB_TAT;
+  if(deptId !== 'labs' || !t) return '';
+  // colour bands (green / yellow / orange / red) as on the department's sheet
+  const band = v => v >= 90 ? 'ok' : v >= 85 ? 'warn' : v >= 80 ? 'or' : 'bad';
+  const label = {ok:'ضمن المستهدف', warn:'قريب من المستهدف', or:'يحتاج تحسين', bad:'إجراء عاجل'};
+  const fmt = v => String(Math.round(v * 100) / 100) + '%';
+  const rows = [...t.rows].sort((a, b) => b.v - a.v);
+  const C = 2 * Math.PI * 52, off = C * (1 - t.overall / 100);
+  const counts = rows.reduce((a, r) => (a[band(r.v)] = (a[band(r.v)] || 0) + 1, a), {});
+  return `
+    <div class="card">
+      <h3>${iconBadge("⏱️","badge-blue")} مؤشر وقت دوران العينة للطوارئ (TAT)</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;">نسبة عينات الطوارئ المنجزة ضمن الوقت المستهدف لكل مستشفى · آخر تحديث: ${escapeHtml(t.asOf)}</p>
+      <div class="lt-wrap">
+        <div class="lt-gauge lt-${band(t.overall)}">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" class="lt-g-bg"></circle>
+            <circle cx="60" cy="60" r="52" class="lt-g-fg" style="stroke-dasharray:${C.toFixed(1)}; stroke-dashoffset:${off.toFixed(1)}"></circle>
+          </svg>
+          <div class="lt-g-c"><b>${fmt(t.overall)}</b><span>مؤشر التجمع</span></div>
+          <div class="lt-g-legend">
+            ${['ok','warn','or','bad'].filter(k => counts[k]).map(k => `<span class="lt-lg lt-${k}"><i></i>${counts[k]} ${label[k]}</span>`).join('')}
+          </div>
+        </div>
+        <div class="lt-list">
+          ${rows.map((r, i) => `
+            <div class="lt-row lt-${band(r.v)}">
+              <span class="lt-rank">${i + 1}</span>
+              <div class="lt-main">
+                <div class="lt-top"><span class="lt-f">${escapeHtml(r.f)}</span><b class="lt-v">${fmt(r.v)}</b></div>
+                <div class="lt-track"><i style="width:${r.v}%"></i></div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderNutritionContractsCard(deptId){
   if(deptId !== 'nutrition') return '';
   const c = NUTRITION_CONTRACTS;
@@ -2346,6 +2410,7 @@ async function renderDeptContent(){
     ${renderDeptStatsCard(dept.id)}
     ${renderPharmacyStrategyCard(dept.id)}
     ${renderRadiologyTatCard(dept.id)}
+    ${renderLabTatCard(dept.id)}
     ${renderServicesCard(dept.id)}
     ${renderAchievementsCard(dept.id)}
     ${renderProjectsCard(dept.id)}
