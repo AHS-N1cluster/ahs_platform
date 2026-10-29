@@ -240,6 +240,22 @@
   .sg-warn{background:#fdf3d0; color:#8a6d00; box-shadow:inset 0 0 0 1.5px #e3c463;}
   .sg-st{font-size:11px; font-weight:800; padding:5px 10px; border-radius:8px; white-space:nowrap;}
   .sg-st-ok{background:var(--green); color:#fff;} .sg-st-info{background:var(--blue); color:#fff;} .sg-st-warn{background:#c79a1f; color:#fff;}
+  .tat-cols{display:grid; grid-template-columns:1.15fr 1fr; gap:14px; margin-top:4px;}
+  @media (max-width:820px){ .tat-cols{grid-template-columns:1fr;} }
+  .tat-box{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px;}
+  .tat-h{font-size:13px; font-weight:900; color:var(--ink); margin-bottom:12px;} .tat-h small{display:block; font-size:11px; font-weight:700; color:var(--ink-faint); margin-top:3px;}
+  .tat-row{display:grid; grid-template-columns:minmax(120px,1fr) 1.4fr 52px; gap:10px; align-items:center; margin-bottom:10px;}
+  .tat-f{font-size:12px; font-weight:800; color:var(--ink); line-height:1.4;} .tat-f small{display:block; font-size:10.5px; font-weight:600; color:var(--ink-faint);}
+  .tat-track{position:relative; height:10px; border-radius:999px; background:#eef1f4; overflow:hidden;}
+  .tat-track i{display:block; height:100%; border-radius:999px;}
+  .tat-ok{background:var(--green);} .tat-warn{background:#d9a21f;} .tat-bad{background:var(--red);} .tat-na{background:transparent;}
+  .tat-v{font-size:13px; font-weight:900; text-align:end;}
+  .tat-c-ok{color:var(--green);} .tat-c-warn{color:#a8780c;} .tat-c-bad{color:var(--red);} .tat-c-na{color:var(--ink-faint);}
+  .tat-day-total{font-size:30px; font-weight:900; margin:-4px 0 10px;} .tat-day-total span{font-size:12px; font-weight:800; margin-inline-start:6px;}
+  .tat-drow{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:7px 0; border-top:1px solid var(--line);}
+  .tat-drow .tat-f{flex:1; min-width:120px;} .tat-n{font-size:11px; color:var(--ink-soft); font-weight:700;} .tat-n em{font-style:normal; color:var(--red);}
+  .tat-pill{font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap;}
+  .tat-p-ok{background:var(--green-bg); color:var(--green);} .tat-p-warn{background:#fdf3d0; color:#8a6d00;} .tat-p-bad{background:var(--red-bg); color:var(--red);} .tat-p-na{background:#eef1f4; color:var(--ink-faint);}
   .sd-list{display:flex; flex-direction:column; gap:8px;}
   .su-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1.3fr) auto !important;}
   @media (max-width:640px){ .su-row{grid-template-columns:1fr !important;} }
@@ -1950,6 +1966,73 @@ function renderNutritionDashboardCard(deptId){
     </div>`;
 }
 
+/* Radiology: emergency report turnaround time (TAT), from the radiology department's daily APEX report */
+const RADIOLOGY_TAT = {"reportDate":"28 أكتوبر 2026","source":"APEX","target":"ساعتين أو أقل","scope":"حالات الطوارئ (الرنين المغناطيسي، الأشعة المقطعية، الموجات فوق الصوتية)","preparedBy":"منى محمد العنزي",
+ "day":{"cases":120,"within":113,"over":7,"rate":94.2,"perf":"يحتاج تحسين",
+  "rows":[{"f":"مستشفى برج الشمال الطبي","cases":47,"over":3,"rate":93.6,"perf":"يحتاج تحسين"},
+   {"f":"مستشفى الأمير عبدالعزيز بن مساعد","cases":35,"over":2,"rate":94.3,"perf":"يحتاج تحسين"},
+   {"f":"مستشفى النساء والولادة والأطفال بعرعر","cases":15,"over":1,"rate":93.3,"perf":"يحتاج تحسين"},
+   {"f":"مستشفى رفحاء العام","cases":12,"over":0,"rate":100,"perf":"ممتاز"},
+   {"f":"مستشفى النساء والولادة والأطفال برفحاء","cases":2,"over":0,"rate":100,"perf":"ممتاز"},
+   {"f":"مستشفى طريف العام","cases":8,"over":0,"rate":100,"perf":"ممتاز"},
+   {"f":"مستشفى جديدة عرعر العام","cases":0,"over":0,"rate":null,"perf":"لا توجد حالات"},
+   {"f":"مستشفى الشعبة العام","cases":1,"over":1,"rate":0,"perf":"إجراء عاجل"},
+   {"f":"مستشفى العويقيلة العام","cases":0,"over":0,"rate":null,"perf":"لا توجد حالات"}]},
+ "month":{"label":"1 – 28 أكتوبر 2026","cases":2440,"within":2190,"over":250,
+  "rows":[{"f":"مستشفى برج الشمال الطبي","cases":903,"rate":92.0,"days":28},
+   {"f":"مستشفى الأمير عبدالعزيز بن مساعد","cases":646,"rate":90.6,"days":28},
+   {"f":"مستشفى طريف العام","cases":334,"rate":87.7,"days":27},
+   {"f":"مستشفى رفحاء العام","cases":267,"rate":92.9,"days":28},
+   {"f":"مستشفى النساء والولادة والأطفال بعرعر","cases":120,"rate":72.5,"days":14},
+   {"f":"مستشفى النساء والولادة والأطفال برفحاء","cases":81,"rate":88.9,"days":23},
+   {"f":"مستشفى العويقيلة العام","cases":61,"rate":83.6,"days":21},
+   {"f":"مستشفى الشعبة العام","cases":28,"rate":82.1,"days":15},
+   {"f":"مستشفى جديدة عرعر العام","cases":0,"rate":null,"days":0}]}};
+
+function renderRadiologyTatCard(deptId){
+  const t = RADIOLOGY_TAT;
+  if(deptId !== 'radiology' || !t) return '';
+  const tone = (r, perf) => r == null ? 'na' : perf === 'ممتاز' || r >= 95 ? 'ok' : perf === 'إجراء عاجل' || r < 80 ? 'bad' : 'warn';
+  const pct = r => r == null ? '—' : (Number.isInteger(r) ? r : r.toFixed(1)) + '%';
+  const mRate = Math.round(t.month.within / t.month.cases * 1000) / 10;
+  const bar = (r, cls) => `<div class="tat-track"><i class="tat-${cls}" style="width:${r == null ? 0 : Math.max(r, 2)}%"></i><span class="tat-tgt" title="100%"></span></div>`;
+  return `
+    <div class="card">
+      <h3>${iconBadge("⏱️","badge-blue")} مؤشر زمن إنجاز تقارير الأشعة للطوارئ (TAT)</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px; line-height:1.8;">
+        المستهدف: إصدار التقرير خلال <b>${escapeHtml(t.target)}</b> · النطاق: ${escapeHtml(t.scope)} · المصدر: ${escapeHtml(t.source)}<br>
+        تاريخ التقرير: ${escapeHtml(t.reportDate)} · إعداد: ${escapeHtml(t.preparedBy)}
+      </p>
+      <div class="sd-tiles">
+        <div class="sd-tile sd-info"><div class="sd-tile-n">${t.month.cases.toLocaleString('en-US')}</div><div class="sd-tile-l">حالة طوارئ (${escapeHtml(t.month.label)})</div></div>
+        <div class="sd-tile sd-ok"><div class="sd-tile-n">${t.month.within.toLocaleString('en-US')}</div><div class="sd-tile-l">أُنجزت خلال ساعتين</div></div>
+        <div class="sd-tile sd-bad"><div class="sd-tile-n">${t.month.over.toLocaleString('en-US')}</div><div class="sd-tile-l">تجاوزت ساعتين</div></div>
+        <div class="sd-tile sd-${tone(mRate)}"><div class="sd-tile-n">${pct(mRate)}</div><div class="sd-tile-l">نسبة الإنجاز للشهر</div></div>
+      </div>
+      <div class="tat-cols">
+        <div class="tat-box">
+          <div class="tat-h">📅 أداء الشهر حسب المنشأة <small>${escapeHtml(t.month.label)}</small></div>
+          ${t.month.rows.map(r => `
+            <div class="tat-row">
+              <div class="tat-f">${escapeHtml(r.f.replace(/^مستشفى /, ''))}<small>${r.cases ? r.cases.toLocaleString('en-US') + ' حالة · ' + r.days + ' يوم' : 'لا توجد حالات'}</small></div>
+              ${bar(r.rate, tone(r.rate))}
+              <b class="tat-v tat-c-${tone(r.rate)}">${pct(r.rate)}</b>
+            </div>`).join('')}
+        </div>
+        <div class="tat-box">
+          <div class="tat-h">🗓️ أداء يوم ${escapeHtml(t.reportDate)} <small>${t.day.cases} حالة · ${t.day.within} خلال ساعتين · ${t.day.over} تجاوزت</small></div>
+          <div class="tat-day-total tat-c-${tone(t.day.rate, t.day.perf)}">${pct(t.day.rate)} <span>${escapeHtml(t.day.perf)}</span></div>
+          ${t.day.rows.map(r => `
+            <div class="tat-drow">
+              <span class="tat-f">${escapeHtml(r.f.replace(/^مستشفى /, ''))}</span>
+              <span class="tat-n">${r.cases} حالة${r.over ? ` · <em>${r.over} تجاوزت</em>` : ''}</span>
+              <span class="tat-pill tat-p-${tone(r.rate, r.perf)}">${pct(r.rate)} · ${escapeHtml(r.perf)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderNutritionContractsCard(deptId){
   if(deptId !== 'nutrition') return '';
   const c = NUTRITION_CONTRACTS;
@@ -2261,6 +2344,7 @@ async function renderDeptContent(){
     ${renderNutritionMealsCard(dept.id)}
     ${renderDeptStatsCard(dept.id)}
     ${renderPharmacyStrategyCard(dept.id)}
+    ${renderRadiologyTatCard(dept.id)}
     ${renderServicesCard(dept.id)}
     ${renderAchievementsCard(dept.id)}
     ${renderProjectsCard(dept.id)}
