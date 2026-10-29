@@ -275,6 +275,40 @@
   .lt-f{font-size:12.5px; font-weight:800; color:var(--ink);} .lt-v{font-size:15px; font-weight:900; color:var(--lc);}
   .lt-track{height:8px; border-radius:999px; background:#eef1f4; overflow:hidden;} .lt-track i{display:block; height:100%; border-radius:999px; background:var(--lc);}
   .lt-ok{--lc:#1a9c6f;} .lt-warn{--lc:#d9a21f;} .lt-or{--lc:#e0782c;} .lt-bad{--lc:#c23b2e;}
+  .ay-sub{font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;}
+  .ay{--b100:#1b94d0; --b95:#1a9c6f; --b90:#d9a21f; --b0:#c23b2e;}
+  .ay-b100{--ac:var(--b100);} .ay-b95{--ac:var(--b95);} .ay-b90{--ac:var(--b90);} .ay-b0{--ac:var(--b0);}
+  .ay-gauges{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;}
+  @media (max-width:720px){ .ay-gauges{grid-template-columns:1fr;} }
+  .ay-g{background:linear-gradient(160deg,#0f2742,#163a5e); color:#fff; border-radius:16px; padding:14px 12px 16px; text-align:center;}
+  .ay-g svg{width:100%; max-width:200px; display:block; margin:0 auto;}
+  .ay-g-bg{fill:none; stroke:rgba(255,255,255,.14); stroke-width:12; stroke-linecap:round;}
+  .ay-g-fg{fill:none; stroke:var(--ac); stroke-width:12; stroke-linecap:round;}
+  .ay-g b{display:block; font-size:28px; font-weight:900; margin-top:-14px;} .ay-g span{display:block; font-size:12.5px; font-weight:800; margin-top:4px;} .ay-g small{display:block; font-size:10.5px; color:#9fb4c9; margin-top:2px;}
+  .ay-cap{text-align:center; font-size:11px; color:var(--ink-faint); margin:8px 0 16px;}
+  .ay-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:860px){ .ay-grid{grid-template-columns:1fr;} }
+  .ay-box{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px;}
+  .ay-h{font-size:13px; font-weight:900; color:var(--ink); margin-bottom:12px;} .ay-h small{display:block; font-size:11px; font-weight:700; color:var(--ink-faint); margin-top:3px;}
+  .ay-kpis{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:12px;}
+  @media (max-width:520px){ .ay-kpis{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .ay-kpis > div{background:#f4f7fa; border-radius:10px; padding:8px; text-align:center;} .ay-kpis b{display:block; font-size:16px; font-weight:900; color:var(--ink);} .ay-kpis span{font-size:10.5px; font-weight:700; color:var(--ink-soft);}
+  .ay-kpis .ay-hl{background:color-mix(in srgb, var(--ac) 12%, #fff);} .ay-kpis .ay-hl b{color:var(--ac);}
+  .ay-kpis .ay-warn{background:var(--red-bg);} .ay-kpis .ay-warn b{color:var(--red);}
+  .ay-row{display:grid; grid-template-columns:minmax(130px,1.2fr) 1fr 56px; gap:10px; align-items:center; padding:7px 0; border-top:1px solid var(--line);}
+  .ay-f{font-size:12px; font-weight:800; color:var(--ink);} .ay-f small{display:block; font-size:10.5px; font-weight:600; color:var(--ink-faint);}
+  .ay-track{height:8px; border-radius:999px; background:#eef1f4; overflow:hidden;} .ay-track i{display:block; height:100%; background:var(--ac); border-radius:999px;}
+  .ay-v{font-size:13px; font-weight:900; color:var(--ac); text-align:end;}
+  .ay-nores{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; background:#fff8e6; border:1px solid #f1d58d; border-radius:12px; padding:10px 14px; font-size:12.5px; font-weight:700; color:#5a3606;}
+  .ay-nores-n{font-size:22px; font-weight:900; color:#a8780c;}
+  .ay-chip{background:#fff; border:1px solid #f1d58d; border-radius:999px; padding:3px 10px; font-size:11.5px;}
+  .ay-gal{display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr)); gap:10px;}
+  .ay-gal button{position:relative; padding:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#0f1c2a; cursor:zoom-in; transition:transform .2s, box-shadow .2s;}
+  .ay-gal button:hover{transform:translateY(-3px); box-shadow:0 10px 22px rgba(12,68,104,.18);}
+  .ay-gal img{display:block; width:100%; aspect-ratio:3000 / 1440; object-fit:cover;}
+  .ay-gal span{display:block; font-size:11px; font-weight:800; color:#fff; padding:6px 8px; text-align:start; background:#0f2742;}
+  .ay-pdf{display:inline-block; margin-top:14px; padding:9px 18px; border-radius:10px; background:var(--accent); color:#fff; font-size:12.5px; font-weight:800; text-decoration:none;}
+  .lb-overlay img{max-width:min(96vw, 1600px) !important;}
   .sd-list{display:flex; flex-direction:column; gap:8px;}
   .su-row{grid-template-columns:minmax(0,1.4fr) minmax(0,1.3fr) auto !important;}
   @media (max-width:640px){ .su-row{grid-template-columns:1fr !important;} }
@@ -2297,6 +2331,90 @@ function openNutritionMagazine(){
   slot.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+/* Labs: Ayenati (NMR) results & TAT compliance report — 8-hour tests, Northern Borders cluster */
+const AYENATI = {"asOf":"29 أكتوبر 2026","pdf":"reports/ayenati-2026-10-29.pdf",
+ "pages":["images/ayenati-2026-10-29/p-1.jpg","images/ayenati-2026-10-29/p-2.jpg","images/ayenati-2026-10-29/p-3.jpg","images/ayenati-2026-10-29/p-4.jpg","images/ayenati-2026-10-29/p-5.jpg","images/ayenati-2026-10-29/p-6.jpg","images/ayenati-2026-10-29/p-7.jpg"],
+ "pageTitles":["الامتثال في إصدار النتائج","الالتزام بوقت الإنجاز (TAT)","رحلة العينة بالتفصيل","اكتمال بيانات المراحل","فحوصات بدون نتائج","مستوى عمليات المختبرات (المملكة)","الإدخال اليدوي للنتائج"],
+ "gauges":[{"l":"نسبة الفحوصات التي صدرت نتائجها","sub":"النتائج ÷ العينات المسحوبة","v":97.2},
+   {"l":"نتائج صدرت ضمن الوقت المستهدف (SLA)","sub":"ضمن SLA ÷ النتائج","v":98.9},
+   {"l":"نتائج وصلت لتطبيق صحتي","sub":"في صحتي ÷ النتائج","v":100}],
+ "gDate":"27 أكتوبر 2026",
+ "tat":{"date":"28 أكتوبر 2026","collected":2116,"resulted":2070,"inSla":2067,"rate":99.86,"over":3,
+  "rows":[{"f":"المختبر الإقليمي وبنك الدم","c":1500,"r":1473,"s":1473,"v":100},{"f":"مستشفى رفحاء العام","c":322,"r":314,"s":311,"v":99.04},
+   {"f":"مستشفى العويقيلة العام","c":119,"r":119,"s":119,"v":100},{"f":"مستشفى طريف العام","c":115,"r":115,"s":115,"v":100},{"f":"مستشفى الشعبة العام","c":60,"r":49,"s":49,"v":100}]},
+ "journey":{"date":"25 – 28 أكتوبر 2026","collected":8822,"resulted":8525,"rate":96.6,"sehhaty":100,"avgTat":4.5,
+  "rows":[{"f":"المختبر الإقليمي وبنك الدم","c":6577,"r":6391,"v":97.2,"t":4},{"f":"مستشفى رفحاء العام","c":1088,"r":1024,"v":94.1,"t":5},
+   {"f":"مستشفى العويقيلة العام","c":487,"r":468,"v":96.1,"t":3},{"f":"مستشفى طريف العام","c":486,"r":480,"v":98.8,"t":4},{"f":"مستشفى الشعبة العام","c":184,"r":162,"v":88.0,"t":2}]},
+ "noResult":{"total":46,"of":2116,"phc":33,"lab":13}};
+
+function renderAyenatiCard(deptId){
+  const a = AYENATI;
+  if(deptId !== 'labs' || !a) return '';
+  const band = v => v >= 100 ? 'b100' : v >= 95 ? 'b95' : v >= 90 ? 'b90' : 'b0';
+  const n = x => x.toLocaleString('en-US');
+  const pct = v => String(Math.round(v * 100) / 100) + '%';
+  const gauge = g => {
+    const R = 46, C = Math.PI * R, off = C * (1 - g.v / 100);
+    return `<div class="ay-g ay-${band(g.v)}">
+      <svg viewBox="0 0 120 70" aria-hidden="true"><path d="M14 64 A46 46 0 0 1 106 64" class="ay-g-bg"/><path d="M14 64 A46 46 0 0 1 106 64" class="ay-g-fg" style="stroke-dasharray:${C.toFixed(1)}; stroke-dashoffset:${off.toFixed(1)}"/></svg>
+      <b>${pct(g.v)}</b><span>${escapeHtml(g.l)}</span><small>${escapeHtml(g.sub)}</small></div>`;
+  };
+  return `
+    <div class="card ay">
+      <h3>${iconBadge("🧪","badge-blue")} مؤشرات منصة عيّناتي — فحوصات الـ8 ساعات</h3>
+      <p class="ay-sub">تقرير منصة عيّناتي (NMR) لتجمع الحدود الشمالية الصحي · تاريخ التقرير: ${escapeHtml(a.asOf)}</p>
+      <div class="ay-gauges">${a.gauges.map(gauge).join('')}</div>
+      <div class="ay-cap">نتائج يوم ${escapeHtml(a.gDate)}</div>
+
+      <div class="ay-grid">
+        <div class="ay-box">
+          <div class="ay-h">⏱️ الالتزام بوقت الإنجاز (SLA) <small>${escapeHtml(a.tat.date)}</small></div>
+          <div class="ay-kpis">
+            <div><b>${n(a.tat.collected)}</b><span>عينة مسحوبة</span></div>
+            <div><b>${n(a.tat.resulted)}</b><span>نتيجة صادرة</span></div>
+            <div class="ay-hl ay-${band(a.tat.rate)}"><b>${pct(a.tat.rate)}</b><span>ضمن الوقت المستهدف</span></div>
+            <div class="ay-warn"><b>${a.tat.over}</b><span>تجاوزت الوقت</span></div>
+          </div>
+          ${a.tat.rows.map(r => `
+            <div class="ay-row ay-${band(r.v)}">
+              <span class="ay-f">${escapeHtml(r.f)}<small>${n(r.c)} عينة · ${n(r.r)} نتيجة</small></span>
+              <div class="ay-track"><i style="width:${r.v}%"></i></div>
+              <b class="ay-v">${pct(r.v)}</b>
+            </div>`).join('')}
+        </div>
+        <div class="ay-box">
+          <div class="ay-h">🧭 رحلة العينة بالتفصيل <small>${escapeHtml(a.journey.date)}</small></div>
+          <div class="ay-kpis">
+            <div><b>${n(a.journey.collected)}</b><span>عينة مسحوبة</span></div>
+            <div class="ay-hl ay-${band(a.journey.rate)}"><b>${pct(a.journey.rate)}</b><span>صدرت نتائجها</span></div>
+            <div class="ay-hl ay-b100"><b>${pct(a.journey.sehhaty)}</b><span>وصلت لصحتي</span></div>
+            <div><b>${a.journey.avgTat} س</b><span>متوسط وقت الإنجاز</span></div>
+          </div>
+          ${a.journey.rows.map(r => `
+            <div class="ay-row ay-${band(r.v)}">
+              <span class="ay-f">${escapeHtml(r.f)}<small>${n(r.c)} عينة · متوسط ${r.t} ساعات</small></span>
+              <div class="ay-track"><i style="width:${r.v}%"></i></div>
+              <b class="ay-v">${pct(r.v)}</b>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="ay-nores">
+        <span class="ay-nores-n">${a.noResult.total}</span>
+        <span>فحصًا بدون نتيجة من أصل ${n(a.noResult.of)} (${pct(Math.round(a.noResult.total / a.noResult.of * 1000) / 10)})</span>
+        <span class="ay-chip">⏳ بانتظار المراكز الصحية: ${a.noResult.phc}</span>
+        <span class="ay-chip">🧪 بانتظار المختبرات: ${a.noResult.lab}</span>
+      </div>
+
+      <div class="ay-h" style="margin-top:18px;">🖼️ صفحات التقرير <small>اضغط على أي صفحة لعرضها كاملة</small></div>
+      <div class="ay-gal">${a.pages.map((src, i) => `
+        <button type="button" data-lightbox="${escapeHtml(src)}" data-alt="${escapeHtml(a.pageTitles[i] || '')}">
+          <img src="${escapeHtml(src)}" alt="${escapeHtml(a.pageTitles[i] || '')}" loading="lazy"><span>${i + 1}. ${escapeHtml(a.pageTitles[i] || '')}</span>
+        </button>`).join('')}</div>
+      ${a.pdf ? `<a class="ay-pdf" href="${escapeHtml(a.pdf)}" target="_blank" rel="noopener">📄 فتح التقرير (PDF)</a>` : ''}
+    </div>`;
+}
+
 function renderNutritionContractsCard(deptId){
   if(deptId !== 'nutrition') return '';
   const c = NUTRITION_CONTRACTS;
@@ -2611,6 +2729,7 @@ async function renderDeptContent(){
     ${renderPharmacyStrategyCard(dept.id)}
     ${renderRadiologyTatCard(dept.id)}
     ${renderLabTatCard(dept.id)}
+    ${renderAyenatiCard(dept.id)}
     ${renderServicesCard(dept.id)}
     ${renderProjectsCard(dept.id, 'service')}
     ${renderAchievementsCard(dept.id)}
