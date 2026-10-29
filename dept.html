@@ -852,6 +852,54 @@
   .lb-overlay.open{display:flex;}
   .lb-overlay img{max-width:min(92vw, 900px); max-height:92vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.45); cursor:default; background:#fff;}
   .lb-x{position:absolute; top:16px; inset-inline-end:16px; width:40px; height:40px; border-radius:50%; border:none; background:rgba(255,255,255,.9); font-size:18px; cursor:pointer;}
+  .mg-note{margin-top:18px; display:flex; align-items:center; gap:8px; background:#fff6ea; border:1px solid #f1d5ad; color:#7a4a0b; border-radius:12px; padding:9px 14px; font-size:12.5px; font-weight:800; line-height:1.7;}
+  .mg-note + .mg{margin-top:10px;}
+  .mg{margin-top:18px; background:radial-gradient(ellipse at top, #2a3f55, #0f1c2a 70%); border-radius:18px; padding:16px; color:#fff;}
+  .mg:fullscreen{display:flex; flex-direction:column; justify-content:center; border-radius:0;}
+  .mg-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;}
+  .mg-head b{display:block; font-size:16px;} .mg-head span{font-size:11.5px; color:#b9c7d6;}
+  .mg-actions{display:flex; gap:8px;}
+  .mg-btn{font:inherit; font-size:12px; font-weight:800; color:#fff; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); border-radius:10px; padding:7px 12px; cursor:pointer; text-decoration:none;}
+  .mg-btn:hover{background:rgba(255,255,255,.22);}
+  .mg-stage{display:flex; align-items:center; justify-content:center; gap:10px;}
+  .mg-nav{flex:0 0 auto; width:42px; height:42px; border-radius:50%; border:none; background:rgba(255,255,255,.14); color:#fff; font-size:26px; line-height:1; cursor:pointer;}
+  .mg-nav:hover:not(:disabled){background:rgba(255,255,255,.28);} .mg-nav:disabled{opacity:.25; cursor:default;}
+  .mg-book{position:relative; display:flex; flex-direction:row; width:min(100%, 820px); aspect-ratio:1190 / 842; perspective:2200px; cursor:pointer;
+    filter:drop-shadow(0 18px 30px rgba(0,0,0,.45)); transition:transform .5s ease;}
+  .mg-book{transition:width .45s ease;}
+  .mg-book.mg-closed{width:min(50%, 410px); aspect-ratio:595 / 842;}
+  .mg-book.mg-closed .mg-page{width:100%; border-radius:4px 10px 10px 4px;}
+  .mg-book.mg-closed .mg-blank{display:none;}
+  .mg-page{position:relative; width:50%; height:100%; background:#fff; overflow:hidden;}
+  .mg-page img{display:block; width:100%; height:100%; object-fit:cover;}
+  .mg-right{border-radius:3px 8px 8px 3px;} .mg-left{border-radius:8px 3px 3px 8px;}
+  .mg-right::after, .mg-left::after{content:''; position:absolute; top:0; bottom:0; width:40px; pointer-events:none;}
+  .mg-right::after{left:0; background:linear-gradient(90deg, rgba(0,0,0,.22), transparent);}
+  .mg-left::after{right:0; background:linear-gradient(270deg, rgba(0,0,0,.22), transparent);}
+  .mg-blank{background:transparent;}
+  .mg-pn{position:absolute; bottom:6px; font-size:10px; font-weight:800; color:#fff; background:rgba(0,0,0,.45); border-radius:999px; padding:1px 7px;} .mg-right .mg-pn{right:8px;} .mg-left .mg-pn{left:8px;}
+  .mg-leaf{position:absolute; top:0; width:50%; height:100%; transform-style:preserve-3d; transition:transform .7s cubic-bezier(.45,.05,.25,1); z-index:5;}
+  .mg-leaf-f{left:0; transform-origin:right center;} .mg-leaf-f.mg-turn{transform:rotateY(-180deg);}
+  .mg-leaf-b{right:0; transform-origin:left center;} .mg-leaf-b.mg-turn{transform:rotateY(180deg);}
+  .mg-face{position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;}
+  .mg-face .mg-page{width:100%;}
+  .mg-back{transform:rotateY(180deg);}
+  .mg-single{width:min(100%, 420px); aspect-ratio:595 / 842;}
+  .mg-single .mg-page{width:100%; border-radius:6px;}
+  .mg-single .mg-page::after{display:none;}
+  .mg-single{transition:transform .26s ease, opacity .26s ease;}
+  .mg-out-f{transform:translateX(40%) rotateY(-25deg); opacity:0;} .mg-out-b{transform:translateX(-40%) rotateY(25deg); opacity:0;}
+  .mg-in-f{animation:mgInF .32s ease;} .mg-in-b{animation:mgInB .32s ease;}
+  @keyframes mgInF{from{transform:translateX(-40%); opacity:0;} to{transform:none; opacity:1;}}
+  @keyframes mgInB{from{transform:translateX(40%); opacity:0;} to{transform:none; opacity:1;}}
+  .mg-count{text-align:center; font-size:12px; font-weight:700; color:#b9c7d6; margin:12px 0 10px;}
+  .mg-thumbs{display:flex; gap:8px; overflow-x:auto; padding:4px 2px 6px; scrollbar-width:thin;}
+  .mg-thumbs button{position:relative; flex:0 0 auto; width:54px; padding:0; border:2px solid transparent; border-radius:6px; background:none; cursor:pointer; opacity:.6; transition:opacity .2s, transform .2s;}
+  .mg-thumbs button:hover{opacity:.9; transform:translateY(-2px);}
+  .mg-thumbs button.on{opacity:1; border-color:#f0b35a;}
+  .mg-thumbs img{display:block; width:100%; border-radius:4px;}
+  .mg-thumbs span{position:absolute; bottom:2px; left:50%; transform:translateX(-50%); font-size:9.5px; font-weight:800; background:rgba(0,0,0,.55); color:#fff; border-radius:999px; padding:0 5px;}
+  @media (max-width:760px){ .mg{padding:12px;} .mg-nav{width:34px; height:34px; font-size:22px;} }
 </style>
 </head>
 <body>
@@ -2120,6 +2168,108 @@ function renderLabTatCard(deptId){
     </div>`;
 }
 
+/* ---------- Magazine flipbook (RTL): cover, two-page spreads, back cover ---------- */
+let mgState = null;
+function mgSpreads(n){
+  // RTL book: [right, left]. Cover alone, then 2|3, 4|5 … and a lone back cover when the count is even
+  const s = [[1, null]];
+  for(let p = 2; p <= n; p += 2) s.push(p + 1 <= n ? [p, p + 1] : [p, null]);
+  return s;
+}
+function renderMagazine(mg){
+  const single = window.matchMedia('(max-width:760px)').matches;
+  mgState = {mg, single, i:0, busy:false, spreads: single ? mg.pages.map((_, k) => [k + 1, null]) : mgSpreads(mg.pages.length)};
+  return `${mg.note ? `<div class="mg-note">📰 ${escapeHtml(mg.note)}</div>` : ''}
+    <div class="mg" id="mgRoot">
+      <div class="mg-head">
+        <div><b>${escapeHtml(mg.title)}</b><span>${escapeHtml(mg.issue || '')}</span></div>
+        <div class="mg-actions">
+          <button type="button" class="mg-btn" id="mgFull" title="ملء الشاشة">⛶</button>
+          ${mg.pdf ? `<a class="mg-btn mg-pdf" href="${escapeHtml(mg.pdf)}" target="_blank" rel="noopener">📄 PDF</a>` : ''}
+        </div>
+      </div>
+      <div class="mg-stage">
+        <button type="button" class="mg-nav mg-next" id="mgNext" aria-label="الصفحة التالية">‹</button>
+        <div class="mg-book${single ? ' mg-single' : ''}" id="mgBook"></div>
+        <button type="button" class="mg-nav mg-prev" id="mgPrev" aria-label="الصفحة السابقة">›</button>
+      </div>
+      <div class="mg-count" id="mgCount"></div>
+      <div class="mg-thumbs" id="mgThumbs">${mg.pages.map((src, k) => `<button type="button" data-p="${k + 1}"><img src="${escapeHtml(src)}" alt="صفحة ${k + 1}" loading="lazy"><span>${k + 1}</span></button>`).join('')}</div>
+    </div>`;
+}
+function mgPageHtml(n, side){
+  const st = mgState; if(!n) return `<div class="mg-page mg-${side} mg-blank"></div>`;
+  return `<div class="mg-page mg-${side}"><img src="${escapeHtml(st.mg.pages[n - 1])}" alt="صفحة ${n}"><span class="mg-pn">${n}</span></div>`;
+}
+function mgDraw(){
+  const st = mgState, book = document.getElementById('mgBook'); if(!book) return;
+  const [r, l] = st.spreads[st.i];
+  book.classList.toggle('mg-closed', !st.single && (st.i === 0 || (st.i === st.spreads.length - 1 && !l)));
+  book.innerHTML = st.single ? mgPageHtml(r, 'one') : mgPageHtml(r, 'right') + mgPageHtml(l, 'left');
+  document.getElementById('mgCount').textContent = st.single ? `صفحة ${r} من ${st.mg.pages.length}` : `${l ? `الصفحتان ${r} – ${l}` : `صفحة ${r}`} من ${st.mg.pages.length}`;
+  document.getElementById('mgPrev').disabled = st.i === 0;
+  document.getElementById('mgNext').disabled = st.i === st.spreads.length - 1;
+  document.querySelectorAll('#mgThumbs button').forEach(b => b.classList.toggle('on', +b.dataset.p === r || +b.dataset.p === l));
+  const on = document.querySelector('#mgThumbs button.on'); if(on) on.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+}
+function mgGo(to){
+  const st = mgState; if(!st || st.busy || to < 0 || to >= st.spreads.length || to === st.i) return;
+  const book = document.getElementById('mgBook'), fwd = to > st.i;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ st.i = to; mgDraw(); return; }
+  st.busy = true;
+  if(st.single){
+    book.classList.add(fwd ? 'mg-out-f' : 'mg-out-b');
+    setTimeout(() => { st.i = to; mgDraw(); book.classList.remove('mg-out-f', 'mg-out-b'); book.classList.add(fwd ? 'mg-in-f' : 'mg-in-b');
+      setTimeout(() => { book.classList.remove('mg-in-f', 'mg-in-b'); st.busy = false; }, 320); }, 260);
+    return;
+  }
+  // a leaf turns over the spine: forward lifts the left page to the right (RTL), backward the reverse
+  const [cr, cl] = st.spreads[st.i], [nr, nl] = st.spreads[to];
+  const leaf = document.createElement('div');
+  leaf.className = 'mg-leaf ' + (fwd ? 'mg-leaf-f' : 'mg-leaf-b');
+  leaf.innerHTML = fwd
+    ? `<div class="mg-face mg-front">${mgPageHtml(cl, 'left')}</div><div class="mg-face mg-back">${mgPageHtml(nr, 'right')}</div>`
+    : `<div class="mg-face mg-front">${mgPageHtml(cr, 'right')}</div><div class="mg-face mg-back">${mgPageHtml(nl, 'left')}</div>`;
+  // what is revealed under the turning leaf
+  const under = book.querySelector(fwd ? '.mg-left' : '.mg-right');
+  if(under) under.outerHTML = fwd ? mgPageHtml(nl, 'left') : mgPageHtml(nr, 'right');
+  book.classList.remove('mg-closed');
+  book.appendChild(leaf);
+  requestAnimationFrame(() => requestAnimationFrame(() => leaf.classList.add('mg-turn')));
+  setTimeout(() => { st.i = to; mgDraw(); st.busy = false; }, 720);
+}
+function mgWire(){
+  const st = mgState; if(!st) return;
+  mgDraw();
+  document.getElementById('mgNext').onclick = () => mgGo(st.i + 1);
+  document.getElementById('mgPrev').onclick = () => mgGo(st.i - 1);
+  document.getElementById('mgThumbs').onclick = e => { const b = e.target.closest('button'); if(!b) return; const p = +b.dataset.p; mgGo(st.spreads.findIndex(s => s.includes(p))); };
+  document.getElementById('mgBook').onclick = e => { const r = e.currentTarget.getBoundingClientRect(); mgGo(e.clientX < r.left + r.width / 2 ? st.i + 1 : st.i - 1); };
+  document.getElementById('mgFull').onclick = () => { const el = document.getElementById('mgRoot'); if(document.fullscreenElement) document.exitFullscreen(); else if(el.requestFullscreen) el.requestFullscreen(); };
+  let x0 = null; const book = document.getElementById('mgBook');
+  book.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, {passive:true});
+  book.addEventListener('touchend', e => { if(x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if(Math.abs(dx) > 40) mgGo(dx > 0 ? st.i + 1 : st.i - 1); });
+}
+document.addEventListener('keydown', e => {
+  const root = document.getElementById('mgRoot'); if(!mgState || !root) return;
+  const rr = root.getBoundingClientRect(); if(rr.bottom < 0 || rr.top > window.innerHeight) return;
+  if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) return;
+  if(e.key === 'ArrowLeft'){ e.preventDefault(); mgGo(mgState.i + 1); }
+  if(e.key === 'ArrowRight'){ e.preventDefault(); mgGo(mgState.i - 1); }
+});
+
+/* Nutrition magazine "غذاء وحياة" — the same flipbook as on the platform's projects page */
+const NUTRITION_MAGAZINE = {"title": "مجلة غذاء وحياة", "issue": "إصدار العدد 1 · 1-8-2026", "pdf": "reports/magazine-ghitha-wa-hayat-issue1.pdf", "pages": ["images/magazine-issue1/p-01.jpg", "images/magazine-issue1/p-02.jpg", "images/magazine-issue1/p-03.jpg", "images/magazine-issue1/p-04.jpg", "images/magazine-issue1/p-05.jpg", "images/magazine-issue1/p-06.jpg", "images/magazine-issue1/p-07.jpg", "images/magazine-issue1/p-08.jpg", "images/magazine-issue1/p-09.jpg", "images/magazine-issue1/p-10.jpg"], "note": "سيتم توزيع المجلة على المستفيدين، كما سيتم إعداد نسخة إلكترونية منها."};
+function renderNutritionMagazineCard(deptId){
+  if(deptId !== 'nutrition' || !NUTRITION_MAGAZINE) return '';
+  return `
+    <div class="card">
+      <h3>${iconBadge("📰","badge-gold")} مجلة قسم التغذية</h3>
+      ${renderMagazine(NUTRITION_MAGAZINE)}
+    </div>`;
+}
+
 function renderNutritionContractsCard(deptId){
   if(deptId !== 'nutrition') return '';
   const c = NUTRITION_CONTRACTS;
@@ -2428,6 +2578,7 @@ async function renderDeptContent(){
     ${renderNutritionContractsCard(dept.id)}
     ${dept.id === 'nutrition' ? renderSettlementUploads() : ''}
     ${renderNutritionDashboardCard(dept.id)}
+    ${renderNutritionMagazineCard(dept.id)}
     ${renderNutritionMealsCard(dept.id)}
     ${renderDeptStatsCard(dept.id)}
     ${renderPharmacyStrategyCard(dept.id)}
@@ -2444,6 +2595,7 @@ async function renderDeptContent(){
     ${renderStaffDirectoryCard(dept.id)}
   `;
   archiveCountUp(el);
+  if(document.getElementById('mgRoot')) mgWire(); else mgState = null;
   addExportButtons();
   wireLabEquipmentFilters();
   wireRadiologyEquipmentFilters();
