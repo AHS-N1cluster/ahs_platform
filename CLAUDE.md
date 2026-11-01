@@ -32,3 +32,5 @@ must match. To change a password: update the hash in `_plain/` pages, then
 
 Commit as `AHS Platform <platform@ahs-n1cluster.invalid>` (not linked to any GitHub account), so no names show
 in the repo's Contributors list: `git -c user.name="AHS Platform" -c user.email="platform@ahs-n1cluster.invalid" commit ...`
+The owner asked that no AI/co-author attribution appear on GitHub: do NOT add `Co-Authored-By:`,
+`Claude-Session:` or any other attribution trailer to commit messages in this repo (it puts "claude" in Contributors).
