@@ -27,3 +27,8 @@ department (`labs`, `radiology`, `pharmacy`, `rehab`, `mental`, `nutrition`: ope
 The pages' own SHA-256 gates (`GATE_USERS` in index/archive, `OWNER_HASH` in logins, `DEPT_HASHES` in dept)
 must match. To change a password: update the hash in `_plain/` pages, then
 `AHS_PASSWORD='owner pw' AHS_NEW_PASSWORD='new pw' python3 tools/ahs_crypt.py set-slot <id>`, then `lock`.
+
+## Commit identity
+
+Commit as `AHS Platform <platform@ahs-n1cluster.invalid>` (not linked to any GitHub account), so no names show
+in the repo's Contributors list: `git -c user.name="AHS Platform" -c user.email="platform@ahs-n1cluster.invalid" commit ...`
