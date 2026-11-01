@@ -1,0 +1,109 @@
+{
+ "iter": 600000,
+ "salt": "uCxJWUcFHacq0YnomslneQ==",
+ "keys": {
+  "mgmt": [
+   {
+    "id": "owner",
+    "iv": "DFkwRS6mxUux5bUd",
+    "ct": "sbtHIRA4nmRcay3Wqu8DPEqiT0xA75ACB7fCqCqW4v8LmbnKtlfiIxZNT8ryDgx0"
+   },
+   {
+    "id": "manager",
+    "iv": "Fym6cVXYtRrcwemw",
+    "ct": "EyDPc4tvvU7oHWqRqqt2tT5qrU7vt7vib1UigYTbTi6XMUcC+00qL2/bO1AK7bDC"
+   }
+  ],
+  "owner": [
+   {
+    "id": "owner",
+    "iv": "XmZoCwYJL4VEOdKZ",
+    "ct": "NPHClSYV8GeceSFxDEMjnfey58nfhS2n0fcTc6Ii+GUuLMwJKyRbmp7rxQ0zZFyr"
+   }
+  ],
+  "dept": [
+   {
+    "id": "owner",
+    "iv": "VkWNANsNENR+EIP+",
+    "ct": "XxpOkQ17iEjTa6aTZV0vNEgabPtngDL0sPXNI3d8+9ppVKo769MSGnuHjoWfAM4v"
+   },
+   {
+    "id": "manager",
+    "iv": "a944b4XK2HabG4sb",
+    "ct": "Lv8Wm5JwvVtNQGYcBA7m3Sz5abrQzuen1A9D0ELdtBmMsHmL6NnBeGU8P+j1nGVK"
+   },
+   {
+    "id": "labs",
+    "iv": "pAWO4t8RKOxXMPUh",
+    "ct": "nyf3CBWl5QZ6zrDA3R7p6M1Ai3FV8srzD6Qsty5FJ3AWIiSaqneeW3UBUEY+FKGw"
+   },
+   {
+    "id": "radiology",
+    "iv": "6QgVIiHDXUpAWbku",
+    "ct": "324+9ZZxHcAvKHLilIdonrZ1LUKC7akYOnsihH3eRrx8PnDuFriyKvl/G/3TcLuW"
+   },
+   {
+    "id": "pharmacy",
+    "iv": "1bnsXFfTL0B6rYkP",
+    "ct": "29eSDSwMsgRI/aVAuZJgwmEnz1n1UM1Nv3VAxJGKg9YJgGsZ6vsYe2GQSYuJ/ekz"
+   },
+   {
+    "id": "rehab",
+    "iv": "iC3C8C2egBjwAKLM",
+    "ct": "iXSZLpWeJQ6+87ert7P8kjKm22QXmBHtQ4/aoJ6x6Kh9ILiGJS2fGZoX1JibsBiU"
+   },
+   {
+    "id": "mental",
+    "iv": "MA/8guplWDGEaDdf",
+    "ct": "QyPrwWp6u2koqAyLPA/V0AHwUE59perl3aZCxaHAuydI6O7zhd+xrn40HnRpVj6d"
+   },
+   {
+    "id": "nutrition",
+    "iv": "lIgjMzO9F3DehJQR",
+    "ct": "eK7W3ti1CuD//8oHzwJF6iQt0/Ar5pUDE8Zq3NwuJHQNjbcMNeuLtTu5cVPG9/Np"
+   }
+  ],
+  "assets": [
+   {
+    "id": "owner",
+    "iv": "zIBeL4nA8kiHInqk",
+    "ct": "rPcuwVQQWwRtXn9/kK77o+47zkVGsU1oL4kEOiiU7fflW1P9QF7SdmGs01OHnFjX"
+   },
+   {
+    "id": "manager",
+    "iv": "1QGJTzbzauPv20XW",
+    "ct": "h0ermz2tD26NsutZlKowvg/eB1PIQ5TGJ0UAwtwS+UmTl9j3fQhR3qHvCIJH5Gpu"
+   },
+   {
+    "id": "labs",
+    "iv": "fJLnCkOzAn7cFyOW",
+    "ct": "WXaE1hP8rtCMZSau+c4dYDinKEO4Fj9i/6JDJBob+W+hlpMZZfvveOd1caO6j/k1"
+   },
+   {
+    "id": "radiology",
+    "iv": "YlXKY833jiBGrWUN",
+    "ct": "H9+zrZswrGmHzQVD/QzSysA7ZG9hp14YtJFTXolVrTEx1tFrmbN6cKuC5spPcKNe"
+   },
+   {
+    "id": "pharmacy",
+    "iv": "wNsOMwTW8t5wKd2I",
+    "ct": "+4ZP+fEWcmCVC3og1YmCkJ1M+oUIQJYS6fcy7wa+ug4b1Ih7+dqXPQPVasiRiHvM"
+   },
+   {
+    "id": "rehab",
+    "iv": "an1kjKJtQxX7H6vT",
+    "ct": "cUeg1IptGvNyCxYMDyLgsfDG5xLwfFrwceDIqNXaOURDspROfJLClcDO+wOSTCpW"
+   },
+   {
+    "id": "mental",
+    "iv": "uynuTr6pjaLsUqYP",
+    "ct": "duRL2HjR+iQhAvYPjqFZkfkOycd+vIrsG81DukZC0E7iLefvAqiNHCfCBAZnweDB"
+   },
+   {
+    "id": "nutrition",
+    "iv": "5WIRmQfvmNKNVum6",
+    "ct": "+J+0ba+l5L6BPKgAN4TL6Gpzu4w0LOw/ZxFekvZWu+cBsuWVtDA5CbnxAJELPkcV"
+   }
+  ]
+ }
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>منصة إدارة الخدمات الصحية المساندة</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;font-family:"Segoe UI",Tahoma,Arial,sans-serif}
+  body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;
+    background:linear-gradient(135deg,#0c4468 0%,#146fa3 55%,#1b94d0 100%);color:#13324a}
+  .card{width:100%;max-width:380px;background:rgba(255,255,255,.96);border-radius:22px;padding:30px 24px;text-align:center;
+    box-shadow:0 20px 60px rgba(4,30,50,.35)}
+  .logo{font-size:34px;margin-bottom:6px}
+  h1{font-size:19px;margin:0 0 6px;font-weight:800}
+  p{font-size:13px;color:#5b6b78;margin:0 0 18px;line-height:1.7}
+  input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #cdd8e1;font-size:16px;text-align:center;font-family:inherit;outline:none}
+  input:focus{border-color:#1b94d0;box-shadow:0 0 0 3px rgba(27,148,208,.18)}
+  button{width:100%;margin-top:12px;padding:13px;border:0;border-radius:12px;background:#146fa3;color:#fff;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer}
+  button:disabled{opacity:.6;cursor:wait}
+  .err{display:none;margin-top:12px;color:#c0392b;font-size:13px;font-weight:700}
+  .wait{display:none;margin-top:12px;color:#5b6b78;font-size:12.5px}
+  noscript{display:block;margin-top:12px;color:#c0392b;font-size:13px}
+</style>
+<script src="sec-core.js"></script>
+</head>
+<body>
+<div class="card" id="card" style="visibility:hidden">
+  <div class="logo">🔒</div>
+  <h1>الدخول للمنصة</h1>
+  <p>هذه المنصة خاصة بفريق إدارة الخدمات الصحية المساندة</p>
+  <form id="f" autocomplete="off">
+    <input type="password" id="pw" placeholder="كلمة المرور" inputmode="text" autofocus>
+    <button id="go" type="submit">دخول</button>
+  </form>
+  <div class="err" id="err">كلمة المرور غير صحيحة</div>
+  <div class="wait" id="wait">جارٍ فتح المنصة…</div>
+  <noscript>يجب تفعيل JavaScript لفتح المنصة.</noscript>
+</div>
+<script id="ahs-payload" type="application/octet-stream">__PAYLOAD__</script>
+<script>
+(function(){
+  var RING = __KEYRING__, PAGE_KEY = "__PAGE_KEY__";
+  var $ = function(id){ return document.getElementById(id); };
+  var payload = function(){ return AHSSec.b64d($('ahs-payload').textContent); };
+
+  async function render(rec){
+    var html;
+    try { html = AHSSec.decode(await AHSSec.openSealed(payload(), rec.key)); }
+    catch(e){ await AHSSec.delKey(PAGE_KEY).catch(function(){}); return showForm(); }
+    if ('serviceWorker' in navigator && window.isSecureContext) {
+      try {
+        var within = function(p, ms){ return Promise.race([p, new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('timeout')); }, ms); })]); };
+        await within(navigator.serviceWorker.register('sw.js'), 3000);
+        await within(navigator.serviceWorker.ready, 3000);
+        var once = null; try { once = sessionStorage.getItem('ahs_sw_reload'); } catch(e){}
+        if (!once) { try { sessionStorage.setItem('ahs_sw_reload', '1'); } catch(e){} location.reload(); return; }
+      } catch(e){}
+    }
+    document.open(); document.write(AHSSec.injectHead(html)); document.close();
+  }
+
+  function showForm(){
+    $('card').style.visibility = 'visible'; $('wait').style.display = 'none'; $('go').disabled = false; $('pw').focus();
+  }
+
+  $('f').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var pw = $('pw').value; if(!pw.trim()) return;
+    $('err').style.display = 'none'; $('go').disabled = true; $('wait').style.display = 'block';
+    try {
+      var r = await AHSSec.unlockRing(RING, pw);
+      var mine = r.keys[PAGE_KEY];
+      if (!mine) {
+        $('err').textContent = Object.keys(r.keys).length ? 'كلمة المرور هذه لا تفتح هذه الصفحة' : 'كلمة المرور غير صحيحة';
+        $('err').style.display = 'block'; return showForm();
+      }
+      await AHSSec.putKeys(r.keys);
+      // let the page's own sign-in recognise this person without asking again
+      try {
+        var slot = mine.slot;
+        if (slot === 'owner' || slot === 'manager') localStorage.setItem('n1cluster_gate_v3', r.hash);
+        var d = r.keys.dept && r.keys.dept.slot;
+        if (d && d !== 'owner' && d !== 'manager') localStorage.setItem('ahs_dept_key', r.hash);
+      } catch(e){}
+      render(mine);
+    } catch(err) {
+      $('err').textContent = 'تعذّر فتح المنصة على هذا المتصفح'; $('err').style.display = 'block'; showForm();
+    }
+  });
+
+  AHSSec.getKey(PAGE_KEY).then(function(rec){ rec ? render(rec) : showForm(); }, showForm);
+})();
+</script>
+</body>
+</html>
