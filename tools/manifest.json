@@ -1,7 +1,7 @@
 {
  "__loader__": "cc6ac0a3fd921ea7bd167dfb7d551140f74643c6225db507fe00203665aa75dc",
- "archive.html": "14c81c7344c4e32c31bceb266984f80079dffd3a8ab5b42ea700b9ae954053fb",
- "dept.html": "ec2b9266185e5113d5d6417bd68fc16d4fef9a877a5b2e86068ab9220d985150",
+ "archive.html": "4dc5ac3cd1e3a8b12da60b3dff98aa95248da46d504fd3d554fec7cf55d26013",
+ "dept.html": "e734510d86d392b5117d287a0fc2646da69c2091f9ede7368925b30acc8da2ee",
  "images/ayenati-2026-10-29/p-1.jpg": "fcff68e1f6fe379280b9b28d2625e2ccab180321ba127fe4916cb2318aa0681d",
  "images/ayenati-2026-10-29/p-2.jpg": "2e152c28c724afe22a641452bd37bf5d37962f1d05b093ac401ba9054a3b35b9",
  "images/ayenati-2026-10-29/p-3.jpg": "6974e8a08cd11f7a746404c8ba9f3e710ba2506310df76137d2e2382c21fbf5e",
@@ -39,6 +39,8 @@
  "reports/visit-nutrition-turaif-apr2026.pdf": "72863419ead757555f99c224ef617c589ccca08a4591ebd0d742221072018d1d",
  "reports/visit-nutrition-turaif-aug2026.pdf": "55773bb2a8f7fc0b5d96637a7951a45b7f2e42950a4ea09161b2833576767825",
  "reports/visit-oyaynah-apr2026.pdf": "acb9af4985eb44d52586e4a367d19d422718b49e5ff073b7e44deba67f8841ff",
+ "reports/visit-pharmacy-heart-center-nov2026.pdf": "40b1370bf5fe251c3068ddcb57e6b0ded020a99423ca0986740c651d84074178",
+ "reports/visit-pharmacy-talaat-altamyat-nov2026.pdf": "c32831e3245702e1c04c03f686fdba362871969564fa71d7bc679e1501269f03",
  "reports/visit-radiology-arar-mch-jul2026.pdf": "d23ae436d8696110a8b35a10f766bf1f9b849a2951c40378a0817cb6e8e9540b",
  "reports/visit-radiology-north-tower-jul2026.pdf": "7ca9d3b4a89012d4188888b5e6e2230034e0b28037c2b5ad0f15e45904f4a42c",
  "reports/visit-radiology-prince-jul2026.pdf": "b763bf278ad8c9fb151dc36ed2e66756823e02accbc7cb03166af6913ae4f752",
